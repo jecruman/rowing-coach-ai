@@ -1,0 +1,256 @@
+
+/10x-idea-check
+Rowing Coach AI
+Pomysł
+Aplikacja dostaje wynik treningu:
+Distance: 5000 m
+Intervals:
+500m 1:52
+500m 1:54
+500m 1:55
+...
+SPM: 28–30
+DPS: 8.1–8.5
+
+oraz profil zawodnika:
+Age: 42
+Weight: 70 kg
+Boat: 1x
+Goal: 3:50 / 1000m
+
+AI odpowiada:
+Co z tego treningu wynika i co zrobić na następnym treningu?
+
+Ale najważniejsze: AI nie powinno po prostu „gadać”. Dodajemy reguły domenowe.
+Na przykład:
+IF pace improves
+AND DPS decreases significantly
+AND stroke rate increases
+THEN
+  technique may be limiting efficiency
+
+Agent może następnie zaproponować:
+Następny trening: 6 × 2 min, max 32 spm, priorytet utrzymania DPS.
+
+MVP
+Tylko:
+Import treningu → analiza → rekomendacja następnego treningu → zapis → oznaczenie wykonania.
+Czyli dokładnie wzorzec z materiału:
+cel + ograniczenia → plan → wykonanie → aktualizacja rekomendacji.    projekt-kursowy-mniejszy-niz-my…
+
+Bardzo fajny element AI-agentowy
+Możesz dać agentowi narzędzia:
+getAthleteProfile()
+getTrainingHistory()
+calculateTrainingMetrics()
+createTrainingSession()
+saveRecommendation()
+
+Agent sam decyduje, których użyć.
+To byłoby bardzo dobre ćwiczenie agentowego workflow, a nie tylko „ChatGPT wrapper”.
+
+
+
+
+ANSWER
+
+
+Rekomendacja: sesja planistyczna dla trochę zmniejszonej wersji. Integracje odkładamy, a pętla agentowa zostaje rdzeniem projektu.
+
+Dlaczego tak. Wiosłujesz sam, a rodzina może testować, więc masz prawdziwy problem i dane od pierwszego dnia. Wdrażałeś już aplikacje na Vercel, także pisane z agentem, więc pełny proces od PRD do wdrożenia jest realny. Najwięcej ryzyka niosą integracje. Garmin, SpeedCoach i ErgData to trzy różne formaty danych, a część z nich wymaga zgód lub kont deweloperskich. Każda z nich mogłaby zabrać tydzień, który jest potrzebny na reguły, testy i dokumentację. W MVP trening wpisujesz albo wklejasz ręcznie (dystans, odcinki, SPM, DPS). Import z jednego źródła, najpewniej Concept2, to rozszerzenie po zamknięciu pętli.
+
+Jedna sugestia projektowa: reguły domenowe warto napisać jako deterministyczny kod z testami na przykładowych treningach. Agent wywołuje je przez calculateTrainingMetrics() i na ich wyniku buduje rekomendację. Wtedy AI nie zgaduje, logikę da się przetestować, a przy okazji ćwiczysz dokładnie to, czego chcesz się nauczyć.
+
+Pierwszy działający krok: wpisujesz jeden trening, liczą się metryki, odpalają 1–2 reguły (np. ta o tempie, DPS i SPM) i zapisuje się rekomendacja. Agent z narzędziami dochodzi w drugim kroku.
+MVP: logowanie (każdy widzi tylko swoje treningi), profil zawodnika, trening, analiza, rekomendacja następnego treningu, oznaczenie wykonania, a przy kolejnym treningu rekomendacja się aktualizuje.
+
+Termin i Architekt. Do 4 listopada zostały około 4,5 tygodnia. Nie podałeś, ile godzin tygodniowo masz, więc zakładam typowe kilka-kilkanaście godzin po pracy. Ważne: oceniane jest pierwsze zgłoszenie. Jeśli chcesz mieć Architekta, Builder i Architekt muszą być w tym samym zgłoszeniu. Nie da się dosłać Architekta później. Architekt opiera się na materiale z modułów 3–4, a szczegóły wymagań będą w tamtych lekcjach. Proponuję tak: celuj w Buildera na 4 listopada z czystą architekturą. Jeśli w połowie października pętla będzie działać, zdecydujesz, czy dokładasz Architekta na 4 listopada, czy wybierasz 6 grudnia jako pierwsze zgłoszenie. Wtedy tracisz szansę na wyróżnienie.
+
+Zgodność z kursem. Widzę realną drogę do Buildera: logowanie, sensowny CRUD (treningi, profil, rekomendacje), prawdziwa reguła domenowa i test przepływu „wpisz trening → dostań rekomendację”. Ostateczną decyzję podejmują prowadzący.
+
+Następny krok: /10x-shape z tym opisem pomysłu:
+
+▎ Rowing Coach AI: wioślarz (1x, woda i ergometr) wpisuje wynik00 m, SPM, DPS) i ma profil (wiek, waga, łódź, cel tempa).Deterministyczne reguły domenowe analizują trening (np. tempo rośnie + DPS spada + SPM rośnie → technika ogranicza efektywność). Agent z narzędziami (getAthleteProfile, getTrainingHistory, calculateTrainingMetrics, createTrainingSession, saveRecommendation) proponuje następny trening. Użytkownik oznacza wykonanie, a rekomendacja się aktualizuje. Użytkownicy: ja i rodzina, każdy widzi swoje dane.
+▎ Ustalone: import danych ręczny w MVP.
+▎ Otwarte: jakie reguły na start i jakie progi (np. „znaczący ssobne konta czy rola trenera, jak agent ma postąpić przysprzecznych regułach.
+
+Do rozważenia po MVP (nie są jeszcze Twoimi decyzjami): import z Concept2 jako pierwsza integracja, zakres prac na Architekta.
+
+
+/10x-shape
+
+▎ Rowing Coach AI: wioślarz (1x, woda i ergometr) wpisuje wynik00 m, SPM, DPS) i ma profil (wiek, waga, łódź, cel tempa).Deterministyczne reguły domenowe analizują trening (np. tempo rośnie + DPS spada + SPM rośnie → technika ogranicza efektywność). Agent z narzędziami (getAthleteProfile, getTrainingHistory, calculateTrainingMetrics, createTrainingSession, saveRecommendation) proponuje następny trening. Użytkownik oznacza wykonanie, a rekomendacja się aktualizuje. Użytkownicy: ja i rodzina, każdy widzi swoje dane.
+▎ Ustalone: import danych ręczny w MVP.
+▎ Otwarte: jakie reguły na start i jakie progi (np. „znaczący ssobne konta czy rola trenera, jak agent ma postąpić przysprzecznych regułach.
+
+Do rozważenia po MVP (nie są jeszcze Twoimi decyzjami): import z Concept2 jako pierwsza integracja, zakres prac na Architekta.
+
+
+
+/10x-shape
+
+Rowing Coach AI: wioślarz (1x, woda i ergometr) wpisuje wynik treningu (dystans, odcinki 500 m z czasami, SPM, DPS) i ma profil (wiek, waga, łódź, cel tempa, np. 3:50/1000 m). Deterministyczne reguły domenowe analizują trening (np. tempo rośnie + DPS wyraźnie spada + SPM rośnie → technika może ograniczać efektywność). Agent z narzędziami (getAthleteProfile, getTrainingHistory, calculateTrainingMetrics, createTrainingSession, saveRecommendation) sam decyduje, których użyć, i na podstawie wyników reguł proponuje następny trening (np. 6 × 2 min, max 32 spm, priorytet utrzymania DPS). Użytkownik oznacza wykonanie, a rekomendacja aktualizuje się przy kolejnym treningu.
+
+Wartość względem zwykłego czatu z AI: spójne, testowalne reguły (ten sam trening → ten sam wniosek), trwała historia i metryki liczone kodem, trendy w czasie (np. DPS przy danym SPM). AI wyjaśnia i planuje na podstawie policzonych liczb, a nie zgaduje.
+
+Użytkownicy: ja i rodzina, każdy widzi tylko swoje dane.
+
+Ustalone: w MVP ręczne wpisywanie treningu (bez integracji).
+
+Otwarte:
+- jakie reguły na start i jakie progi (np. co znaczy „wyraźny spadek DPS”),
+- osobne konta dla członków rodziny czy rola trenera widzącego kilku zawodników,
+- jak agent ma postąpić przy sprzecznych wnioskach z reguł,
+- czy w MVP potrzebny jest prosty widok trendu.
+
+Pomysły na później (poza MVP): import z Concept2 Logbook jako pierwsza integracja, potem Garmin/SpeedCoach; widok trenera dla kilku zawodników; analiza wideo techniki wiosłowania powiązana z wnioskami z metryk (np. potwierdzenie, że technika ogranicza efektywność).
+
+
+
+
+
+
+Recommendation: proceed. Your idea is already planned. The next step is /10x-prd, plus one small task this week: drafting the rule set.
+
+Why. The planning session turned the idea into a 3-week MVP. Everyone logs in and sees only their own data. Erg and water sessions are typed in by hand. Fixed rules produce a verdict, a technique tip and the next session, and the done/skipped loop feeds back in. You and your wife will use it for real, so you have test data and real feedback from day one. With your experience shipping to Vercel, both with and without agents, this scope is realistic.
+
+Two things to watch:
+
+1. The rule set (Open Question 3) is the real dependency. Without approved rules, the analysis can't be built, and the analysis is the core of the product. It doesn't block /10x-prd, but do it this week. Spend one session with an AI acting as a senior coach, choose 2–6 rules with thresholds, and save the result. If you can't agree on even 2 rules, that changes the plan more than anything else could.
+2. Your learning goal shouldn't get lost. You wanted an agent that uses tools itself. The PRD deliberately says how the product works, not how it's built, so the agent won't appear there. When you choose the tech stack and plan the implementation, decide explicitly that an agent with tools runs the flow (getTrainingHistory, calculateTrainingMetrics, saveRecommendation…), while the verdict always comes from the fixed rules. That keeps both your guardrail (same input → same verdict) and the agent part you wanted to learn.
+
+Timing. Today is 3 October 2026. The first deadline, 4 November (23:59), is 4.5 weeks away and is the only one with a chance of distinction. You estimated the MVP at 3 weeks of after-hours work, which leaves roughly 1.5 weeks for tests, documentation, deployment and fixes. You never told me your weekly hours, so this assumes your estimate holds. Architect is the risky part. It's built on modules 3–4, and only your first submission counts, so Builder and Architect have to go in together. Use the checkpoint we discussed: if the loop works by mid-October, aim for both on 4 November. If not, submit Builder alone on 4 November, or choose 6 December for the full scope and give up the chance of distinction.
+
+Course fit. I see a realistic path to Builder:
+- login,
+- full CRUD on sessions plus profile and goals,
+- a real domain rule,
+- prd.md as a context document,
+- an end-to-end test of US-01 ("log a session → get a suggestion").
+
+The certification decision belongs to the course reviewers.
+
+Next action: run /10x-prd. It's already on your clipboard.
+
+
+
+
+═══════════════════════════════════════════════════════════
+  PRD GENERATED
+═══════════════════════════════════════════════════════════
+
+  Project:          Rowing Coach AI
+  Context type:     greenfield
+  Path:             context/foundation/prd.md
+  Schema sections:  10 / 10 present
+  Frontmatter:      8 populated, 0 as TODO  (8 keys total)
+  Open Questions:   6 entries
+
+  Sections fully populated from input:
+    - Vision & Problem Statement, User & Persona, Success Criteria,
+      User Stories, Functional Requirements, Access Control, Non-Goals
+
+  Sections with a TODO (see Open Questions):
+    - Non-Functional Requirements (exact response time, OQ-4)
+    - Business Logic (full rule set and thresholds, OQ-2/3/5)
+
+═══════════════════════════════════════════════════════════
+
+► Next:   /10x-tech-stack-selector  (✓ copied to clipboard)
+
+          It picks up team composition, language preferences,
+          technology avoid-list, deployment target, and CI/CD
+          pipeline shape. None of those are in this PRD by design —
+          the PRD describes the product, the next step describe
+          how to build it.
+
+  Forward to next step (not in PRD):
+    • Data sources and post-MVP import targets: Concept2 → Garm
+    • You've deployed web apps to Vercel before (familiar path, not a decision)
+    • An AI drafts the rule set; at runtime it only explains thession
+    • Agent with tools (getAthleteProfile, getTrainingHistory, calculateTrainingMetrics,
+      createTrainingSession, saveRecommendation) runs the flow;es
+
+The first version wasn't written because the check found vendorAI does X" in the PRD text. I rewrote those spots inshape-notes.md without changing any decision. The specifics, including your agent-with-tools idea, moved to two Forward blocks in shape-notes.md, which the next step reads.
+
+A few mentions of "AI" are left in the PRD, and I kept them on
+- in the project name;
+- in the Vision, where it describes the chat thread you use tod
+- inside two quoted challenge counter-arguments, which are saved verbatim;
+- in two Open Questions.
+
+None of them describes how the product is built.
+
+The one thing that blocks building the analysis is still OQ-2,
+
+
+
+
+What the business logic says now:
+- Code computes the numbers. Each session is compared with the average of your last 3 sessions of the same type: pace, split drift, stroke-rate range, and DPS on water. Same input always gives the same numbers.
+- A coaching judgment chooses the next session. It works from those numbers, your history, your goal and your comment, so the suggestion can differ between runs.
+- Three fixed safety limits apply to every suggestion:
+  - volume no more than 10% above the 3-session average;
+  - a 32 spm cap after a clear DPS drop;
+  - an easy session after 2 hard ones in a row (hard means 2:00/500 m or faster for your goal).
+- If a suggestion breaks a limit, the app retries once. If it still fails, it shows a 30–40 min steady technique row at max 22 spm, marked as a default.
+
+The PRD only says "coaching judgment". Following the PRD rules, the plan to call a model through an API, and the agent with its tools, is in the Forward block of shape-notes.md. /10x-tech-stack-selector reads it from there.
+
+Nothing blocks building anymore. The earlier blocker, the full rule set, is gone. Three smaller questions are left, and you can settle them during implementation:
+- What should the numbers compare against before you have 3 sessions of a type?
+- What are the stroke-rate-rise and pace-decline thresholds?
+- When pace improves while DPS drops and stroke rate rises, should the analysis always say "technique may be limiting efficiency", or is the 32 spm cap enough?
+
+
+
+I went with the recommended starter: 10x Astro Starter, which is Astro + React + TypeScript for the app, Supabase for login and the database, and Cloudflare Pages for hosting. The choice is saved in context/foundation/tech-stack.md.
+
+═══════════════════════════════════════════════════════════
+  TECH STACK SELECTED
+═══════════════════════════════════════════════════════════
+
+  Starter:        10x-astro-starter
+  Path taken:     standard
+  Confidence:     first-class
+
+  ► Hand-off:  context/foundation/tech-stack.md
+  ► Next:      /10x-bootstrapper  (✓ copied to clipboard)
+═══════════════════════════════════════════════════════════
+
+Why it fits: you're building alone, have 3 weeks, and need login with each rower's data kept separate. Supabase handles login and the database. TypeScript makes it straightforward to check that a model's suggested session stays within your three safety limits. Each coaching call takes a few seconds plus at most one retry, which is short enough for Cloudflare.
+
+Alternatives worth a glance:
+- Next.js: the most widely used option, with the most polished scaffolding and native Vercel hosting, which you already know. You'd have to add login and the database yourself.
+- T3: Next.js with typed calls from the browser to your server built in. It's more setup than you need for an app this size.
+
+Three things to know:
+- Separating users' data (the privacy guardrail): Supabase's per-user database rules have to be set up at the start. If they're added later, gaps in who can read what tend to creep in.
+- First-class confidence: the scaffolding is expected to work but hasn't been run end to end on this stack, so the setup may hit an occasional hiccup.
+- Where files land: the bootstrapper sets up the project in the current directory, C:\JESUS\10xDevs. That directory already holds your .claude/ skills and CLAUDE.md. context/ is never touched, and a conflicting file like CLAUDE.md gets the starter's copy saved next to it as CLAUDE.md.scaffold. If you'd rather keep the app in its own folder, create one, copy context/ into it, and run /10x-bootstrapper from there.
+
+The model-through-API and agent-with-tools plans stay in the Forward block of shape-notes.md for implementation planning.
+
+
+
+
+The project is set up from 10x Astro Starter in C:\JESUS\10xDevs. Your context/ folder wasn't touched. The full log is in context/changes/bootstrap-verification/verification.md.
+
+- Starter freshness: the starter repo was last updated on 2026-09-12, so it's current.
+- Setup: I cloned the starter, removed its git history and moved 21 items into your folder. Your CLAUDE.md stays; the starter's version is saved next to it as CLAUDE.md.scaffold.
+- Security audit: 4 high and 4 moderate findings, none critical. All the high ones are in dependencies of dependencies, not packages the starter chose directly. The only direct one is wrangler (moderate). Fixes are available, but I didn't apply any.
+
+Two things to deal with before you run the app:
+
+1. Node is too old for some dependencies. You have Node 22.14.0. Some of the starter's dependencies need 22.22.3+ or 24.16+. Installing worked, but starting or building the app may fail. The starter's own .nvmrc file also says 22.14.0, so it contradicts its dependencies. Upgrade Node and update .nvmrc to match.
+2. There's no git repo yet. Run git init to start your own history.
+
+After that:
+- Decide which CLAUDE.md to keep. Yours is the course one. The starter's version describes the codebase. You'll probably merge parts of CLAUDE.md.scaffold into yours, or wait for the course step that sets up agent instructions.
+- Set up Supabase. Create a project and fill in .env from .env.example. Turn on Supabase's per-user access rules early, because the privacy guardrail in your PRD depends on them.
+
+Your plans for the coaching model and the agent with tools are still in the Forward block of context/foundation/shape-notes.md, ready for implementation planning.
+
+
+
+
