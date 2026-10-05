@@ -254,3 +254,393 @@ Your plans for the coaching model and the agent with tools are still in the Forw
 
 
 
+That's 409 words, just over the 400 limit, so I'll trim a little:
+
+● Update(AGENTS.md)
+Added 1 line, removed 1 line
+
+## Hard rules
+
+- Every new Supabase table enables RLS with per-operation, per-role policies; no user may read or write another user's rows (PRD guardrail "privacy between users").
+● Background command "Request workflow permission for the GitHub token" completed (exit code 0)
+
+  Pushed to main
+
+The push worked. It also triggered the starter's CI workflow, so I'll check how that run goes:
+
+
+❯ gh auth login
+
+  Ran 1 shell command
+
+✻ Sautéed for 2m 50s · done niedziela, 20:08
+
+※ recap: You're building Rowing Coach AI, and the project is now set up in C:\JESUS\10xDevs from the Astro + Supabase starter. Next, upgrade Node to at least 22.22.3, since the starter needs it before the app will run.
+
+❯ should I create the git repo in the github (cloud) first and perform checkout, or how to commit the things I have already in this folder?
+4 skills available
+The project is set up from 10x Astro Starter in C:\JESUS\10xDevs. Your context/ folder wasn't touched. The full log is in context/changes/bootstrap-verification/verification.md.
+
+- Starter freshness: the starter repo was last updated on 2026-09-12, so it's current.
+- Setup: I cloned the starter, removed its git history and moved 21 items into your folder. Your CLAUDE.md stays; the starter's version is saved next to it as CLAUDE.md.scaffold.
+- Security audit: 4 high and 4 moderate findings, none critical. All the high ones are in dependencies of dependencies, not packages the starter chose directly. The only direct one is wrangler (moderate). Fixes are available, but I didn't apply any.
+
+Two things to deal with before you run the app:
+
+1. Node is too old for some dependencies. You have Node 22.14.0. Some of the starter's dependencies need 22.22.3+ or 24.16+. Installing worked, but starting or building the app may fail. The starter's own .nvmrc file also says 22.14.0, so it contradicts its dependencies. Upgrade Node and update .nvmrc to match.
+2. There's no git repo yet. Run git init to start your own history.
+
+After that:
+- Decide which CLAUDE.md to keep. Yours is the course one. The starter's version describes the codebase. You'll probably merge parts of CLAUDE.md.scaffold into yours, or wait for the course step that sets up agent instructions.
+- Set up Supabase. Create a project and fill in .env from .env.example. Turn on Supabase's per-user access rules early, because the privacy guardrail in your PRD depends on them.
+
+Your plans for the coaching model and the agent with tools are still in the Forward block of context/foundation/shape-notes.md, ready for implementation planning.
+
+✻ Sautéed for 2m 50s · done niedziela, 20:08
+
+※ recap: You're building Rowing Coach AI, and the project is now set up in C:\JESUS\10xDevs from the Astro + Supabase starter. Next, upgrade Node to at least 22.22.3, since the starter needs it before the app will run.
+
+❯ should I create the git repo in the github (cloud) first and perform checkout, or how to commit the things I have already in this folder?
+4 skills available
+
+  Read 1 file
+
+Start locally, because this folder already has content. If you create a repo on GitHub wt out, you'd have to merge it with these files. Instead, initialize git here, create anempty repo on GitHub, and push to it.
+
+1. Locally, in C:\JESUS\10xDevs:
+git init -b main
+git add .
+git status          # check what will be committed before committing
+git commit -m "Bootstrap rowing-coach-ai from 10x-astro-starter"
+
+2. On github.com: go to New repository and name it rowing-coach-ai. Don't add a README, .gitignore or license, because those would conflict with your files. gh isn't installed here, so use the website.
+
+3. Connect and push:
+git remote add origin https://github.com/<your-user>/rowing-coach-ai.git
+git push -u origin main
+
+Before the first commit, decide on these files. I checked the starter's .gitignore. It already excludes node_modules/, .env, dist/ and .wrangler/, so no secrets or dependencies will get in. That leaves:
+
+- context/: commit it. The PRD, shape notes and tech stack are your project documentation.
+- .claude/: the course skills. Committing them is useful, since anyone opening the repo
+- notes_from_the_sessions.txt: your raw session notes, which begin with the idea text. Commit them if you don't mind them being visible. Otherwise add the file to .gitignore.
+- CLAUDE.md + CLAUDE.md.scaffold: the first is your course CLAUDE.md, the second is the mmit both now and merge them later, or merge them first.
+- .10x-cli.json: course CLI config, harmless to commit.
+
+Public or private: both work for the course. If you go private, add the course reviewers as collaborators when you submit (@przeprogramowani, @psmyrdek, @mkczarkowski).
+
+I can run step 1 for you. Tell me what to do with the notes file and the two CLAUDE.md files, and I'll show you git status before committing. You'll still need to create the repo on GitHub yourself, then I can add the remote and push.
+
+✻ Crunched for 17s · done 21:54
+
+❯ run the first step please, commiting everything
+
+  Ran 1 shell command
+
+All 106 staged files look clean, excluding node_modules and .env. I'll just double-checkfor anything sensitive before committing.
+
+  Read 1 file
+
+It only holds Claude Code permission rules, which is also why my earlier rm -rf was blocll commit:
+
+  Ran 1 shell command
+
+I created the git repo on branch main and committed all 106 files as 51a70d2 ("Bootstrapro-starter"). Nothing is left uncommitted.
+
+What went in and what didn't:
+- Included: the app code, context/ (shape notes, PRD, tech stack, verification log), .claude/, both CLAUDE.md files and your session notes.
+- Left out by .gitignore: node_modules/ and .env.
+- .claude/settings.local.json: included too, after I checked it. It only holds Claude Code permission rules, with no secrets or local paths.
+
+Git warned about line endings (LF will be converted to CRLF) on many files. That's normal on Windows and doesn't need any action.
+
+Next, create an empty rowing-coach-ai repo on github.com with no README, .gitignore or license, and send me its URL. I'll add it as the remote and push. Your settings ask for confirmation on git push, so
+you'll see a prompt for that.
+
+✻ Cooked for 16s · done 22:03
+
+❯ I have already gh install
+
+  Ran 1 shell command
+
+gh 2.102.0 is installed at C:\Program Files\GitHub CLI\gh.exe, but it isn't logged in toteractive (browser or token), so you need to run it yourself. Type this in the prompt:
+
+! gh auth login
+
+Choose GitHub.com, HTTPS, and say yes to "authenticate Git with your GitHub credentials" the easiest option. Make sure that last yes is selected, or the push will fail with anauthentication error.
+
+My shells started before you installed gh, so they don't see it yet. I'll use its full path, which avoids having to restart anything.
+
+Once you're logged in, I'll run this, which creates the repo, adds it as the remote and pushes in one step:
+
+gh repo create rowing-coach-ai --<visibility> --source . --remote origin --push
+
+Should the repo be public or private? Both work for the course. With private, you'll add the course reviewers as collaborators when you submit.
+
+✻ Cogitated for 10s · done 22:04
+
+❯ gh auth login
+
+That message came through as plain text, so the command didn't run; only a ! prefix runs it in the session. I'll try starting the browser login from my side instead:
+
+  Read 1 file, ran 1 shell command
+
+The GitHub login is waiting for you. It finishes on its own once you approve it in the browser:
+
+1. Open https://github.com/login/device
+2. Enter the code 218F-1AF4. It's also on your clipboard.
+3. Approve access for GitHub CLI.
+
+While you do that, tell me whether rowing-coach-ai should be public or private. Once the login completes, I'll create the repo with that setting and push your commit.
+
+✻ Churned for 9s · done 22:05
+
+● Background command "Start GitHub browser login for gh" completed (exit code 0)
+
+  Ran 1 shell command
+
+You're logged in to GitHub as jecruman over HTTPS, with access to repositories.
+
+Before I create anything on GitHub, I still need one answer:
+
+● User answered Claude's questions:
+· Should the rowing-coach-ai repo be public or private? → Private
+
+  Ran 1 shell command
+
+The push failed because the commit includes a CI workflow file, and the token lacks the I'll request that permission now.
+
+  Read 1 file, ran 1 shell command
+
+The private repo is created, but nothing has been pushed yet. Your commit includes the sd GitHub blocks pushing workflow files without an extra permission.
+
+To grant it:
+
+1. Open https://github.com/login/device
+2. Enter the code 7704-F793. It's also on your clipboard.
+3. Approve. GitHub will ask to add workflow access.
+
+As soon as the approval comes through, I'll push to origin/main.
+
+✻ Worked for 28s · done 22:08
+
+● Background command "Request workflow permission for the GitHub token" completed (exit co
+
+  Pushed to main
+
+The push worked. It also triggered the starter's CI workflow, so I'll check how that run
+
+  Read 1 file, ran 1 shell command
+
+Your project is now on GitHub in a private repo: https://github.com/jecruman/rowing-coacommit 51a70d2, is pushed, and your local main tracks origin/main, so a plain git pushworks from now on.
+
+The starter's CI never ran. Its workflow (.github/workflows/ci.yml) only triggers on a branch called master, and yours is main. So the push started no CI run. The fix is to change master to main in both
+triggers. I haven't made that change. Once CI does run, its build step needs SUPABASE_URepo secrets, or it will fail.
+
+I changed your GitHub login permissions. The push was first rejected because the commit e, so I added the workflow permission to your GitHub CLI login. I also set up git to signin to GitHub through the CLI.
+
+Still open from the setup:
+- Your Node is 22.14.0; some dependencies need 22.22.3 or newer.
+- Choose between CLAUDE.md and CLAUDE.md.scaffold.
+- Create a Supabase project and fill in .env from .env.example.
+
+Should I fix the workflow to trigger on main and push that?
+
+✻ Sautéed for 41s · done 22:09
+
+※ recap: You're setting up Rowing Coach AI: the plan, PRD and starter code are done and puepo. Next, decide whether I should fix the CI workflow so it runs on your main branch.
+
+❯ /10x-agents-md
+Read AGENTS.md (1 lines)
+
+  Ran 2 shell commands
+
+AGENTS.md just contains the text "CLAUDE.md" since it was checked out as a plain link file on Windows rather than real content, so I'll write a fresh version. I'll read through the repo's files directly since it's small enough not to need subagents.
+
+● Write(AGENTS.md)
+Added 43 lines, removed 1 line
+CLAUDE.md
+ No newline at end of file
+# Repository Guidelines
+
+Rowing Coach AI: rowers log erg and water sessions and get one suggested next se 19 islands, TypeScript, Tailwind 4 and Supabase (auth + Postgres), deployed to Clo
+udflare. Product scope lives in @context/foundation/prd.md.
+
+## Hard rules
+
+- Every new Supabase table enables RLS with per-operation, per-role policies; no user may read or write another user's rows (PRD guardrail "privacy between users").
+- Session metrics (baseline = average of the last 3 sessions of the same type) ae computed in TypeScript under `src/lib/services/`, never by the model. A suggestio
+n that breaks a limit is never shown: retry once, then show the safe default (see @context/foundation/prd.md, Business Logic).
+- Server secrets are declared in `env.schema` in @astro.config.mjs and read via  in `.env` / `.dev.vars` only.
+- Never write to `context/archive/`.
+
+## Commands
+
+- `npm run dev` — dev server (Cloudflare workerd runtime).
+- `npm run build` / `npm run preview` — production build and preview.
+- `npm run lint` / `npm run lint:fix` — type-checked ESLint.
+- `npm run format` — Prettier with Astro and Tailwind plugins.
+- `npm run smoke` — auth-flow smoke test (@scripts/smoke.mjs) against a running server; set `BASE_URL`.
+- `npx supabase start` — local Supabase (needs Docker).
+
+## Project structure
+
+- `src/pages/` routes; `src/pages/api/**` endpoints export `prerender = false`, alidate input with zod.
+- `src/middleware.ts` gates pages listed in `PROTECTED_ROUTES`; add every new signed-in page there.
+- `src/components/`: Astro for static UI, React only for interactivity; hooks indcn/ui in `src/components/ui/` (`npx shadcn@latest add <name>`).
+- `src/lib/` helpers, `src/lib/services/` business logic, `src/types.ts` shared entities and DTOs.
+- `supabase/migrations/YYYYMMDDHHmmss_short_description.sql`.
+- `context/foundation/`: PRD, shape notes (the `## Forward:` blocks hold the technical roadmap), tech-stack hand-off.
+
+## Coding style
+
+- Import via the `@/*` alias. Merge classes with `cn()` from `@/lib/utils`; no manual class-string concatenation. No `"use client"` directives.
+- Husky + lint-staged run `eslint --fix` on `*.{ts,tsx,astro}` and `prettier --w commit.
+
+## Testing
+
+- No unit-test runner is configured; `npm run smoke` is the only automated checkr are in US-01 of the PRD.
+
+## CI and environment
+
+- @.github/workflows/ci.yml runs lint, `astro check`, build and the smoke test aiggers only on `master`; this repo's branch is `main`.
+- Dependencies require Node ≥ 22.22.3, while `.nvmrc` pins 22.14.0.
+- Commit convention is not yet established (single initial commit). Starter refeold.
+
+  Read 1 file
+
+That's 409 words, just over the 400 limit, so I'll trim a little:
+
+● Update(AGENTS.md)
+Added 1 line, removed 1 line
+
+## Hard rules
+
+- Every new Supabase table enables RLS with per-operation, per-role policies; no user may read or write another user's rows (PRD guardrail "privacy between users").
+- Every new Supabase table enables RLS with per-operation, per-role policies; noer user's rows.
+- Session metrics (baseline = average of the last 3 sessions of the same type) and the three safety limits are computed in TypeScript under `src/lib/services/`, never by the model. A suggestio
+n that breaks a limit is never shown: retry once, then show the safe default (se Business Logic).
+- Server secrets are declared in `env.schema` in @astro.config.mjs and read via `astro:env/server`; values go in `.env` / `.dev.vars` only.
+- Never write to `context/archive/`.
+
+● Update(AGENTS.md)
+Added 1 line, removed 1 line
+
+## Commands
+
+- `npm run dev` — dev server (Cloudflare workerd runtime).
+- `npm run dev` — dev server.
+- `npm run build` / `npm run preview` — production build and preview.
+- `npm run lint` / `npm run lint:fix` — type-checked ESLint.
+- `npm run format` — Prettier with Astro and Tailwind plugins.
+
+● Update(AGENTS.md)
+Added 1 line, removed 1 line
+- `src/components/`: Astro for static UI, React only for interactivity; hooks in `src/components/hooks/`; shadcn/ui in `src/components/ui/` (`npx shadcn@latest add <name>`).
+- `src/lib/` helpers, `src/lib/services/` business logic, `src/types.ts` shared
+- `supabase/migrations/YYYYMMDDHHmmss_short_description.sql`.
+- `context/foundation/`: PRD, shape notes (the `## Forward:` blocks hold the tecand-off.
+- `context/foundation/`: PRD, shape notes (`## Forward:` blocks = technical roadmap), tech stack.
+
+## Coding style
+
+
+  Read 1 file
+
+I wrote AGENTS.md at the repo root, 399 words, which fits the 200–400 limit. It replacesntained the text CLAUDE.md. Upstream that file is a link to the starter's CLAUDE.md, andWindows checked it out as plain text.
+
+Sections in order: hard rules → commands → project structure → coding style → testing → CI and environment.
+
+- Hard rules come from your PRD: per-user row-level security on every table, safety limits computed in code rather than by the model, and secrets handled only through Astro's env schema.
+- The rest comes from the starter files I read (package.json, astro.config.mjs, src/middLAUDE.md.scaffold).
+- Two known problems are recorded so an agent doesn't trip on them: CI only triggers on master, and the Node version in .nvmrc is lower than the dependencies need.
+
+The file is uncommitted, so it isn't on GitHub yet.
+
+Test it by giving a real task to a fresh agent session; onboarding docs only prove themselves on that next run.
+
+✻ Worked for 46s · done 22:16
+
+※ recap: You're setting up Rowing Coach AI for the course, and I just wrote the AGENTS.md guide for AI agents, which isn't committed yet. Next, decide whether to commit and push it.
+
+❯ /10x-rule-review AGENTS.md
+Read README.md (193 lines)
+
+  Read 1 file
+
+Rule Review — AGENTS.md
+
+Overall: Short, specific and well ordered. A few lines repeat what the tooling or READMEes describe temporary problems that will become wrong once fixed.
+
+Scorecard
+
+┌─────┬─────────────────────┬─────────┬─────────────────────────────────────────────────
+│  #  │        Check        │ Verdict │                        Score                        │
+├─────┼─────────────────────┼─────────┼─────────────────────────────────────────────────
+│ 1   │ Length              │ OK      │ 31 non-blank lines                                  │
+├─────┼─────────────────────┼─────────┼─────────────────────────────────────────────────
+│ 2   │ Direct snippets     │ OK      │ 0 flagged blocks                                    │
+├─────┼─────────────────────┼─────────┼─────────────────────────────────────────────────
+│ 3   │ Precise language    │ OK      │ 0 vague phrases                                     │
+├─────┼─────────────────────┼─────────┼─────────────────────────────────────────────────
+│ 4   │ Redundant knowledge │ WARN    │ 3 redundant rules                                   │
+├─────┼─────────────────────┼─────────┼─────────────────────────────────────────────────
+│ 5   │ Rule ordering       │ OK      │ Hard rules at line 5, one-sentence intro, no filler │
+└─────┴─────────────────────┴─────────┴─────────────────────────────────────────────────
+
+Findings
+
+1. Length — OK
+
+31 non-blank lines, well under the 200-line limit.
+
+2. Direct snippets — OK
+
+No code blocks; the file points to other files with @ references (@astro.config.mjs, @sckflows/ci.yml).
+
+3. Precise language — OK
+
+Every rule names a concrete path, tool, threshold or pattern a reviewer can check againsimits" (AGENTS.md:8) doesn't list them, but it points to the PRD where they're defined,which is fine.
+
+4. Redundant knowledge — WARN
+
+- AGENTS.md:12-18: the npm scripts repeat README.md:50-58 and package.json almost word for word. Replace them with @package.json. Keep line 19 (npx supabase start), since it isn't a script.
+- AGENTS.md:23: "endpoints export prerender = false, uppercase GET/POST" repeats a defau.config.mjs already renders every route on the server, and uppercase method exports arehow Astro works anyway. Delete that clause and keep "validate input with zod", which is a real project choice.
+- AGENTS.md:33: the description of what Husky + lint-staged run at commit. The hook runsws, and the config is in package.json under lint-staged. Delete it, or replace it with@package.json.
+
+5. Rule ordering — OK
+
+5a. Current order:
+1. # Repository Guidelines (line 1)
+2. ## Hard rules (line 5)
+3. ## Commands (line 12)
+4. ## Project structure (line 21)
+5. ## Coding style (line 30)
+6. ## Testing (line 35)
+7. ## CI and environment (line 39)
+
+5b. Comments:
+1. INTRO: one sentence giving the product and stack, which is enough context.
+2. CRITICAL: per-user data access rules (RLS), metrics and limits computed in code, secrrchive/. These are the right rules to have at the top.
+3. REDUNDANT: mostly duplicates README.md and package.json (see Check 4).
+4. USEFUL: where things go: middleware, src/lib/services/, migrations naming.
+5. USEFUL: the cn() helper and the no-"use client" rule. REDUNDANT: the lint-staged line.
+6. USEFUL: tells the agent there is no test runner.
+7. USEFUL but temporary: CI only triggers on master, the Node version mismatch, and the reference to CLAUDE.md.scaffold.
+
+The order is fine: the critical rules come first and there's no welcome text. The CI and environment section at the end describes problems an agent may hit in its first session. Once you fix them, they'll be
+wrong, so they should be deleted then, not moved.
+
+5c. The order works, so I'm not proposing a reshuffle.
+
+5e. Test each change in your next agent session. Reordering a rules file changes what the the effect the next time you run a real task. Apply changes one at a time: make achange, run a representative task, then move on to the next one (split, dedupe, rewrite). If you bundle several structural changes, you can't tell which one caused a change in behavior.
+
+Top 3 actions
+
+1. Fix the CI trigger (master → main) and the Node version, then delete AGENTS.md:41-42. These lines describe problems, not rules. Once the problems are fixed they'll send agents the wrong way.               Replace AGENTS.md:14-18 with @package.json and keep only npx supabase start. This remlicated text that can go out of date.
+3. Drop the default-repeating clause on AGENTS.md:23 and the lint-staged line at AGENTS.md:33. Also update AGENTS.md:43 once you decide between CLAUDE.md and CLAUDE.md.scaffold, because that reference breaks if the .scaffold file is deleted.
+
+
+
+
+
