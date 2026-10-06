@@ -1,7 +1,7 @@
 ---
 change_id: coaching-model-access
 title: Model API access and one validated coaching call
-status: implementing
+status: implemented
 created: 2026-10-07
 updated: 2026-10-07
 archived_at: null

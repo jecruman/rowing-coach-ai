@@ -230,13 +230,13 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 2.1 Unit tests still pass: `npm test`
-- [x] 2.2 Lint and type check pass: `npm run lint` and `npx astro check`
-- [ ] 2.3 Smoke test still passes in CI: `smoke` job
-- [x] 2.4 Anonymous request is rejected on the deployed Worker: `curl -s -o /dev/null -w '%{http_code}' -X POST -H "Content-Type: application/json" -d '{}' https://rowing-coach-ai.jecruman.workers.dev/api/coaching/try` returns `401`
+- [x] 2.1 Unit tests still pass: `npm test` — b39d7bb
+- [x] 2.2 Lint and type check pass: `npm run lint` and `npx astro check` — b39d7bb
+- [x] 2.3 Smoke test still passes in CI: `smoke` job — b39d7bb
+- [x] 2.4 Anonymous request is rejected on the deployed Worker: `curl -s -o /dev/null -w '%{http_code}' -X POST -H "Content-Type: application/json" -d '{}' https://rowing-coach-ai.jecruman.workers.dev/api/coaching/try` returns `401` — b39d7bb
 
 #### Manual
 
-- [x] 2.5 Signed in with an allowlisted email on the deployed app, a POST to `/api/coaching/try` returns a suggestion with `isDefault: false` and a sensible session for the sample data; signed in with a non-allowlisted account it returns `403`
-- [x] 2.6 `npx wrangler tail` shows no runtime errors for the call; the Workers dashboard shows CPU time per request under the free plan's 10 ms limit (or the result is recorded so the $5 plan decision can be made)
-- [x] 2.7 `durationMs` for the call is recorded as the first data point for the PRD's open "analysis response target" question
+- [x] 2.5 Signed in with an allowlisted email on the deployed app, a POST to `/api/coaching/try` returns a suggestion with `isDefault: false` and a sensible session for the sample data; signed in with a non-allowlisted account it returns `403` — b39d7bb
+- [x] 2.6 `npx wrangler tail` shows no runtime errors for the call; the Workers dashboard shows CPU time per request under the free plan's 10 ms limit (or the result is recorded so the $5 plan decision can be made) — b39d7bb
+- [x] 2.7 `durationMs` for the call is recorded as the first data point for the PRD's open "analysis response target" question — b39d7bb
