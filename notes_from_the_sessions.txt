@@ -644,3 +644,209 @@ Top 3 actions
 
 
 
+All three are done:
+
+- Node: upgraded from 22.14.0 to 22.23.2 (npm 10.9.8) with winget, staying on Node 22. npm run build now passes locally. Its only warning says the sitemap is skipped because no site URL is configured, which doesn't matter for now.
+- CLAUDE.md.scaffold: kept as it is, since AGENTS.md points to it. I didn't rename or merge anything.
+- Commit and push: two commits are on origin/main.
+  - 5aabb8f: CI now runs on main, .nvmrc requires Node 22.22.3, and the README and AGENTS.md are updated to match.
+  - e092013: your session notes.
+
+Because of the CI fix, this push started the first CI run on GitHub. It's still running, and I'll report the result when it finishes. The build step may need SUPABASE_URL and SUPABASE_KEY added as repository secrets. The local build passed without them, so I expect it to pass in CI too.
+
+✻ Brewed for 2m 47s · done 22:31 · 1 shell still running
+
+※ recap: We're setting up your Rowing Coach AI project. Node is upgraded and the fixes and session notes are pushed to GitHub, where the first CI run is still going; next I'll report whether it passes.
+
+❯ tomorrow will try to setup supabase, I have already created the project https://gcmqjephpevbqfnnqgkx.supabase.co
+
+  Ran 1 shell command, wrote 2 memories
+
+I saved your Supabase project URL and where the setup stands, so the next session can pick up from there.
+
+Here's what tomorrow's setup involves:
+
+1. Get the keys. In the Supabase dashboard, go to Project Settings → API. You need the project URL (https://gcmqjephpevbqfnnqgkx.supabase.co) and the anon / public key. Don't use the service_role key here.
+2. Set up local files. Copy .env.example to both .env and .dev.vars, then fill in SUPABASE_URL and SUPABASE_KEY. Both files are gitignored, so the key stays off GitHub.
+3. Optional, for local testing: go to Authentication → Email and turn off Confirm email. Then you can sign up and sign in right away without a confirmation link.
+4. Add CI secrets. In GitHub, go to Settings → Secrets and variables → Actions and add SUPABASE_URL and SUPABASE_KEY. Alternatively, I can add them with gh secret set once you give me the values.
+5. Check it works. Run npm run dev, sign up and sign in, and open /dashboard.
+
+The first CI run on main is still in progress. I'll tell you how it went when it finishes.
+
+
+
+
+
+All six platforms are researched. I checked the project's own Cloudflare config so the recommendation matches the exact versions installed: Astro 7.3.2, @astrojs/cloudflare 14.3.1, wrangler 4.131.1. That config deploys to Workers with static assets, not Pages, and already has nodejs_compat and logging turned on.
+
+Platform comparison (pass / partial / fail per criterion):
+
+┌────────────┬───────┬─────────┬────────────┬────────────┬────────────────┬────────────────────────────────────────────┬──────────────────────────────────────────────────────────────────────────┐
+│  Platform  │  CLI  │ Managed │ Agent docs │ Deploy API │      MCP       │                Cost for you                │                             Adapter change?                              │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Cloudflare │ Pass  │ Pass    │ Pass       │ Pass       │ Partial        │ $0 (100k req/day free)                     │ No                                                                       │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Vercel     │ Pass  │ Pass    │ Pass       │ Pass       │ Partial (beta) │ $0 Hobby, non-commercial only; else $20/mo │ Yes (@astrojs/vercel)                                                    │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Netlify    │ Pass* │ Pass    │ Pass       │ Pass       │ Pass           │ $0, but EU region needs a paid plan        │ Yes (@astrojs/netlify)                                                   │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Fly.io     │ Pass  │ Partial │ Pass       │ Pass       │ Partial        │ ~$3–5/mo, no free tier                     │ Yes, plus a Dockerfile; Astro 7 support for the Node adapter unconfirmed │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Railway    │ Pass* │ Partial │ Pass       │ Partial    │ Partial (beta) │ ~$5/mo                                     │ Yes (@astrojs/node)                                                      │
+├────────────┼───────┼─────────┼────────────┼────────────┼────────────────┼────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────┤
+│ Render     │ Pass* │ Partial │ Pass       │ Pass       │ Partial (beta) │ $0 with ~1 min cold starts, or ~$7/mo      │ Yes (@astrojs/node)                                                      │
+└────────────┴───────┴─────────┴────────────┴────────────┴────────────────┴────────────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────┘
+
+*Rollback isn't a CLI command; it happens in the dashboard or through the API.
+
+Shortlisted platforms:
+  1. Cloudflare Workers — $0 at your scale, no code changes (the starter already targets it), all core criteria pass.
+  2. Vercel — the platform you know, Astro 7 adapter ready, Frankfurt region on the free plan; the free plan is for non-commercial use only.
+  3. Netlify — the strongest agent tooling (MCP is GA), free at your traffic, but functions run in Ohio unless you pay for a European region.
+
+Running anti-bias cross-check on the top recommendation (Cloudflare Workers)...
+
+Devil's advocate: weaknesses of Cloudflare Workers for this app
+1. 10 ms of CPU per request on the free plan. Waiting on the model or Supabase doesn't count. But server-rendering the page, reading the Supabase session cookie, zod validation and the metrics calculation all do, and a cold start makes that worse. Going over the limit returns errors, not slow responses. The fix is the $5/month paid plan.
+2. Libraries that need Node. Workers only partly implement Node's APIs (http2, vm and parts of tls are stubs). Some official model SDKs or their dependencies assume full Node and fail only once deployed. A plain fetch call avoids this.
+3. Distance to Supabase. By default a Worker runs at the Cloudflare location nearest the user. Each request makes several sequential trips to Supabase, so if the Supabase project isn't in an EU region, every page pays that latency several times over.
+4. Lock-in, small but real. Workers-specific config (wrangler.jsonc, .dev.vars, possiblyhas to be redone to move to Vercel.
+
+Pre-mortem: how this could fail
+
+▎ The app went live on the free Workers plan without anyone measuring CPU time. Locally local dev doesn't enforce the 10 ms limit. In production, the session page went over thelimit on cold starts and returned intermittent errors — it looked like a flaky Supabase. A model SDK was added that pulled in Node http2; it built fine and failed only at runtime. The Supabase project had
+▎ been created in a US region by default, so each suggestion took seconds longer than th.dev.vars but were never pushed with wrangler secret put, so the first deploy shipped with auth broken. The preview URL was public, and a test account's data was reachable. None of these was a platform failure; they were unchecked assumptions about the runtime and configuration.
+
+Unknown unknowns
+- It's Workers, not Pages. Adapter v14 deploys to Workers with static assets, and Pages our tech-stack.md says cloudflare-pages, but the real workflow is wrangler deploy. The dev server already runs on Cloudflare's runtime, so you don't need a separate Cloudflare dev command.
+- The Worker name is still the starter's. In wrangler.jsonc it's "10x-astro-starter", whould become. Rename it to rowing-coach-ai before the first deploy, and keep the dashboardproject name the same.
+- Secrets are configured in three places: .dev.vars (local), wrangler secret put (producrets (CI build). They don't sync with each other.
+- Preview deploys are public unless you put Cloudflare Access in front of them.
+- The free plan allows 50 outbound requests per invocation. Your flow uses about 5, so i agent ends up calling many tools in one request.
+
+The risks are concrete but manageable: measure CPU early, keep $5/month in reserve, use d put Supabase in an EU region.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ Decision
+
+│ The stress test surfaced some risks for Cloudflare Workers. How would you like to procee
+
+❯ 1. Proceed with Cloudflare
+     Risks are manageable; record them in the risk register. $0, no code changes.
+  2. Swap to Vercel
+     Familiar platform, Frankfurt region; Hobby is non-commercial only, adapter swap needed.
+  3. Swap to Netlify
+     Best agent tooling; EU function region needs a paid plan, adapter swap needed.
+  4. Type something.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  5. Chat about this
+
+
+
+
+  INFRASTRUCTURE DECISION RECORDED
+═══════════════════════════════════════════════════════════
+
+  Platform:      Cloudflare Workers
+  Runner-up:     Vercel
+  Bias checks:   3 / 3 passed
+
+  ► Decision:    context/foundation/infrastructure.md
+  ► Next:        /10x-implement  (✓ copied to clipboard)
+═══════════════════════════════════════════════════════════
+
+I recorded Cloudflare Workers as the deployment platform. It costs $0 at your traffic and needs no code changes, because the starter is already set up for it. I haven't committed the new file.
+
+Netlify scored highest on the five criteria but ranked third. On the free plan its functions run in Ohio, so every call to Supabase would cross the Atlantic, and a European region costs money. Since you put cost first, that dropped it below Cloudflare and Vercel.
+
+The research found two things to fix before your first deploy, and both are in Getting Started:
+- Rename the app. wrangler.jsonc still names it 10x-astro-starter, which would become your URL. Change it to rowing-coach-ai.
+- It's Workers, not Pages. tech-stack.md says cloudflare-pages, but your adapter version deploys to Workers with wrangler deploy.
+
+Two items in the risk register affect today's Supabase setup:
+- Region: make sure your Supabase project is in an EU region, such as Frankfurt. If it isn't, recreate it now while it's empty, because every page load makes several calls to it.
+- Secrets: they need setting in three places: .dev.vars for local work, wrangler secret put for production, and GitHub secrets for CI.
+
+The other main risk is the free plan's 10 ms CPU limit per request. Measure CPU time after your first deploy. If it gets close, the $5/month plan removes the problem.
+
+
+
+
+What's already in place
+- CI (.github/workflows/ci.yml): lint, astro check, build, and a smoke test against a local Supabase, on every push and PR to main.
+- Cloudflare: wrangler is logged in, and the rowing-coach-ai Worker exists with both Supabase secrets.
+- GitHub: the Supabase secrets are set for the CI build.
+
+What's missing for CD
+
+1. First manual deploy, to prove the app works on Cloudflare before automating it. Run npm run build, then npx wrangler deploy, then open rowing-coach-ai.<subdomain>.workers.dev and sign up and sign in. Watch npx wrangler tail while you do, and check CPU time in the dashboard against the free plan's 10 ms limit.
+   - Supabase needs one setting for this: Authentication → URL Configuration → Site URL / Redirect URLs must include the workers.dev address. Otherwise confirmation emails link to localhost.
+2. Give GitHub permission to deploy.
+   - CLOUDFLARE_ACCOUNT_ID: I can set this one now. It's d20ea263…, which isn't sensitive.
+   - CLOUDFLARE_API_TOKEN: you create this in the Cloudflare dashboard (My Profile → API Tokens → Create Token → template "Edit Cloudflare Workers"), then store it with ! gh secret set CLOUDFLARE_API_TOKEN and paste it at the prompt. Don't use your own login: the CI token should be limited to deploying Workers and easy to revoke.
+3. Add a deploy job to ci.yml. It runs only on pushes to main, and only after ci and smoke pass. It uses cloudflare/wrangler-action with the two secrets above to run wrangler deploy, and the Worker's existing secrets carry over. Merging to main then means checks, then automatic deploy, which is the auto-deploy-on-merge flow you chose.
+4. Optional: preview versions on PRs. On pull requests, wrangler versions upload publishes the build under a preview URL without touching production. Those URLs are public unless you add Cloudflare Access, so skip this until you have real data.
+
+One blocker sits outside all of this: the last CI run never got a GitHub runner. Until a run actually starts, the deploy job won't run either, so check Billing and plans on GitHub. The push from an hour ago will tell us whether it's fixed.
+
+
+The app's live at https://rowing-coach-ai.jecruman.workers.dev, with the home and auth pages loading fast and the dashboard correctly redirecting signed-out users, confirming the Supabase secrets work. Now I'll start a live log stream to watch what happens when you sign up.
+
+  Ran 1 shell command
+
+The app is deployed to Cloudflare and its pages respond. The live log stream is running, so I'll see the requests when you test.
+
+Before you test, make one change in the Supabase dashboard. Go to Authentication → URL Configuration:
+- Site URL: https://rowing-coach-ai.jecruman.workers.dev
+- Redirect URLs: add https://rowing-coach-ai.jecruman.workers.dev/**, and keep http://localhost:4321/** for local development.
+
+Without this, the sign-up confirmation email links to localhost. If you'd rather skip confirmation emails while testing, turn off Authentication → Email → Confirm email.
+
+Then test: open the app, go to /auth/signup, create an account, sign in and open /dashboard. Tell me when you're done and I'll read the logs for errors and timing.
+
+The deploy printed two warnings, and neither needs action today:
+- The workers.dev address is on by default. That's what we want for now.
+- Preview URLs are on by default. That's fine while you're the only user. Before real data arrives, switch them off ("preview_urls": false in wrangler.jsonc) or protect them with Cloudflare Access, as noted in infrastructure.md.
+
+After this test passes, the next step is the automatic deploy on merge: the Cloudflare API token, the account ID secret and a deploy job in ci.yml.
+
+
+
+
+Your app is running on Cloudflare at https://rowing-coach-ai.jecruman.workers.dev.
+
+The logs show no errors during your test. Sign-up, confirmation page, sign-in and /dashboard all returned OK. I've stopped the log stream.
+
+The automatic deploy on merge isn't set up yet. That's the next step whenever you're ready:
+1. Create a Cloudflare API token with the "Edit Cloudflare Workers" template.
+2. Store it and your account ID as GitHub secrets.
+3. Add a deploy job to ci.yml that runs after the checks pass on main.
+
+Before that, check that GitHub actually starts Actions runs. The first run never got a runner, possibly because of a billing setting.
+
+I've saved where things stand, so a new session can pick up from here.
+
+
+
+
+
+Create it on the Cloudflare website. As far as I know, wrangler has no command for creating API tokens. Cloudflare's API can create tokens, but only with a token that already has permission to edit API tokens, and the login wrangler uses doesn't have that permission. Doing it in the dashboard is also safer: you see exactly which permissions the token gets.
+
+Don't reuse your wrangler login for CI either. Its token expires and needs refreshing, and it covers your whole account (queues, email and so on). CI should have a token that can only deploy Workers and that you can revoke on its own.
+
+Steps on the website (2 minutes):
+1. Go to dash.cloudflare.com → My Profile → API Tokens → Create Token.
+2. Pick the "Edit Cloudflare Workers" template.
+3. Under Account Resources, choose Include → Jecruman@gmail.com's Account. Under Zone Resources, choose All zones or leave the default; you don't have any domains yet.
+4. Optionally set a TTL (expiry date) as a reminder to rotate it.
+5. Click Continue → Create Token and copy the token. Cloudflare shows it only once.
+
+Then store it in GitHub without pasting it into this chat. Run this here and paste the token at the prompt:
+! "C:\Program Files\GitHub CLI\gh.exe" secret set CLOUDFLARE_API_TOKEN --repo jecruman/rowing-coach-ai
+If the prompt doesn't accept input, add it on github.com instead: repo → Settings → Secrets and variables → Actions → New repository secret.
+
+Once the token is stored, I'll set CLOUDFLARE_ACCOUNT_ID myself (it isn't sensitive) and draft the deploy job in ci.yml for you to review before pushing.
+
+
+
+

@@ -14,16 +14,19 @@
       "Bash(git stash *)",
       "Read",
       "Edit",
-      "Write"
+      "Write",
+      "WebSearch",
+      "WebFetch(domain:cli.netlify.com)",
+      "WebFetch(domain:render.com)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)"
     ],
     "ask": [
       "Bash(curl *)",
       "Bash(wget *)",
       "Bash(git push *)",
       "Bash(git push)"
-    ],
-    "deny": [
-      "Bash(rm -rf *)"
     ]
   }
 }
