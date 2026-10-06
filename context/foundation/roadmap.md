@@ -3,7 +3,7 @@ project: Rowing Coach AI
 version: 1
 status: draft
 created: 2026-10-06
-updated: 2026-10-07
+updated: 2026-10-06
 prd_version: 1
 main_goal: market-feedback
 top_blocker: decisions
@@ -41,7 +41,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 
 | ID   | Change ID                | Outcome (user can …)                                                                 | Prerequisites | PRD refs                              | Status   |
 | ---- | ------------------------ | ------------------------------------------------------------------------------------ | ------------- | ------------------------------------- | -------- |
-| F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | in-progress |
+| F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | done |
 | S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | ready    |
 | S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | proposed |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | proposed |
@@ -85,7 +85,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Which model provider and model, and the expected cost per suggestion? — Owner: user. Block: no (decide at `/10x-plan`).
 - **Risk:** sequenced first because a model client that fails only at runtime on Workers would stall the north star; keep it to one validated call, not the full suggestion feature.
-- **Status:** in-progress
+- **Status:** done
 
 ## Slices
 
@@ -190,3 +190,5 @@ Mirrored in Linear: project [Rowing Coach AI](https://linear.app/jesusproject/pr
 ## Milestone History
 
 ## Done
+
+- **F-01: (foundation) a model API account and key exist, the key is stored as a production and CI secret and declared as a server-only secret, and the deployed app has made one coaching call whose structured answer was validated — with no product UI yet.** — Archived 2026-10-06 → `context/archive/2026-10-07-coaching-model-access/`. Lesson: —.
