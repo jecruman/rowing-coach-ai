@@ -216,15 +216,15 @@ None — no data or schema changes.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Lint passes: `npm run lint`
-- [x] 1.3 Type check passes: `npx astro check`
-- [x] 1.4 Build passes without `ANTHROPIC_API_KEY` set: `npm run build`
+- [x] 1.1 Unit tests pass: `npm test` — 173ef2f
+- [x] 1.2 Lint passes: `npm run lint` — 173ef2f
+- [x] 1.3 Type check passes: `npx astro check` — 173ef2f
+- [x] 1.4 Build passes without `ANTHROPIC_API_KEY` set: `npm run build` — 173ef2f
 - [ ] 1.5 CI `ci` job runs `npm test` and passes on push
 
 #### Manual
 
-- [x] 1.6 Reviewer confirms the suggestion schema fields match what S-02 will need (type, structure, targets, focus, reason, technique tip)
+- [x] 1.6 Reviewer confirms the suggestion schema fields match what S-02 will need (type, structure, targets, focus, reason, technique tip) — 173ef2f
 
 ### Phase 2: Signed-in endpoint and deployed check
 
