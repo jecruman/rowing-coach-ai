@@ -13,11 +13,21 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  adapter: cloudflare(),
+  // The Cloudflare adapter's Vite plugins run modules in workerd and break Vitest startup; skip it under Vitest.
+  adapter: process.env.VITEST ? undefined : cloudflare(),
   env: {
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),
       SUPABASE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      ANTHROPIC_API_KEY: envField.string({ context: "server", access: "secret", optional: true }),
+      COACH_MODEL: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+        default: "claude-opus-5-5",
+      }),
+      // Comma-separated emails allowed to call the coaching try-it endpoint.
+      COACH_TRY_EMAILS: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });
