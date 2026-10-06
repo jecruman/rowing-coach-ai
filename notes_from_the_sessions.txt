@@ -1264,4 +1264,145 @@ Plan review complete. How would you like to proceed?
   Let me know when manual testing is complete so I can proceed to the commit step.
   
   
+fetch("/api/coaching/try", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).then(r => r.json()).then(console.log)
+
+
+ ═══════════════════════════════════════════════════════════
+    IMPLEMENTATION REVIEW: Coaching Model Access Implementation Plan
+    Scope: Full plan (phases 1, 2)  |  Date: 2026-10-07
+    Findings: 0 critical, 3 warnings, 2 observations
+  ═══════════════════════════════════════════════════════════
+
+    Plan Adherence        PASS    ✅
+    Scope Discipline      WARNING ⚠️   (1 finding)
+    Safety & Quality      WARNING ⚠️   (3 findings)
+    Architecture          PASS    ✅
+    Pattern Consistency   PASS    ✅
+    Success Criteria      WARNING ⚠️   (1 finding)
+
+    Re-run: npm test 7/7 · astro check 0 errors · lint 0 real problems
+            · deployed anonymous POST → 401 · latest CI green
+    ► Overall: NEEDS ATTENTION
+
+  ═══════════════════════════════════════════════════════════
+    WARNING FINDINGS ⚠️
+  ═══════════════════════════════════════════════════════════
+
+    F1 — SDK retries break "retry once"; 10-minute default timeout
+    ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+      Severity:  ⚠️ WARNING
+      Impact:    🔎 MEDIUM — real tradeoff; pause to reason through it
+      Dimension: Safety & Quality
+      Location:  src/lib/services/coaching/client.ts:12
+
+      Detail:
+      The client keeps the SDK defaults (maxRetries: 2, 10-min timeout).
+      Each of the service's 2 attempts can make up to 3 HTTP calls, so 6
+      in total, contradicting the plan's "retry once". A hung upstream
+      can hold the request for minutes per call.
+
+      Fix: create the client with maxRetries: 0 and timeout: 60_000.
+        Strength:   Restores the planned retry semantics; bounds the
+                    worst case to 2 × 60 s and the cost to 2 calls.
+        Tradeoff:   No automatic backoff on 429/5xx — a transient error
+                    uses one of the two attempts.
+        Confidence: HIGH — defaults verified in the installed SDK.
+        Blind spot: Real p99 latency unknown (one data point: 8.2 s).
+
+    ···
+
+    F2 — Error log includes the upstream response body
+    ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+      Severity:  ⚠️ WARNING
+      Impact:    🏃 LOW — quick decision; fix is obvious and narrowly scoped
+      Dimension: Safety & Quality
+      Location:  src/lib/services/coaching/getCoachingSuggestion.ts:90-92
+
+      Detail:
+      console.error logs error.message, which for API errors embeds the
+      upstream body (seen in wrangler tail: `400 {"type":"error",...}`).
+      Logs only; nothing reaches the response.
+
+      Fix: log error.name, status and request_id instead of the message.
+
+    ···
+
+    F3 — Unplanned changes: eslint.config.js and a 500 guard
+    ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+      Severity:  ⚠️ WARNING
+      Impact:    🏃 LOW — quick decision; fix is obvious and narrowly scoped
+      Dimension: Scope Discipline
+      Location:  eslint.config.js; src/pages/api/coaching/try.ts:61-65
+
+      Detail:
+      Both benign — the .claude/ ESLint ignore fixed CI; the try/catch
+      returns a generic 500 JSON. Neither is in the plan.
+
+      Fix: add a short addendum to plan.md recording both.
+
+  ═══════════════════════════════════════════════════════════
+    OBSERVATIONS
+  ═══════════════════════════════════════════════════════════
+
+    F4 — Row 2.5 checked with its 403 half unverified
+      Severity:  OBSERVATION · Impact: 🏃 LOW · Success Criteria · plan.md Progress 2.5
+      Detail: you skipped the non-allowlisted 403 check (recorded in change.md).
+      Fix: keep as documented, or add a unit test for the allowlist.
+
+    F5 — User text reaches the model unvalidated (relevant for S-02)
+      Severity:  OBSERVATION · Impact: 🏃 LOW · Safety & Quality · getCoachingSuggestion.ts:54
+      Detail: comment/goal/notes have no length limits or delimiters; no
+              exposure today (fixed sample), but S-02 passes real input.
+      Fix: in S-02, zod .max() limits + wrap user text, treat as data.
+  ═══════════════════════════════════════════════════════════
+
+  The reviewers also suggested lowering max_tokens from 16000. I didn't raise that as a finding. On Claude Opus 5.5 thinking can't be turned off, and thinking tokens count toward max_tokens, so a low cap would
+  cut answers off mid-way. The Claude API guidance is about 16000 for non-streaming requests.
+
+  The report is saved to context/changes/coaching-model-access/reviews/impl-review.md, and change.md is now impl_reviewed.
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ☐ 5 findings
+
+│ Review saved to context/changes/coaching-model-access/reviews/impl-review.md. How would you like to proceed?
+
+❯ 1. Triage findings now
+     Walk through each finding and decide. Decisions are written back to the saved report.
+  2. Triage later
+     Resume with /10x-impl-review context/changes/coaching-model-access/reviews/impl-review.md.
+  3. Done
+     Report saved — I'll handle the findings myself.
+  4. Type something.
+  
+  
+● ═══════════════════════════════════════════════════════════
+    TRIAGE COMPLETE
+  ═══════════════════════════════════════════════════════════
+
+    Fixed:     F1, F2, F3, F4   (4)
+    Rule:      F5 (+ fixed)     (1)
+    Skipped:   —
+    Accepted:  —
+
+  ═══════════════════════════════════════════════════════════
+
+  I fixed all five findings. Each decision is recorded in reviews/impl-review.md.
+
+  - F1: client.ts creates the Anthropic client with maxRetries: 0 and a 60 s timeout. A failing call now costs at most 2 attempts instead of 6, and it can't hang for minutes.
+  - F2: API errors are logged as class, status and request ID only. The upstream response body no longer appears in the logs.
+  - F3: plan.md has an addendum recording the ESLint ignore, the 500 guard and these review fixes.
+  - F4: the allowlist check moved to allowlist.ts, with 5 unit tests. The 403 path you skipped testing by hand is now covered automatically.
+  - F5: the first entry in context/foundation/lessons.md says user text sent to a model must be validated and fenced. It's also applied in the code:
+    - CoachingInputSchema adds length limits, and too-long input fails with InvalidCoachingInputError before any model call.
+    - User text goes inside <session>, <goal> and <rower_comment> tags, and the system prompt tells the model to treat it as data.
+    - Future /10x-plan runs read this lesson, so S-02 inherits the rule.
+
+  Checks: 14/14 tests (7 of them new), type check with 0 errors, 0 real lint problems, build succeeds. I also broke the allowlist and the comment limit on purpose: 3 tests failed as expected, and all pass
+  again after restoring.
+
+  Nothing is committed yet. The working tree also has changes I didn't make: the course CLI updated CLAUDE.md, .claude/.10x-cli-manifest.json and your notes, and added the new 10x-impl-review skill.
+
+  Should I commit the review fixes, and how do you want the course files handled? As before, they could go in a separate commit first. After that, /10x-archive coaching-model-access closes F-01.
+
+✻ Crunched for 5m 33s · done 23:16
+
 
