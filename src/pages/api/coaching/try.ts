@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { COACH_TRY_EMAILS } from "astro:env/server";
 
+import { isEmailAllowed } from "@/lib/services/coaching/allowlist";
 import { coachModel, createCoachingClient } from "@/lib/services/coaching/client";
 import { getCoachingSuggestion } from "@/lib/services/coaching/getCoachingSuggestion";
 import type { CoachingInput } from "@/lib/services/coaching/getCoachingSuggestion";
@@ -26,17 +27,6 @@ function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 }
 
-/** Allowlist from `COACH_TRY_EMAILS` (comma-separated); unset means nobody is allowed. */
-function isAllowed(email: string | undefined): boolean {
-  if (!email || !COACH_TRY_EMAILS) {
-    return false;
-  }
-  const allowed = COACH_TRY_EMAILS.split(",")
-    .map((entry) => entry.trim().toLowerCase())
-    .filter((entry) => entry.length > 0);
-  return allowed.includes(email.toLowerCase());
-}
-
 /** Temporary try-it endpoint for one coaching call on the deployed Worker; S-02 replaces it with the real flow. */
 export const POST: APIRoute = async (context) => {
   const startedAt = Date.now();
@@ -45,7 +35,8 @@ export const POST: APIRoute = async (context) => {
     if (!user) {
       return json({ error: "Not signed in" }, 401);
     }
-    if (!isAllowed(user.email)) {
+    // Allowlist from `COACH_TRY_EMAILS` (comma-separated); unset means nobody is allowed.
+    if (!isEmailAllowed(user.email, COACH_TRY_EMAILS)) {
       return json({ error: "Not allowed to use the coaching try-it endpoint" }, 403);
     }
 

@@ -208,6 +208,14 @@ None — no data or schema changes.
 - Risks: `context/foundation/infrastructure.md` → Risk Register
 - Secret pattern: `src/lib/supabase.ts:3`; auth check: `src/middleware.ts:10-15`
 
+## Addendum (implementation review, 2026-10-07)
+
+Accepted additions not described in the phases above:
+- `eslint.config.js` ignores `.claude/` (course tooling, not part of the app's TypeScript project) — added in 6e26b2f to fix CI lint after the course skills were committed.
+- `src/pages/api/coaching/try.ts` wraps the handler in a try/catch that returns a generic `500` JSON and logs only the error class.
+- Review fixes: the Anthropic client uses `maxRetries: 0` and a 60 s timeout (the service's two attempts are the only retry layer); API errors are logged as class/status/request id, not the upstream body; the allowlist check moved to `src/lib/services/coaching/allowlist.ts` with unit tests, covering the 403 path of row 2.5.
+- Lesson applied (`context/foundation/lessons.md`): coaching input is validated with `CoachingInputSchema` (length limits; `InvalidCoachingInputError` before any model call) and user text is sent inside `<session>`, `<goal>` and `<rower_comment>` tags that the system prompt marks as data.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
