@@ -4,26 +4,6 @@ export const SessionTypeSchema = z.enum(["erg", "water"]);
 export type SessionType = z.infer<typeof SessionTypeSchema>;
 
 /**
- * What the coaching call receives. Every user-written field has a length limit
- * (lessons.md: user text sent to the model must be validated and fenced).
- */
-export const CoachingInputSchema = z.object({
-  session: z.object({
-    type: SessionTypeSchema,
-    distanceMeters: z.number().positive().max(100_000).optional(),
-    durationMinutes: z.number().positive().max(600).optional(),
-    splitsPer500m: z.array(z.string().max(10)).max(200).optional(),
-    spmRange: z.string().max(20).optional(),
-    dpsRange: z.string().max(20).optional(),
-    notes: z.string().max(1000).optional(),
-  }),
-  goal: z.string().max(200),
-  comment: z.string().max(1000).optional(),
-});
-export type CoachingInput = z.infer<typeof CoachingInputSchema>;
-export type CoachingSessionInput = CoachingInput["session"];
-
-/**
  * One suggested next session — the shape the model must return. The summary numbers
  * (`totalDistanceM`, `totalMinutes`, `targets.maxSpm`, `targets.fastestPacePer500s`) are what the
  * safety-limit validator checks; the text fields are for the rower.
@@ -65,20 +45,3 @@ export const SuggestedSessionSchema = CoachingSuggestionSchema.extend({
 });
 
 export type SuggestedSession = z.infer<typeof SuggestedSessionSchema>;
-
-/** PRD safe default (F-01 form, no limit context): steady technique row, 35 min, max 22 spm, focus on long strokes. */
-export function safeDefaultSuggestion(sessionType: SessionType): SuggestedSession {
-  return {
-    sessionType,
-    structure: "Steady technique row, 30–40 min continuous",
-    totalDistanceM: null,
-    totalMinutes: 35,
-    targets: {
-      maxSpm: 22,
-      fastestPacePer500s: null,
-    },
-    focus: "Long strokes",
-    reason: "A safe, steady session while a personalised suggestion is unavailable.",
-    techniqueTip: "Lengthen each stroke: full reach at the catch and a complete finish before the recovery.",
-  };
-}

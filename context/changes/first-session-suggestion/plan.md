@@ -222,6 +222,8 @@ Verify the SDK combination against the real API, then replace the single call wi
 
 **Intent**: Confirm `client.beta.messages.toolRunner` with one `betaZodTool`, `output_config.format`, `fallbacks: "default"` and the beta header returns a parseable final answer from `claude-opus-5-5`; note turns and wall time. Record the result (works / use fallback design) in this phase block.
 
+**Spike result (2026-10-08): works — fallback design not needed.** `toolRunner` + one `betaZodTool` + `output_config: { effort: "low", format: betaZodOutputFormat(schema) }` + `fallbacks: "default"` + beta `server-side-fallback-2026-07-01` + `tool_choice: auto` + `max_iterations: 4` on `claude-opus-5-5`: 2 model requests (turn 1 `tool_use`, tool called once; turn 2 `end_turn` with a valid JSON text block that parsed with the zod schema), ~12.7 s wall. An `AbortSignal` passed as the runner's request option aborted `runUntilDone()` with `APIUserAbortError` after ~316 ms. Observed: the model may suggest the other session type — covered by `no_baseline_for_type` and a prompt instruction.
+
 #### 2. Tools
 
 **File**: `src/lib/services/coaching/tools.ts` (+ `tools.test.ts`)
@@ -389,23 +391,23 @@ Expose the agent to the session page, store results, guard cost with the allowli
 
 #### Automated
 
-- [x] 2.1 Unit tests pass for metrics, limits and safe default
-- [x] 2.2 Lint, type check and build pass
+- [x] 2.1 Unit tests pass for metrics, limits and safe default — dcbe43f
+- [x] 2.2 Lint, type check and build pass — dcbe43f
 
 #### Manual
 
-- [x] 2.3 Session page shows deltas vs "your last 3" and expected labels
+- [x] 2.3 Session page shows deltas vs "your last 3" and expected labels — dcbe43f
 
 ### Phase 3: Coaching agent service
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass for tools and agent service
-- [ ] 3.2 Lint, type check and build pass
+- [x] 3.1 Unit tests pass for tools and agent service
+- [x] 3.2 Lint, type check and build pass
 
 #### Manual
 
-- [ ] 3.3 Spike result recorded in the phase block
+- [x] 3.3 Spike result recorded in the phase block
 
 ### Phase 4: Suggestion endpoint, UI and cutover
 
