@@ -413,16 +413,16 @@ Expose the agent to the session page, store results, guard cost with the allowli
 
 #### Automated
 
-- [x] 4.1 Unit tests pass
-- [x] 4.2 Lint, type check and build pass
-- [ ] 4.3 Smoke passes including suggestion endpoint steps
-- [x] 4.4 No references to COACH_TRY_EMAILS or api/coaching/try remain
-- [ ] 4.5 CI run on main is green
+- [x] 4.1 Unit tests pass — 12175d0
+- [x] 4.2 Lint, type check and build pass — 12175d0
+- [x] 4.3 Smoke passes including suggestion endpoint steps — 12175d0
+- [x] 4.4 No references to COACH_TRY_EMAILS or api/coaching/try remain — 12175d0
+- [x] 4.5 CI run on main is green — 12175d0
 
 #### Manual
 
-- [x] 4.6 COACH_EMAILS secret and Anthropic spend limit set
-- [ ] 4.7 Deployed flow works on a phone with a stored suggestion on reload
-- [ ] 4.8 DPS-drop suggestion caps rate at 32 spm
-- [ ] 4.9 Non-allowlisted account sees the labelled safe default
-- [ ] 4.10 Latency and CPU noted with no CPU-limit errors
+- [x] 4.6 COACH_EMAILS secret and Anthropic spend limit set — 12175d0
+- [x] 4.7 Deployed flow works on a phone with a stored suggestion on reload — 12175d0
+- [x] 4.8 DPS-drop suggestion caps rate at 32 spm — 12175d0
+- [x] 4.9 Non-allowlisted account sees the labelled safe default — 12175d0
+- [x] 4.10 Latency and CPU noted with no CPU-limit errors — 12175d0
