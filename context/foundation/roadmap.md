@@ -42,7 +42,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 | ID   | Change ID                | Outcome (user can …)                                                                 | Prerequisites | PRD refs                              | Status   |
 | ---- | ------------------------ | ------------------------------------------------------------------------------------ | ------------- | ------------------------------------- | -------- |
 | F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | done |
-| S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | in-progress |
+| S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | done |
 | S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | proposed |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | proposed |
 | S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | proposed |
@@ -99,7 +99,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** first slice to create per-user data, so it sets the access-rule pattern every later table follows (PRD guardrail: privacy between users); getting that pattern wrong here repeats everywhere.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-02: First session and suggestion
 
@@ -192,3 +192,4 @@ Mirrored in Linear: project [Rowing Coach AI](https://linear.app/jesusproject/pr
 ## Done
 
 - **F-01: (foundation) a model API account and key exist, the key is stored as a production and CI secret and declared as a server-only secret, and the deployed app has made one coaching call whose structured answer was validated — with no product UI yet.** — Archived 2026-10-06 → `context/archive/2026-10-07-coaching-model-access/`. Lesson: —.
+- **S-01: user can sign in and set their profile (age, weight, boat) plus at most one erg goal and one water goal.** — Archived 2026-10-08 → `context/archive/2026-10-08-rower-profile-and-goals/`. Lesson: [Ship the schema before the code that needs it](lessons.md).
