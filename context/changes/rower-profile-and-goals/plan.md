@@ -283,6 +283,13 @@ First migration in the project. Applied locally by `supabase start`/`db reset` a
 - Patterns: `src/lib/supabase.ts`, `src/pages/api/auth/signin.ts`, `src/components/auth/SignInForm.tsx`, `src/middleware.ts:4`, `scripts/smoke.mjs`
 - Lessons: `context/foundation/lessons.md` (model-input rule — not applicable here; no model calls in this slice)
 
+## Addendum (implementation review, 2026-10-08)
+
+Accepted additions not described in the phases above:
+- `src/lib/services/profile/load.ts` — shared `loadProfileAndGoals` (and `ageFromBirthYear`) used by `/profile` and the dashboard instead of two copies of the same query; it also reports `loadFailed`, so a failed read is never shown as "no data".
+- `src/components/auth/FormField.tsx` gained optional `inputMode` / `autoComplete` props and an exported `inputBase`; `SubmitButton.tsx` gained optional `name` / `value`, so Save and Clear are two real submit buttons. Both backward-compatible.
+- Review fixes: decimal comma accepted for weight and time tenths; `formData()` failures redirect with an error instead of a 500; the displayed `?error=` text is capped at 200 characters; `rls-check` also proves a user can't move their own row to another user; CI checks that `src/db/database.types.ts` matches the migrations; AGENTS.md documents the test commands.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

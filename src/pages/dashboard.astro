@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 import { ageFromBirthYear, loadProfileAndGoals, type ProfileAndGoals } from "@/lib/services/profile/load";
 import { formatTime } from "@/lib/services/profile/rules";
@@ -8,8 +9,8 @@ import type { RowerGoal } from "@/types";
 const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-const { profile, goals }: ProfileAndGoals =
-  supabase && user ? await loadProfileAndGoals(supabase, user.id) : { profile: null, goals: {} };
+const { profile, goals, loadFailed }: ProfileAndGoals =
+  supabase && user ? await loadProfileAndGoals(supabase, user.id) : { profile: null, goals: {}, loadFailed: false };
 
 const goalList = [goals.erg, goals.water].filter((goal): goal is RowerGoal => goal !== undefined);
 const needsSetup = profile === null || goalList.length === 0;
@@ -36,7 +37,11 @@ const summary = [
       <p class="text-blue-100/80">
         Welcome, <span class="font-semibold text-white">{user?.email}</span>
       </p>
-      {needsSetup ? (
+      {loadFailed ? (
+        <div class="mt-6 text-left">
+          <ServerError message="Could not load your data — please try again." />
+        </div>
+      ) : needsSetup ? (
         <a
           href="/profile"
           class="mt-6 block rounded-lg bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500"

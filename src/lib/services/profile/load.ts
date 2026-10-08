@@ -8,6 +8,8 @@ export interface ProfileAndGoals {
   /** null when the rower has never saved a profile. */
   profile: RowerProfile | null;
   goals: Partial<Record<SessionType, RowerGoal>>;
+  /** true when either read failed — empty data then means "unknown", not "nothing saved". */
+  loadFailed: boolean;
 }
 
 function isBoat(value: string | null): value is Boat {
@@ -50,7 +52,7 @@ export async function loadProfileAndGoals(
     };
   }
 
-  return { profile, goals };
+  return { profile, goals, loadFailed: profileResult.error !== null || goalsResult.error !== null };
 }
 
 /** Whole years since the birth year, or null when unknown. */

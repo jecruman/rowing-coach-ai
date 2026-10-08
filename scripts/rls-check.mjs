@@ -49,6 +49,17 @@ async function signUp(label) {
 const isEmptyArray = (data) => Array.isArray(data) && data.length === 0;
 const ok2xx = (status) => status >= 200 && status < 300;
 
+// A must not be able to hand its own row to B: the update policy's WITH CHECK should reject it (403 / 42501).
+// A 2xx is accepted only when no row came back and A's row still reads as A's, unchanged.
+async function ownerMoveRejected(table, body, isUnchanged) {
+  const r = await call(`/rest/v1/${table}${ofA}`, { method: "PATCH", token: a.token, body });
+  if (!ok2xx(r.status)) return [true, r];
+  const reread = await call(`/rest/v1/${table}${ofA}`, { token: a.token });
+  const row = reread.data?.[0];
+  const ok = isEmptyArray(r.data) && reread.data?.length === 1 && row.user_id === a.id && isUnchanged(row);
+  return [ok, { patch: r, reread }];
+}
+
 const a = await signUp("a");
 const b = await signUp("b");
 const profile = { birth_year: 1990, weight_kg: 82.5, boat: "1x" };
@@ -130,6 +141,19 @@ const steps = [
     },
   ],
   [
+    "A moving own profile to B is rejected",
+    () => ownerMoveRejected("profiles", { user_id: b.id }, (row) => Number(row.weight_kg) === profile.weight_kg),
+  ],
+  [
+    "A moving own goal to B is rejected",
+    () =>
+      ownerMoveRejected(
+        "goals",
+        { user_id: b.id },
+        (row) => row.session_type === "erg" && row.distance_m === goal.distance_m,
+      ),
+  ],
+  [
     "A's data unchanged on re-read",
     async () => {
       const p = await call(`/rest/v1/profiles${ofA}`, { token: a.token });
@@ -138,8 +162,10 @@ const steps = [
       const gr = g.data?.[0];
       const ok =
         p.data?.length === 1 &&
+        pr.user_id === a.id &&
         Number(pr.weight_kg) === profile.weight_kg &&
         g.data?.length === 1 &&
+        gr.user_id === a.id &&
         gr.session_type === "erg" &&
         gr.distance_m === goal.distance_m;
       return [ok, { profiles: p, goals: g }];

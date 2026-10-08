@@ -17,13 +17,16 @@ const SAVED_MESSAGES: Record<string, string> = {
   "water-goal": "Water goal updated.",
 };
 
-const error = Astro.url.searchParams.get("error");
+/** Longest `?error=` text shown; the param is link-controlled, so keep crafted text short. */
+const MAX_ERROR_LENGTH = 200;
+
+const error = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ?? null;
 const savedKey = Astro.url.searchParams.get("saved");
 const saved = savedKey ? SAVED_MESSAGES[savedKey] : undefined;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-const { profile, goals }: ProfileAndGoals =
-  supabase && user ? await loadProfileAndGoals(supabase, user.id) : { profile: null, goals: {} };
+const { profile, goals, loadFailed }: ProfileAndGoals =
+  supabase && user ? await loadProfileAndGoals(supabase, user.id) : { profile: null, goals: {}, loadFailed: false };
 
 const age = ageFromBirthYear(profile?.birthYear ?? null);
 
@@ -47,30 +50,37 @@ const GOAL_SECTIONS: { type: SessionType; title: string }[] = [
         <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200">{saved}</p>
       )}
 
-      <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-        <h2 class="mb-1 text-lg font-semibold">Profile</h2>
-        <p class="mb-4 text-sm text-blue-100/60">
-          {age === null ? "Add your birth year to see your age." : `Current age: ${String(age)}`}
-        </p>
-        <ProfileForm profile={profile} client:load />
-      </section>
+      {/* A failed read must not look like "nothing saved" — empty forms would invite overwriting real data. */}
+      <ServerError message={loadFailed ? "Could not load your data — please try again." : null} />
 
-      {GOAL_SECTIONS.map(({ type, title }) => {
-        const goal = goals[type] ?? null;
-        return (
+      {!loadFailed && (
+        <>
           <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-            <h2 class="mb-1 text-lg font-semibold">{title}</h2>
+            <h2 class="mb-1 text-lg font-semibold">Profile</h2>
             <p class="mb-4 text-sm text-blue-100/60">
-              {goal
-                ? `${String(goal.distanceM)} m in ${formatTime(goal.targetSeconds)} — pace ${formatTime(
-                    pacePer500(goal.distanceM, goal.targetSeconds),
-                  )} /500 m${goal.eventDate ? ` · event ${goal.eventDate}` : ""}`
-                : "No goal set yet."}
+              {age === null ? "Add your birth year to see your age." : `Current age: ${String(age)}`}
             </p>
-            <GoalForm sessionType={type} goal={goal} client:load />
+            <ProfileForm profile={profile} client:load />
           </section>
-        );
-      })}
+
+          {GOAL_SECTIONS.map(({ type, title }) => {
+            const goal = goals[type] ?? null;
+            return (
+              <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+                <h2 class="mb-1 text-lg font-semibold">{title}</h2>
+                <p class="mb-4 text-sm text-blue-100/60">
+                  {goal
+                    ? `${String(goal.distanceM)} m in ${formatTime(goal.targetSeconds)} — pace ${formatTime(
+                        pacePer500(goal.distanceM, goal.targetSeconds),
+                      )} /500 m${goal.eventDate ? ` · event ${goal.eventDate}` : ""}`
+                    : "No goal set yet."}
+                </p>
+                <GoalForm sessionType={type} goal={goal} client:load />
+              </section>
+            );
+          })}
+        </>
+      )}
     </div>
   </div>
 </Layout>

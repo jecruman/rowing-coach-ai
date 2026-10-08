@@ -17,7 +17,13 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/auth/signin");
   }
 
-  const form = await context.request.formData();
+  let form: FormData;
+  try {
+    form = await context.request.formData();
+  } catch {
+    // Not a form body (e.g. JSON or missing content type) — a bad request, not a server error.
+    return errorRedirect(context, "Invalid form submission");
+  }
 
   // Validate the type first: it is used in the success redirect for both actions.
   const sessionType = SessionTypeSchema.safeParse(form.get("sessionType"));

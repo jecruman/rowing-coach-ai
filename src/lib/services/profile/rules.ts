@@ -9,12 +9,17 @@ const TIME_PATTERN = /^\d+(?::[0-5]\d){1,2}(?:\.\d)?$/;
 /** Largest value `numeric(7,1)` can hold. */
 const MAX_SECONDS = 999_999.9;
 
+/** Accepts a decimal comma (`"70,5"`, `"1:55,5"`) by turning the first `,` into `.`; any further comma stays and fails validation. */
+function normaliseDecimalComma(text: string): string {
+  return text.replace(",", ".");
+}
+
 /**
- * Parses a typed time into seconds: `"3:50"` → 230, `"1:55.5"` → 115.5, `"1:02:30"` → 3750.
+ * Parses a typed time into seconds: `"3:50"` → 230, `"1:55.5"` (or `"1:55,5"`) → 115.5, `"1:02:30"` → 3750.
  * Returns null for empty, negative or non-numeric input, seconds ≥ 60, or more than one decimal digit.
  */
 export function parseTime(text: string): number | null {
-  const trimmed = text.trim();
+  const trimmed = normaliseDecimalComma(text.trim());
   if (!TIME_PATTERN.test(trimmed)) return null;
 
   const dot = trimmed.indexOf(".");
@@ -62,6 +67,7 @@ const BirthYearSchema = z
 
 const WeightSchema = z
   .string()
+  .overwrite(normaliseDecimalComma)
   .regex(/^\d{1,3}(?:\.\d)?$/, { error: "Weight must be a number with at most one decimal" })
   .transform(Number)
   .refine((kg) => kg >= 30 && kg <= 200, { error: "Weight must be between 30 and 200 kg" });

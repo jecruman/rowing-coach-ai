@@ -9,16 +9,28 @@ describe("parseTime", () => {
     ["1:02:30", 3750],
     ["7:30", 450],
     [" 0:59 ", 59],
+    ["1:55,5", 115.5],
+    ["7:30,5", 450.5],
   ])("parses %j as %d seconds", (text, seconds) => {
     expect(parseTime(text)).toBe(seconds);
   });
 
-  it.each(["3:60", "abc", "", "-1:00", "1:55.55", "1:60:00", "3:5", "230", "1:02:30:00", "1:5x"])(
-    "rejects %j",
-    (text) => {
-      expect(parseTime(text)).toBeNull();
-    },
-  );
+  it.each([
+    "3:60",
+    "abc",
+    "",
+    "-1:00",
+    "1:55.55",
+    "1:60:00",
+    "3:5",
+    "230",
+    "1:02:30:00",
+    "1:5x",
+    "1:55,55",
+    "1:55,5,1",
+  ])("rejects %j", (text) => {
+    expect(parseTime(text)).toBeNull();
+  });
 });
 
 describe("formatTime", () => {
@@ -55,6 +67,10 @@ describe("ProfileInputSchema", () => {
     });
   });
 
+  it('accepts a decimal comma in weight ("70,5" → 70.5)', () => {
+    expect(ProfileInputSchema.parse({ weightKg: "70,5" }).weightKg).toBe(70.5);
+  });
+
   it("accepts an empty profile as all nulls", () => {
     const empty = { birthYear: null, weightKg: null, boat: null };
     expect(ProfileInputSchema.parse({})).toEqual(empty);
@@ -67,6 +83,8 @@ describe("ProfileInputSchema", () => {
     ["weight 20", { weightKg: "20" }],
     ["weight 250", { weightKg: "250" }],
     ["weight with two decimals", { weightKg: "80.25" }],
+    ["weight with two decimals after a comma", { weightKg: "70,25" }],
+    ["weight with two commas", { weightKg: "70,5,1" }],
     ['boat "canoe"', { boat: "canoe" }],
   ])("rejects %s", (_label, input) => {
     const result = ProfileInputSchema.safeParse(input);
@@ -86,6 +104,10 @@ describe("GoalInputSchema", () => {
     });
   });
 
+  it('accepts a decimal comma in the target time ("7:30,5" → 450.5)', () => {
+    expect(GoalInputSchema.parse({ ...valid, targetTime: "7:30,5" }).targetSeconds).toBe(450.5);
+  });
+
   it("accepts a past event date", () => {
     expect(GoalInputSchema.parse({ ...valid, eventDate: "2020-05-01" }).eventDate).toBe("2020-05-01");
   });
@@ -94,6 +116,7 @@ describe("GoalInputSchema", () => {
     ["distance 50", { ...valid, distanceM: "50" }],
     ['time "7:75"', { ...valid, targetTime: "7:75" }],
     ["time 0:00", { ...valid, targetTime: "0:00" }],
+    ['time "1:55,55"', { ...valid, targetTime: "1:55,55" }],
     ['type "bike"', { ...valid, sessionType: "bike" }],
     ["an invalid event date", { ...valid, eventDate: "2026-02-30" }],
   ])("rejects %s", (_label, input) => {

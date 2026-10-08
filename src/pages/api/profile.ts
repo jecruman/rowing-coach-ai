@@ -16,7 +16,13 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/auth/signin");
   }
 
-  const form = await context.request.formData();
+  let form: FormData;
+  try {
+    form = await context.request.formData();
+  } catch {
+    // Not a form body (e.g. JSON or missing content type) — a bad request, not a server error.
+    return errorRedirect(context, "Invalid form submission");
+  }
   const parsed = ProfileInputSchema.safeParse({
     birthYear: form.get("birthYear"),
     weightKg: form.get("weightKg"),

@@ -45,6 +45,12 @@ jobs:
         run: |
           source supabase.env
           SUPABASE_URL=$API_URL SUPABASE_KEY=$ANON_KEY npm run rls-check
+      # Fails when a migration changed without regenerating and committing src/db/database.types.ts
+      # (lessons.md: ship the schema before the code that needs it).
+      - name: Check database types match migrations
+        run: |
+          npx supabase gen types typescript --local > "$RUNNER_TEMP/database.types.ts"
+          diff -u src/db/database.types.ts "$RUNNER_TEMP/database.types.ts"
       - name: Configure secrets for build and preview
         run: |
           source supabase.env
