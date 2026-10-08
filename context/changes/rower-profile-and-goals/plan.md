@@ -304,27 +304,27 @@ First migration in the project. Applied locally by `supabase start`/`db reset` a
 
 #### Automated
 
-- [x] 2.1 Unit tests pass: `npm test`
-- [x] 2.2 Lint passes with 0 real problems: `npm run lint`
-- [x] 2.3 Type check passes: `npx astro check`
-- [x] 2.4 Build passes: `npm run build`
+- [x] 2.1 Unit tests pass: `npm test` — 923dc81
+- [x] 2.2 Lint passes with 0 real problems: `npm run lint` — 923dc81
+- [x] 2.3 Type check passes: `npx astro check` — 923dc81
+- [x] 2.4 Build passes: `npm run build` — 923dc81
 
 #### Manual
 
-- [x] 2.5 Reviewer confirms the time format and limits (birth year 1900–now, weight 30–200 kg, distance 100–100 000 m) match how the rower enters data
+- [x] 2.5 Reviewer confirms the time format and limits (birth year 1900–now, weight 30–200 kg, distance 100–100 000 m) match how the rower enters data — 923dc81
 
 ### Phase 3: Profile page and dashboard link
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass: `npm test`
-- [ ] 3.2 Lint and type check pass: `npm run lint`, `npx astro check`
+- [x] 3.1 Unit tests pass: `npm test`
+- [x] 3.2 Lint and type check pass: `npm run lint`, `npx astro check`
 - [ ] 3.3 Smoke test passes in CI, including the new profile/goal steps: `smoke` job
-- [ ] 3.4 Anonymous `/profile` redirects on the deployed Worker: `curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://rowing-coach-ai.jecruman.workers.dev/profile` → `302 …/auth/signin`
+- [x] 3.4 Anonymous `/profile` redirects on the deployed Worker: `curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://rowing-coach-ai.jecruman.workers.dev/profile` → `302 …/auth/signin`
 
 #### Manual
 
-- [ ] 3.5 On the deployed app, the rower saves a profile and an erg and a water goal, reloads, and sees the values (goal time as m:ss with pace /500 m)
-- [ ] 3.6 Replacing a goal overwrites it; "Clear goal" removes it
-- [ ] 3.7 Dashboard shows the setup prompt for a new account and the summary once filled
-- [ ] 3.8 Forms are comfortable on a phone screen (PRD NFR)
+- [x] 3.5 On the deployed app, the rower saves a profile and an erg and a water goal, reloads, and sees the values (goal time as m:ss with pace /500 m)
+- [x] 3.6 Replacing a goal overwrites it; "Clear goal" removes it
+- [x] 3.7 Dashboard shows the setup prompt for a new account and the summary once filled
+- [x] 3.8 Forms are comfortable on a phone screen (PRD NFR)

@@ -38,6 +38,7 @@ async function request(path, { method = "GET", form } = {}) {
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -54,6 +55,30 @@ const steps = [
     { status: 302, location: "/" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
+  ["profile renders for signed-in user", () => request("/profile"), { status: 200 }],
+  [
+    "profile saves valid form",
+    () => request("/api/profile", { method: "POST", form: { birthYear: "1984", weightKg: "70", boat: "1x" } }),
+    { status: 302, location: "/profile?saved=profile" },
+  ],
+  [
+    "erg goal saves",
+    () =>
+      request("/api/goals", {
+        method: "POST",
+        form: { sessionType: "erg", action: "save", distanceM: "2000", targetTime: "7:30", eventDate: "" },
+      }),
+    { status: 302, location: "/profile?saved=erg-goal" },
+  ],
+  [
+    "goal rejects invalid time",
+    () =>
+      request("/api/goals", {
+        method: "POST",
+        form: { sessionType: "erg", action: "save", distanceM: "2000", targetTime: "7:75", eventDate: "" },
+      }),
+    { status: 302, location: "/profile?error=" },
+  ],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
 ];

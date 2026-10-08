@@ -6,14 +6,19 @@ interface SubmitButtonProps {
   pendingText: string;
   icon: ReactNode;
   children: ReactNode;
+  /** Sent with the form when this button submits it (e.g. `action=save`). */
+  name?: string;
+  value?: string;
 }
 
-export function SubmitButton({ pendingText, icon, children }: SubmitButtonProps) {
+export function SubmitButton({ pendingText, icon, children, name, value }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
     <Button
       type="submit"
+      name={name}
+      value={value}
       disabled={pending}
       className="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-500"
     >
