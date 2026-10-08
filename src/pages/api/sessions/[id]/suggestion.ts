@@ -37,6 +37,15 @@ function logFailure(what: string, error: { code: string; message: string }) {
 }
 
 /**
+ * Logs which safe default was returned, so `wrangler tail` shows when the model was not asked (e.g. a missing
+ * `COACH_EMAILS` secret) instead of a default passing for a real suggestion. No user data.
+ */
+function logDefault(reason: string) {
+  // eslint-disable-next-line no-console -- surfaced in `wrangler tail`
+  console.warn(`[api/sessions/suggestion] safe default: ${reason}`);
+}
+
+/**
  * Returns the suggested next session for one of the signed-in rower's sessions: the stored one, or a new one from
  * the coaching agent (stored), or an unstored safe default when the rower is not allowlisted or no key is set.
  * The request body is ignored; the only input is the session id, which the loaders validate as a uuid.
@@ -84,6 +93,7 @@ export const POST: APIRoute = async (context) => {
     );
 
     if (!isCoachingAllowed(user.email)) {
+      logDefault("not_allowed");
       const payload: SuggestionPayload = {
         suggestion: safeDefaultFor(session.type, coachingContext.limits),
         isDefault: true,
@@ -95,6 +105,7 @@ export const POST: APIRoute = async (context) => {
 
     const client = createCoachingClient();
     if (!client) {
+      logDefault("not_configured");
       const payload: SuggestionPayload = {
         suggestion: safeDefaultFor(session.type, coachingContext.limits),
         isDefault: true,
@@ -111,6 +122,7 @@ export const POST: APIRoute = async (context) => {
     });
 
     if (result.aborted) {
+      logDefault("model_failed (deadline, not stored)");
       // Hitting the deadline says the model was slow, not that it broke a limit: show the safe default but don't
       // store it, so a reload asks again instead of locking this session to the default.
       const payload: SuggestionPayload = {
@@ -121,6 +133,8 @@ export const POST: APIRoute = async (context) => {
       };
       return json(payload, 200);
     }
+
+    if (result.isDefault) logDefault(`model_failed after ${String(result.attempts)} attempts`);
 
     const { error } = await supabase.from("coach_suggestions").insert({
       user_id: user.id,

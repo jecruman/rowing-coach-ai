@@ -94,7 +94,7 @@ Automated criteria re-run 2026-10-08: `npm test` 170/170, lint 0 non-CRLF issues
 - **Location**: plan.md Progress 4.10
 - **Detail**: 4.10 is ticked by user acceptance; the `wrangler tail` capture contained no model-call request (noted in change.md). Agent latency and CPU on Workers are unmeasured.
 - **Fix**: Measure once with `wrangler tail` on a fresh allowlisted session and note the numbers in change.md (or leave as a known gap).
-- **Decision**: FIXED — measure with wrangler tail after the review-fix deploy (numbers to be noted in change.md)
+- **Decision**: FIXED — measured on production: 15.3 s wall, 24 ms CPU, outcome ok; reload made no model call (numbers in change.md)
 
 ### F7 — History window of 30 rows (drift, beneficial)
 
