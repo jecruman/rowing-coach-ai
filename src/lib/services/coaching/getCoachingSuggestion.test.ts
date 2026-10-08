@@ -27,7 +27,9 @@ const ergInput: CoachingInput = {
 const validSuggestion: CoachingSuggestion = {
   sessionType: "water",
   structure: "6 × 2 min / 2 min rest",
-  targets: { maxSpm: 26, spmRange: "24-26", pacePer500m: "1:55" },
+  totalDistanceM: 7000,
+  totalMinutes: 40,
+  targets: { maxSpm: 26, spmRange: "24-26", pacePer500m: "1:55", fastestPacePer500s: 115 },
   focus: "Rhythm",
   reason: "Splits faded late in the last session.",
   techniqueTip: "Keep the hands moving away at the finish.",

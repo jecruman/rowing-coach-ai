@@ -372,29 +372,29 @@ Expose the agent to the session page, store results, guard cost with the allowli
 
 #### Automated
 
-- [x] 1.1 Unit tests pass
-- [x] 1.2 Lint passes (ignoring CRLF-only messages locally)
-- [x] 1.3 Type check passes
-- [x] 1.4 Build passes
-- [ ] 1.5 Access rules hold for both new tables
-- [ ] 1.6 Smoke passes including session logging
-- [ ] 1.7 Generated types match migrations
+- [x] 1.1 Unit tests pass — 5c2665b
+- [x] 1.2 Lint passes (ignoring CRLF-only messages locally) — 5c2665b
+- [x] 1.3 Type check passes — 5c2665b
+- [x] 1.4 Build passes — 5c2665b
+- [x] 1.5 Access rules hold for both new tables — 5c2665b
+- [x] 1.6 Smoke passes including session logging — 5c2665b
+- [x] 1.7 Generated types match migrations — 5c2665b
 
 #### Manual
 
-- [x] 1.8 Migration pushed to the cloud project by the user and RLS shown enabled on both tables
-- [x] 1.9 Logging an erg and a water session on a phone-sized screen works
+- [x] 1.8 Migration pushed to the cloud project by the user and RLS shown enabled on both tables — 5c2665b
+- [x] 1.9 Logging an erg and a water session on a phone-sized screen works — 5c2665b
 
 ### Phase 2: Metrics and safety-limits engine
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass for metrics, limits and safe default
-- [ ] 2.2 Lint, type check and build pass
+- [x] 2.1 Unit tests pass for metrics, limits and safe default
+- [x] 2.2 Lint, type check and build pass
 
 #### Manual
 
-- [ ] 2.3 Session page shows deltas vs "your last 3" and expected labels
+- [x] 2.3 Session page shows deltas vs "your last 3" and expected labels
 
 ### Phase 3: Coaching agent service
 

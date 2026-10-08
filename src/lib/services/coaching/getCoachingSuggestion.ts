@@ -3,7 +3,7 @@ import { APIError } from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 
 import { CoachingInputSchema, CoachingSuggestionSchema, safeDefaultSuggestion } from "./schema";
-import type { CoachingInput, CoachingSuggestion } from "./schema";
+import type { CoachingInput, CoachingSuggestion, SuggestedSession } from "./schema";
 
 export type { CoachingInput, CoachingSessionInput } from "./schema";
 
@@ -26,7 +26,7 @@ export interface CoachingDeps {
 }
 
 export interface CoachingResult {
-  suggestion: CoachingSuggestion;
+  suggestion: SuggestedSession;
   isDefault: boolean;
   attempts: 1 | 2;
   model: string;

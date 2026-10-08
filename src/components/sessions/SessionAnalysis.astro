@@ -1,0 +1,107 @@
+---
+import type { AnalysisLabel, SessionAnalysis } from "@/lib/services/coaching/metrics";
+import { formatTime } from "@/lib/services/profile/rules";
+import type { SessionType } from "@/types";
+
+interface Props {
+  analysis: SessionAnalysis;
+  sessionType: SessionType;
+  /** true when earlier sessions could not be read: values are shown without comparison. */
+  historyFailed: boolean;
+  /** Whether this session counted as hard against the goal; null when goals could not be read. */
+  isHard: boolean | null;
+}
+
+const { analysis, sessionType, historyFailed, isHard } = Astro.props;
+const { metrics, deltas, baselineCount } = analysis;
+
+const LABEL_TEXT: Record<AnalysisLabel, string> = {
+  dpsHugeImprovement: "Distance per stroke: huge improvement",
+  dpsClearDrop: "Distance per stroke: clear drop",
+  paceGoodImprovement: "Pace: good improvement",
+  techniqueLimitingEfficiency: "Technique may be limiting efficiency",
+};
+
+/** Signed number with one decimal at most: +1.5, −0.3, ±0. */
+function signed(value: number): string {
+  if (value === 0) return "±0";
+  const text = String(Math.abs(value));
+  return value > 0 ? `+${text}` : `−${text}`;
+}
+
+const rows: { label: string; value: string; delta: string | null }[] = [
+  {
+    label: "Pace /500 m",
+    value: formatTime(metrics.pacePer500s),
+    delta: deltas.pacePer500s === null ? null : `${signed(deltas.pacePer500s)} s`,
+  },
+  ...(metrics.splitDriftS === null
+    ? []
+    : [
+        {
+          label: "Split drift (last − first)",
+          value: `${signed(metrics.splitDriftS)} s`,
+          delta: deltas.splitDriftS === null ? null : `${signed(deltas.splitDriftS)} s`,
+        },
+      ]),
+  ...(metrics.spmMid === null
+    ? []
+    : [
+        {
+          label: "Stroke rate (mid)",
+          value: `${String(metrics.spmMid)} spm`,
+          delta: deltas.spmMid === null ? null : `${signed(deltas.spmMid)} spm`,
+        },
+      ]),
+  ...(metrics.dpsMid === null
+    ? []
+    : [
+        {
+          label: "Distance per stroke (mid)",
+          value: `${String(metrics.dpsMid)} m`,
+          delta: deltas.dpsMid === null ? null : `${signed(deltas.dpsMid)} m`,
+        },
+      ]),
+];
+
+const comparison = historyFailed
+  ? "Could not load your earlier sessions, so there is no comparison this time."
+  : baselineCount === 0
+    ? `Comparisons start after your next ${sessionType} session.`
+    : `vs your last ${String(baselineCount)} ${sessionType} session${baselineCount === 1 ? "" : "s"}`;
+---
+
+<section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl" aria-labelledby="analysis-heading">
+  <div class="mb-4 flex items-baseline justify-between gap-4">
+    <h2 id="analysis-heading" class="text-lg font-semibold">
+      Analysis
+    </h2>
+    <p class="text-right text-xs text-blue-100/70">{comparison}</p>
+  </div>
+
+  <dl class="space-y-3">
+    {rows.map(({ label, value, delta }) => (
+      <div class="flex items-baseline justify-between gap-4">
+        <dt class="text-sm text-blue-100/70">{label}</dt>
+        <dd class="text-right font-medium">
+          {value}
+          {delta !== null && <span class="ml-2 text-sm text-blue-100/70">({delta})</span>}
+        </dd>
+      </div>
+    ))}
+  </dl>
+
+  {analysis.labels.length > 0 && (
+    <ul class="mt-4 space-y-1 border-t border-white/10 pt-4 text-sm">
+      {analysis.labels.map((label) => (
+        <li>{LABEL_TEXT[label]}</li>
+      ))}
+    </ul>
+  )}
+
+  {isHard && (
+    <p class="mt-4 border-t border-white/10 pt-4 text-sm text-blue-100/70">
+      Hard session: pace at or faster than your goal pace + 5 s/500 m.
+    </p>
+  )}
+</section>
