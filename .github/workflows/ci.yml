@@ -50,7 +50,10 @@ jobs:
       - name: Check database types match migrations
         run: |
           npx supabase gen types typescript --local > "$RUNNER_TEMP/database.types.ts"
-          diff -u src/db/database.types.ts "$RUNNER_TEMP/database.types.ts"
+          # `--linked` (how the committed file is generated) adds an __InternalSupabase version block
+          # that `--local` omits; strip it from both and ignore blank lines so only schema changes count.
+          normalise() { tr -d '\r' < "$1" | sed '/\/\/ Allows to automatically instantiate/,/^  }$/d'; }
+          diff -u -B <(normalise src/db/database.types.ts) <(normalise "$RUNNER_TEMP/database.types.ts")
       - name: Configure secrets for build and preview
         run: |
           source supabase.env
