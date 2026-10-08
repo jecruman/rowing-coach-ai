@@ -291,27 +291,27 @@ First migration in the project. Applied locally by `supabase start`/`db reset` a
 
 #### Automated
 
-- [ ] 1.1 Migration applies on a fresh database in the CI smoke job (`supabase start`); local `npx supabase db reset` optional, needs Docker
-- [ ] 1.2 Access check passes in CI: smoke job step `npm run rls-check`
-- [x] 1.3 Existing checks still pass: `npm test`, `npm run lint`, `npx astro check`
-- [x] 1.4 Database types generated and committed: `src/db/database.types.ts` exists and `npx astro check` passes with `<Database>` in `src/lib/supabase.ts`
+- [x] 1.1 Migration applies on a fresh database in the CI smoke job (`supabase start`); local `npx supabase db reset` optional, needs Docker — 20b0fa4
+- [x] 1.2 Access check passes in CI: smoke job step `npm run rls-check` — 20b0fa4
+- [x] 1.3 Existing checks still pass: `npm test`, `npm run lint`, `npx astro check` — 20b0fa4
+- [x] 1.4 Database types generated and committed: `src/db/database.types.ts` exists and `npx astro check` passes with `<Database>` in `src/lib/supabase.ts` — 20b0fa4
 
 #### Manual
 
-- [x] 1.5 `npx supabase db push` applied the migration to the cloud project; both tables show "RLS enabled" in the Supabase dashboard (Table Editor)
+- [x] 1.5 `npx supabase db push` applied the migration to the cloud project; both tables show "RLS enabled" in the Supabase dashboard (Table Editor) — 20b0fa4
 
 ### Phase 2: Input rules and save endpoints
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass: `npm test`
-- [ ] 2.2 Lint passes with 0 real problems: `npm run lint`
-- [ ] 2.3 Type check passes: `npx astro check`
-- [ ] 2.4 Build passes: `npm run build`
+- [x] 2.1 Unit tests pass: `npm test`
+- [x] 2.2 Lint passes with 0 real problems: `npm run lint`
+- [x] 2.3 Type check passes: `npx astro check`
+- [x] 2.4 Build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.5 Reviewer confirms the time format and limits (birth year 1900–now, weight 30–200 kg, distance 100–100 000 m) match how the rower enters data
+- [x] 2.5 Reviewer confirms the time format and limits (birth year 1900–now, weight 30–200 kg, distance 100–100 000 m) match how the rower enters data
 
 ### Phase 3: Profile page and dashboard link
 
