@@ -1,7 +1,7 @@
 ---
 change_id: rower-profile-and-goals
 title: Rower profile and goals
-status: implementing
+status: implemented
 created: 2026-10-08
 updated: 2026-10-08
 archived_at: null

@@ -317,14 +317,14 @@ First migration in the project. Applied locally by `supabase start`/`db reset` a
 
 #### Automated
 
-- [x] 3.1 Unit tests pass: `npm test`
-- [x] 3.2 Lint and type check pass: `npm run lint`, `npx astro check`
-- [ ] 3.3 Smoke test passes in CI, including the new profile/goal steps: `smoke` job
-- [x] 3.4 Anonymous `/profile` redirects on the deployed Worker: `curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://rowing-coach-ai.jecruman.workers.dev/profile` → `302 …/auth/signin`
+- [x] 3.1 Unit tests pass: `npm test` — 7990f81
+- [x] 3.2 Lint and type check pass: `npm run lint`, `npx astro check` — 7990f81
+- [x] 3.3 Smoke test passes in CI, including the new profile/goal steps: `smoke` job — 7990f81
+- [x] 3.4 Anonymous `/profile` redirects on the deployed Worker: `curl -s -o /dev/null -w '%{http_code} %{redirect_url}' https://rowing-coach-ai.jecruman.workers.dev/profile` → `302 …/auth/signin` — 7990f81
 
 #### Manual
 
-- [x] 3.5 On the deployed app, the rower saves a profile and an erg and a water goal, reloads, and sees the values (goal time as m:ss with pace /500 m)
-- [x] 3.6 Replacing a goal overwrites it; "Clear goal" removes it
-- [x] 3.7 Dashboard shows the setup prompt for a new account and the summary once filled
-- [x] 3.8 Forms are comfortable on a phone screen (PRD NFR)
+- [x] 3.5 On the deployed app, the rower saves a profile and an erg and a water goal, reloads, and sees the values (goal time as m:ss with pace /500 m) — 7990f81
+- [x] 3.6 Replacing a goal overwrites it; "Clear goal" removes it — 7990f81
+- [x] 3.7 Dashboard shows the setup prompt for a new account and the summary once filled — 7990f81
+- [x] 3.8 Forms are comfortable on a phone screen (PRD NFR) — 7990f81
