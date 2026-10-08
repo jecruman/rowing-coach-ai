@@ -41,6 +41,8 @@ export interface CoachingResult {
   /** Attempts started (1 or 2); an abort before the first request still counts as 1. */
   attempts: 1 | 2;
   model: string;
+  /** True when `deps.signal` aborted the run; such a default reflects a slow upstream, so callers should not store it. */
+  aborted: boolean;
 }
 
 const MAX_ATTEMPTS = 2;
@@ -184,17 +186,29 @@ async function attemptSuggestion(
 export async function getCoachingSuggestion(context: CoachingContext, deps: CoachingDeps): Promise<CoachingResult> {
   let feedback: Violation[] = [];
   let attempts: 1 | 2 = 1;
+  let aborted = false;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     if (deps.signal?.aborted) {
       log(attempt, "aborted");
+      aborted = true;
       break;
     }
     attempts = attempt === 1 ? 1 : 2;
     const result = await attemptSuggestion(context, deps, attempt, feedback);
     if (result.status === "ok") {
-      return { suggestion: result.suggestion, isDefault: false, defaultReason: null, attempts, model: deps.model };
+      return {
+        suggestion: result.suggestion,
+        isDefault: false,
+        defaultReason: null,
+        attempts,
+        model: deps.model,
+        aborted: false,
+      };
     }
-    if (result.status === "aborted") break;
+    if (result.status === "aborted") {
+      aborted = true;
+      break;
+    }
     feedback = result.violations;
   }
   return {
@@ -203,5 +217,6 @@ export async function getCoachingSuggestion(context: CoachingContext, deps: Coac
     defaultReason: "model_failed",
     attempts,
     model: deps.model,
+    aborted,
   };
 }

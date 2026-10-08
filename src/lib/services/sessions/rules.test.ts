@@ -128,6 +128,7 @@ describe("SessionInputSchema", () => {
     [{ ...erg, time: "10:00:00.1" }, "Time must be at most 10 hours"],
     [{ ...erg, splits: "1:55 nope" }, "Splits must be times like 1:55 or 1:55.5, separated by spaces"],
     [{ ...erg, splits: Array.from({ length: 201 }, () => "1:55").join(" ") }, "At most 200 splits"],
+    [{ ...erg, splits: ", ,," }, "Splits must be times like 1:55 or 1:55.5, separated by spaces"],
     [{ ...erg, spm: "9" }, "Stroke rate must be between 10 and 60 spm"],
     [{ ...erg, spm: "20-61" }, "Stroke rate must be between 10 and 60 spm"],
     [{ ...erg, spm: "26-24" }, "Stroke rate range must go from low to high"],

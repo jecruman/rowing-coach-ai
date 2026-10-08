@@ -13,17 +13,14 @@ import { previousSessions, sessionMetrics } from "./metrics";
 export const MAX_HISTORY_SESSIONS = 10;
 const DEFAULT_HISTORY_SESSIONS = 5;
 
-/** A tag that could open or close the fence; stripped from comments so they cannot break out of it. */
-const FENCE_TAG = /<\s*\/?\s*rower_comment[^>]*>/gi;
-
 /**
  * Wraps a rower-written comment in `<rower_comment>` tags (lessons.md: user text sent to the model is limited and
  * fenced). Comments are capped at `MAX_COMMENT_LENGTH` when saved; the cap is applied again here so nothing longer
- * ever reaches the model.
+ * ever reaches the model. Angle brackets become ‹ › so no tag — even one rebuilt from nested pieces — can close the fence.
  */
 export function fenceComment(comment: string | null): string | null {
   if (comment === null) return null;
-  const text = comment.slice(0, MAX_COMMENT_LENGTH).replace(FENCE_TAG, "");
+  const text = comment.slice(0, MAX_COMMENT_LENGTH).replaceAll("<", "‹").replaceAll(">", "›");
   return `<rower_comment>${text}</rower_comment>`;
 }
 

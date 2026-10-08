@@ -357,6 +357,11 @@ Expose the agent to the session page, store results, guard cost with the allowli
 - New tables only; no existing data changes. The user pushes the migration (`npx supabase db push` in their own terminal) before the phase 1 commit; Claude regenerates types with `--linked`.
 - Cloudflare secret rename: add `COACH_EMAILS`, then delete `COACH_TRY_EMAILS` after phase 4 deploys.
 
+## Addendum (implementation review, 2026-10-08)
+
+- **History window (F7)**: the session page and the suggestion endpoint call `loadSessionsUpTo(…, 30)` instead of the loader default of 10, so a mixed erg/water history still finds the last 3 sessions of a type. Beyond 30 rows of the other type since the last same-type session, that type's baseline is empty and the limits fail closed (volume cap from the logged session only; no cap → `no_baseline_for_type`).
+- **Review fixes**: comments escape `<`/`>` inside the fence (F1); migration `20261008220000_coach_suggestions_no_delete.sql` drops the suggestion delete policy, so a stored suggestion cannot be removed and regenerated (F3); the model schema bounds numbers and text lengths (F4); a default caused by the 90 s deadline is returned unstored so a reload retries (F5, reverses part of plan-review F3). Concurrent-request cost (F2) is accepted for the family MVP and tracked in roadmap Open Roadmap Question 1.
+
 ## References
 
 - Research: `context/changes/first-session-suggestion/research.md`

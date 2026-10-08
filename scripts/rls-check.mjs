@@ -223,6 +223,13 @@ const steps = [
     },
   ],
   [
+    "A delete of own suggestion affects 0 rows (no regeneration)",
+    async () => {
+      const r = await call(`/rest/v1/coach_suggestions${ofSuggestionA()}`, { method: "DELETE", token: a.token });
+      return [ok2xx(r.status) && isEmptyArray(r.data), r];
+    },
+  ],
+  [
     "B select sees none of A's sessions or suggestions",
     async () => {
       const s = await call(`/rest/v1/sessions${ofA}`, { token: b.token });

@@ -110,6 +110,18 @@ export const POST: APIRoute = async (context) => {
       signal: AbortSignal.timeout(AGENT_DEADLINE_MS),
     });
 
+    if (result.aborted) {
+      // Hitting the deadline says the model was slow, not that it broke a limit: show the safe default but don't
+      // store it, so a reload asks again instead of locking this session to the default.
+      const payload: SuggestionPayload = {
+        suggestion: result.suggestion,
+        isDefault: true,
+        defaultReason: "model_failed",
+        stored: false,
+      };
+      return json(payload, 200);
+    }
+
     const { error } = await supabase.from("coach_suggestions").insert({
       user_id: user.id,
       session_id: session.id,

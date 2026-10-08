@@ -104,6 +104,7 @@ describe("getCoachingSuggestion", () => {
       defaultReason: null,
       attempts: 1,
       model: MODEL,
+      aborted: false,
     });
     expect(toolRunner).toHaveBeenCalledTimes(1);
   });
@@ -171,7 +172,7 @@ describe("getCoachingSuggestion", () => {
 
     const result = await getCoachingSuggestion(context, { client, model: MODEL });
 
-    expect(result).toEqual({ ...clampedDefault, attempts: 2 });
+    expect(result).toEqual({ ...clampedDefault, attempts: 2, aborted: false });
     expect(result.suggestion.totalMinutes).toBe(22);
     expect(toolRunner).toHaveBeenCalledTimes(2);
   });
@@ -201,7 +202,7 @@ describe("getCoachingSuggestion", () => {
 
     const result = await getCoachingSuggestion(context, { client, model: MODEL });
 
-    expect(result).toEqual({ ...clampedDefault, attempts: 2 });
+    expect(result).toEqual({ ...clampedDefault, attempts: 2, aborted: false });
   });
 
   it("returns the clamped default without calling the model when the signal is already aborted", async () => {
@@ -211,7 +212,7 @@ describe("getCoachingSuggestion", () => {
 
     const result = await getCoachingSuggestion(context, { client, model: MODEL, signal: controller.signal });
 
-    expect(result).toEqual({ ...clampedDefault, attempts: 1 });
+    expect(result).toEqual({ ...clampedDefault, attempts: 1, aborted: true });
     expect(toolRunner).not.toHaveBeenCalled();
   });
 
@@ -227,7 +228,7 @@ describe("getCoachingSuggestion", () => {
 
     const result = await getCoachingSuggestion(context, { client, model: MODEL, signal: controller.signal });
 
-    expect(result).toEqual({ ...clampedDefault, attempts: 1 });
+    expect(result).toEqual({ ...clampedDefault, attempts: 1, aborted: true });
     expect(toolRunner).toHaveBeenCalledTimes(1);
   });
 

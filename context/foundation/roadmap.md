@@ -170,7 +170,7 @@ Mirrored in Linear: project [Rowing Coach AI](https://linear.app/jesusproject/pr
 
 ## Open Roadmap Questions
 
-1. **Open sign-up vs. AI usage cost** — open registration lets strangers trigger generated recommendations; is any limit needed? — Owner: user. Block: S-02 (decide before the app is shared beyond the family).
+1. **Open sign-up vs. AI usage cost** — open registration lets strangers trigger generated recommendations; is any limit needed? — Owner: user. Block: S-02 (decide before the app is shared beyond the family). S-02 status: guarded by the `COACH_EMAILS` allowlist + an Anthropic workspace spend limit. Known risk accepted for the family MVP (S-02 impl review F2): two simultaneous suggestion requests for one session each run the full agent (up to 8 model calls each) because nothing claims the session first — add a claim/pending state before sharing beyond the family.
 2. **Remaining thresholds** — SPM rise threshold, pace decline threshold. — Owner: user. Block: S-02 (non-blocking; decide at planning).
 3. **Baseline with fewer than 3 sessions** — what the metrics compare against before the rower has 3 sessions of a type. — Owner: user. Block: S-02 (non-blocking; decide at planning).
 4. **Named technique verdict** — when pace improves while DPS clearly drops and SPM rises, must the analysis always state "technique may be limiting efficiency", or is the 32 spm rate cap enough? — Owner: user. Block: S-02 (non-blocking).
