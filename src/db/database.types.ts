@@ -39,6 +39,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_suggestions: {
+        Row: {
+          attempts: number
+          created_at: string
+          default_reason: string | null
+          id: string
+          is_default: boolean
+          model: string
+          session_id: string
+          suggestion: Json
+          user_id: string
+        }
+        Insert: {
+          attempts: number
+          created_at?: string
+          default_reason?: string | null
+          id?: string
+          is_default?: boolean
+          model: string
+          session_id: string
+          suggestion: Json
+          user_id?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          default_reason?: string | null
+          id?: string
+          is_default?: boolean
+          model?: string
+          session_id?: string
+          suggestion?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_suggestions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           created_at: string
@@ -96,6 +140,63 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          boat: string | null
+          comment: string | null
+          created_at: string
+          distance_m: number
+          dps_max: number | null
+          dps_min: number | null
+          duration_s: number
+          id: string
+          rowed_on: string
+          session_type: string
+          splits_s: number[] | null
+          spm_max: number | null
+          spm_min: number | null
+          updated_at: string
+          user_id: string
+          watts: number | null
+        }
+        Insert: {
+          boat?: string | null
+          comment?: string | null
+          created_at?: string
+          distance_m: number
+          dps_max?: number | null
+          dps_min?: number | null
+          duration_s: number
+          id?: string
+          rowed_on?: string
+          session_type: string
+          splits_s?: number[] | null
+          spm_max?: number | null
+          spm_min?: number | null
+          updated_at?: string
+          user_id?: string
+          watts?: number | null
+        }
+        Update: {
+          boat?: string | null
+          comment?: string | null
+          created_at?: string
+          distance_m?: number
+          dps_max?: number | null
+          dps_min?: number | null
+          duration_s?: number
+          id?: string
+          rowed_on?: string
+          session_type?: string
+          splits_s?: number[] | null
+          spm_max?: number | null
+          spm_min?: number | null
+          updated_at?: string
+          user_id?: string
+          watts?: number | null
         }
         Relationships: []
       }

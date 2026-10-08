@@ -48,7 +48,7 @@ export function pacePer500(distanceM: number, targetSeconds: number): number {
 }
 
 /** Form value → trimmed string, or null when missing or blank. */
-function emptyToNull(value: unknown): unknown {
+export function emptyToNull(value: unknown): unknown {
   if (value === undefined || value === null) return null;
   if (typeof value === "string") {
     const trimmed = value.trim();

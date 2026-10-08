@@ -1,0 +1,32 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import SessionForm from "@/components/sessions/SessionForm";
+import { ServerError } from "@/components/auth/ServerError";
+
+/** Longest `?error=` text shown; the param is link-controlled, so keep crafted text short. */
+const MAX_ERROR_LENGTH = 200;
+
+const error = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ?? null;
+
+// Server date as the initial value; the form switches to the rower's local date on mount.
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Layout title="Log a session">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-md space-y-4 text-white">
+      <Topbar />
+
+      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+        Log a session
+      </h1>
+
+      <ServerError message={error} />
+
+      <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+        <SessionForm today={today} client:load />
+      </section>
+    </div>
+  </div>
+</Layout>

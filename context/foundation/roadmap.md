@@ -43,7 +43,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 | ---- | ------------------------ | ------------------------------------------------------------------------------------ | ------------- | ------------------------------------- | -------- |
 | F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | done |
 | S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | done |
-| S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | proposed |
+| S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | in-progress |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | proposed |
 | S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | proposed |
 | S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | proposed |
@@ -114,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - SPM rise and pace decline thresholds (PRD Open Question 2) — Owner: user. Block: no.
   - Must the analysis always name "technique may be limiting efficiency", or is the 32 spm cap enough? (PRD Open Question 4) — Owner: user. Block: no.
 - **Risk:** the north star, and the largest slice: it combines repeatable metrics, three safety limits and the model call; keep the metrics and limit checks in code and covered by tests so a model mistake can never reach the rower.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-03: Session history
 

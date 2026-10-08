@@ -1,0 +1,90 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+import { formatTime } from "@/lib/services/profile/rules";
+import { loadSession, type SessionResult } from "@/lib/services/sessions/load";
+import type { NumberRange } from "@/types";
+
+const { user } = Astro.locals;
+const id = Astro.params.id ?? "";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { session, loadFailed }: SessionResult =
+  supabase && user ? await loadSession(supabase, id) : { session: null, loadFailed: false };
+
+if (loadFailed) {
+  Astro.response.status = 500;
+} else if (!session) {
+  // Not found and "belongs to someone else" look the same: RLS hides other users' rows.
+  Astro.response.status = 404;
+}
+
+function formatRange(range: NumberRange, unit: string): string {
+  return range.min === range.max ? `${String(range.min)} ${unit}` : `${String(range.min)}–${String(range.max)} ${unit}`;
+}
+
+const values: { label: string; value: string }[] = session
+  ? [
+      { label: "Date", value: session.rowedOn },
+      { label: "Distance", value: `${String(session.distanceM)} m` },
+      { label: "Time", value: formatTime(session.durationS) },
+      ...(session.splitsS ? [{ label: "Splits /500 m", value: session.splitsS.map(formatTime).join(" · ") }] : []),
+      ...(session.spm ? [{ label: "Stroke rate", value: formatRange(session.spm, "spm") }] : []),
+      ...(session.dps ? [{ label: "Distance per stroke", value: formatRange(session.dps, "m") }] : []),
+      ...(session.watts === null ? [] : [{ label: "Average watts", value: `${String(session.watts)} W` }]),
+      ...(session.boat ? [{ label: "Boat", value: session.boat }] : []),
+    ]
+  : [];
+---
+
+<Layout title="Session">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-md space-y-4 text-white">
+      <Topbar />
+
+      {loadFailed ? (
+        <ServerError message="Could not load this session — please try again." />
+      ) : !session ? (
+        <section class="rounded-2xl border border-white/10 bg-white/10 p-6 text-center backdrop-blur-xl">
+          <h1 class="mb-2 text-xl font-semibold">Session not found</h1>
+          <p class="text-sm text-blue-100/70">This session does not exist or is not yours.</p>
+          <a href="/sessions/new" class="mt-4 inline-block text-sm text-purple-300 hover:underline">
+            Log a session
+          </a>
+        </section>
+      ) : (
+        <>
+          <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+            {session.type === "erg" ? "Erg session" : "Water session"}
+          </h1>
+
+          <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+            <dl class="space-y-3">
+              {values.map(({ label, value }) => (
+                <div class="flex items-baseline justify-between gap-4">
+                  <dt class="text-sm text-blue-100/70">{label}</dt>
+                  <dd class="text-right font-medium break-words">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {session.comment && (
+              <div class="mt-4 border-t border-white/10 pt-4">
+                <h2 class="mb-1 text-sm text-blue-100/70">Comment</h2>
+                <p class="text-sm whitespace-pre-line break-words">{session.comment}</p>
+              </div>
+            )}
+          </section>
+
+          <a
+            href="/sessions/new"
+            class="block rounded-lg bg-purple-600 px-4 py-3 text-center font-medium text-white transition-colors hover:bg-purple-500"
+          >
+            Log another session
+          </a>
+        </>
+      )}
+    </div>
+  </div>
+</Layout>

@@ -20,3 +20,32 @@ export interface RowerGoal {
   targetSeconds: number;
   eventDate: string | null;
 }
+
+/** An inclusive range; a single logged value is stored as `min === max`. */
+export interface NumberRange {
+  min: number;
+  max: number;
+}
+
+/** One logged rowing session. Type-specific fields are null for the other type (`dps`, `boat`: water; `watts`: erg). */
+export interface RowingSession {
+  id: string;
+  type: SessionType;
+  /** ISO date the session was rowed (`YYYY-MM-DD`). */
+  rowedOn: string;
+  distanceM: number;
+  durationS: number;
+  /** Per-500 m split times in seconds, in rowing order; null when not logged. */
+  splitsS: number[] | null;
+  /** Stroke rate range (strokes per minute). */
+  spm: NumberRange | null;
+  /** Distance per stroke range (metres), water only. */
+  dps: NumberRange | null;
+  /** Average watts, erg only. */
+  watts: number | null;
+  /** Boat class, water only. */
+  boat: Boat | null;
+  comment: string | null;
+  /** Insert timestamp; breaks ties between sessions rowed on the same date. */
+  createdAt: string;
+}
