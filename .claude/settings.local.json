@@ -18,7 +18,8 @@
       "WebSearch",
       "WebFetch(domain:cli.netlify.com)",
       "WebFetch(domain:render.com)",
-      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 1)"
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 1)",
+      "mcp__linear__save_comment"
     ],
     "deny": [
       "Bash(rm -rf *)"

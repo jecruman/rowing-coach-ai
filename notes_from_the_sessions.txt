@@ -1406,3 +1406,76 @@ fetch("/api/coaching/try", { method: "POST", headers: { "Content-Type": "applica
 ✻ Crunched for 5m 33s · done 23:16
 
 
+● ✓ Archived coaching-model-access
+    context/changes/coaching-model-access/  →  context/archive/2026-10-07-coaching-model-access/
+
+  change.md updated:
+    status:       archived
+    archived_at:  2026-10-06T21:23:43Z
+    updated:      2026-10-06
+
+  roadmap.md:     closed F-01 "(foundation) a model API account and key exist… structured
+                  answer was validated"  →  Status: done, entry added to ## Done
+
+  Committed as: 86f1415 chore(archive): close coaching-model-access
+
+  The folder is now read-only by convention. To start a new change: /10x-new <new-id>
+
+  There were no warnings:
+  - all 13 Progress rows done, each with a SHA;
+  - phases 1 and 2 both reviewed;
+  - every recorded SHA is in origin/main, so no repointing was needed.
+
+  The archive skill dates the stamp in UTC, where it's still 2026-10-06. So updated in change.md now reads 06, one day earlier than the 07 written before. The folder name keeps the change's original creation
+  date.
+
+  The commit is local only. This skill doesn't push. A push doesn't change the live app, since it only moves documents, but CI will run.
+
+  Still to do:
+  - Push 86f1415. Tell me and I'll do it.
+  - Linear: move JES-11 to Done. I can do this through the Linear connection.
+  - Next slice: S-01 rower-profile-and-goals (JES-12): /10x-new rower-profile-and-goals, then /10x-plan rower-profile-and-goals.
+
+
+ Both are done:
+
+  - Pushed: 86f1415 is on GitHub, so main is fully in sync. The commit only moves documents, so the live app doesn't change.
+  - Linear: JES-11 is now Done. I added a closing comment with the commits, the archive path, the measured 8.2 s and 21 ms CPU, and a note that it unblocks JES-13 together with JES-12.
+
+  F-01 is closed in the repo, the roadmap and Linear, and I've updated memory to match. Next is S-01 rower-profile-and-goals (JES-12): /10x-new rower-profile-and-goals, then /10x-plan rower-profile-and-goals.
+  
+
+
+ I've written the plan for S-01, the rower profile and goals:
+
+  📋 Brief (start here): context/changes/rower-profile-and-goals/plan-brief.md
+  📄 Full plan: context/changes/rower-profile-and-goals/plan.md
+
+  → /10x-implement rower-profile-and-goals phase 1 (✓ copied)
+
+  Three phases:
+  1. Schema, access rules and privacy check.
+     - profiles and goals tables, each with database rules that limit every read and write to the user's own rows.
+     - A new CI check (scripts/rls-check.mjs) signs up two users and proves user B can't read, insert, change or delete user A's rows.
+     - You then apply the schema to the cloud project with supabase link and supabase db push.
+  2. Input rules and save endpoints.
+     - Time parsing (for example "3:50" → 230 s), pace per 500 m (3:50 over 1000 m → 1:55) and input limits, all covered by unit tests.
+     - POST /api/profile and POST /api/goals; the goals endpoint saves, replaces or clears a goal.
+  3. /profile page and dashboard. A protected page with a profile form and two goal forms. The dashboard shows "Set up your profile and goals" until you've filled them in, then a summary. The smoke test gets
+     new steps.
+
+  What we decided:
+  - Goals: distance plus target time, with pace derived; changing a goal replaces it.
+  - Profile: boat chosen from a fixed list (1x, 2x, 2-, 4x, 4-, 8+); age stored as birth year.
+  - Pages: one /profile page, without forcing new users through it.
+  - Migrations: you push them yourself; CI holds no production database credentials.
+
+  Status: change.md is planned, and S-01 is planning in the roadmap. Nothing is committed yet; that happens with Phase 1.
+
+  Before Phase 1's manual step, you'll need the cloud database password for supabase link. It's set in Supabase → Project Settings → Database.
+
+  Order matters on deploy: the schema has to be pushed before the Phase 2 and 3 code goes live, which is why the push happens in Phase 1.
+
+  If you'd like a check before implementing, run /10x-plan-review rower-profile-and-goals.
+
+

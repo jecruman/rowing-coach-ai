@@ -41,6 +41,10 @@ jobs:
         run: |
           supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,realtime,storage-api,postgres-meta,supavisor
           supabase status -o env | grep -E '^(API_URL|ANON_KEY)=' > supabase.env
+      - name: Check cross-user access rules
+        run: |
+          source supabase.env
+          SUPABASE_URL=$API_URL SUPABASE_KEY=$ANON_KEY npm run rls-check
       - name: Configure secrets for build and preview
         run: |
           source supabase.env
