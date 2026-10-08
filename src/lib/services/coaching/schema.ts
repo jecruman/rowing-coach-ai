@@ -45,3 +45,21 @@ export const SuggestedSessionSchema = CoachingSuggestionSchema.extend({
 });
 
 export type SuggestedSession = z.infer<typeof SuggestedSessionSchema>;
+
+/**
+ * Why a safe default was shown: the model failed (stored), the account is not on the allowlist, or no API key is
+ * configured (neither of the last two is stored).
+ */
+export const SuggestionDefaultReasonSchema = z.enum(["model_failed", "not_allowed", "not_configured"]);
+export type SuggestionDefaultReason = z.infer<typeof SuggestionDefaultReasonSchema>;
+
+/** `POST /api/sessions/<id>/suggestion` response body; also what the session page passes to the suggestion panel. */
+export const SuggestionPayloadSchema = z.object({
+  suggestion: SuggestedSessionSchema,
+  isDefault: z.boolean(),
+  defaultReason: SuggestionDefaultReasonSchema.nullable(),
+  /** false for defaults that are never stored (`not_allowed`, `not_configured`). */
+  stored: z.boolean(),
+});
+
+export type SuggestionPayload = z.infer<typeof SuggestionPayloadSchema>;

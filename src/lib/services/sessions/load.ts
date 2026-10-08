@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { Database, Json, Tables } from "@/db/database.types";
-import { SessionTypeSchema } from "@/lib/services/coaching/schema";
+import { SessionTypeSchema, SuggestedSessionSchema, type SuggestionPayload } from "@/lib/services/coaching/schema";
 import { BOATS, type Boat, type NumberRange, type RowingSession } from "@/types";
 
 /** Columns every session read selects; `toRowingSession` maps exactly these. */
@@ -151,6 +151,17 @@ export interface StoredSuggestionResult {
   /** null when no suggestion has been stored for the session yet. */
   stored: StoredSuggestion | null;
   loadFailed: boolean;
+}
+
+/** The stored suggestion as the panel payload; null (with a log line) when its JSON no longer matches the schema. */
+export function storedSuggestionPayload(stored: StoredSuggestion): SuggestionPayload | null {
+  const parsed = SuggestedSessionSchema.safeParse(stored.suggestion);
+  if (!parsed.success) {
+    // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; no suggestion content logged
+    console.error("[sessions/load] stored suggestion does not match the schema");
+    return null;
+  }
+  return { suggestion: parsed.data, isDefault: stored.isDefault, defaultReason: stored.defaultReason, stored: true };
 }
 
 /** Reads the stored suggestion for one session as the signed-in user. */

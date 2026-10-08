@@ -3,12 +3,19 @@ import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import SessionAnalysis from "@/components/sessions/SessionAnalysis.astro";
+import SuggestionPanel from "@/components/sessions/SuggestionPanel";
 import { createClient } from "@/lib/supabase";
 import { isHardSession } from "@/lib/services/coaching/limits";
 import { analyseSession } from "@/lib/services/coaching/metrics";
 import { loadProfileAndGoals } from "@/lib/services/profile/load";
 import { formatTime } from "@/lib/services/profile/rules";
-import { loadSession, loadSessionsUpTo, type SessionResult } from "@/lib/services/sessions/load";
+import {
+  loadSession,
+  loadSessionsUpTo,
+  loadStoredSuggestion,
+  storedSuggestionPayload,
+  type SessionResult,
+} from "@/lib/services/sessions/load";
 import type { NumberRange } from "@/types";
 
 /** Rows of any type read for the analysis; enough to find the last 3 of the session's type in a mixed history. */
@@ -29,10 +36,16 @@ if (loadFailed) {
 }
 
 // Analysis: earlier sessions and goals are read in parallel; a failed read degrades the analysis, never the page.
-const [history, profileAndGoals] =
+// The stored suggestion is read alongside; when it is missing or unreadable the panel requests one instead.
+const [history, profileAndGoals, storedSuggestion] =
   supabase && user && session
-    ? await Promise.all([loadSessionsUpTo(supabase, session, HISTORY_LIMIT), loadProfileAndGoals(supabase, user.id)])
-    : [null, null];
+    ? await Promise.all([
+        loadSessionsUpTo(supabase, session, HISTORY_LIMIT),
+        loadProfileAndGoals(supabase, user.id),
+        loadStoredSuggestion(supabase, session.id),
+      ])
+    : [null, null, null];
+const initialSuggestion = storedSuggestion?.stored ? storedSuggestionPayload(storedSuggestion.stored) : null;
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;
@@ -101,6 +114,8 @@ const values: { label: string; value: string }[] = session
               isHard={isHard}
             />
           )}
+
+          <SuggestionPanel client:load sessionId={session.id} initial={initialSuggestion} />
 
           <a
             href="/sessions/new"

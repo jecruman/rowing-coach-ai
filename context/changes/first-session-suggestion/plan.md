@@ -402,26 +402,26 @@ Expose the agent to the session page, store results, guard cost with the allowli
 
 #### Automated
 
-- [x] 3.1 Unit tests pass for tools and agent service
-- [x] 3.2 Lint, type check and build pass
+- [x] 3.1 Unit tests pass for tools and agent service — 659e52d
+- [x] 3.2 Lint, type check and build pass — 659e52d
 
 #### Manual
 
-- [x] 3.3 Spike result recorded in the phase block
+- [x] 3.3 Spike result recorded in the phase block — 659e52d
 
 ### Phase 4: Suggestion endpoint, UI and cutover
 
 #### Automated
 
-- [ ] 4.1 Unit tests pass
-- [ ] 4.2 Lint, type check and build pass
+- [x] 4.1 Unit tests pass
+- [x] 4.2 Lint, type check and build pass
 - [ ] 4.3 Smoke passes including suggestion endpoint steps
-- [ ] 4.4 No references to COACH_TRY_EMAILS or api/coaching/try remain
+- [x] 4.4 No references to COACH_TRY_EMAILS or api/coaching/try remain
 - [ ] 4.5 CI run on main is green
 
 #### Manual
 
-- [ ] 4.6 COACH_EMAILS secret and Anthropic spend limit set
+- [x] 4.6 COACH_EMAILS secret and Anthropic spend limit set
 - [ ] 4.7 Deployed flow works on a phone with a stored suggestion on reload
 - [ ] 4.8 DPS-drop suggestion caps rate at 32 spm
 - [ ] 4.9 Non-allowlisted account sees the labelled safe default

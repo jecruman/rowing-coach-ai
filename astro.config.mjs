@@ -27,8 +27,8 @@ export default defineConfig({
         optional: true,
         default: "claude-opus-5-5",
       }),
-      // Comma-separated emails allowed to call the coaching try-it endpoint.
-      COACH_TRY_EMAILS: envField.string({ context: "server", access: "secret", optional: true }),
+      // Comma-separated emails that get model suggestions; unset means nobody (everyone else sees the safe default).
+      COACH_EMAILS: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
 });

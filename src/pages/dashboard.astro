@@ -4,13 +4,21 @@ import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 import { ageFromBirthYear, loadProfileAndGoals, type ProfileAndGoals } from "@/lib/services/profile/load";
 import { formatTime } from "@/lib/services/profile/rules";
+import { loadLatestSession, type SessionResult } from "@/lib/services/sessions/load";
 import type { RowerGoal } from "@/types";
 
 const { user } = Astro.locals;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-const { profile, goals, loadFailed }: ProfileAndGoals =
-  supabase && user ? await loadProfileAndGoals(supabase, user.id) : { profile: null, goals: {}, loadFailed: false };
+const [{ profile, goals, loadFailed }, latest]: [ProfileAndGoals, SessionResult] =
+  supabase && user
+    ? await Promise.all([loadProfileAndGoals(supabase, user.id), loadLatestSession(supabase)])
+    : [
+        { profile: null, goals: {}, loadFailed: false },
+        { session: null, loadFailed: false },
+      ];
+// A failed latest-session read only hides the link (it is logged by the loader).
+const latestSession = latest.session;
 
 const goalList = [goals.erg, goals.water].filter((goal): goal is RowerGoal => goal !== undefined);
 const needsSetup = profile === null || goalList.length === 0;
@@ -55,6 +63,18 @@ const summary = [
             Edit profile
           </a>
         </>
+      )}
+      <a
+        href="/sessions/new"
+        class="mt-6 block rounded-lg bg-purple-600 px-4 py-3 font-medium text-white transition-colors hover:bg-purple-500"
+      >
+        Log a session
+      </a>
+      {latestSession && (
+        <a href={`/sessions/${latestSession.id}`} class="mt-4 inline-block text-sm text-purple-300 hover:underline">
+          Latest session: {latestSession.rowedOn} · {latestSession.type === "erg" ? "Erg" : "Water"} ·{" "}
+          {latestSession.distanceM} m
+        </a>
       )}
       <form method="POST" action="/api/auth/signout" class="mt-6">
         <button
