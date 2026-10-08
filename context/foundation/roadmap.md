@@ -43,7 +43,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 | ---- | ------------------------ | ------------------------------------------------------------------------------------ | ------------- | ------------------------------------- | -------- |
 | F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | done |
 | S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | done |
-| S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | in-progress |
+| S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | done |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | proposed |
 | S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | proposed |
 | S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | proposed |
@@ -114,7 +114,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - SPM rise and pace decline thresholds (PRD Open Question 2) — Owner: user. Block: no.
   - Must the analysis always name "technique may be limiting efficiency", or is the 32 spm cap enough? (PRD Open Question 4) — Owner: user. Block: no.
 - **Risk:** the north star, and the largest slice: it combines repeatable metrics, three safety limits and the model call; keep the metrics and limit checks in code and covered by tests so a model mistake can never reach the rower.
-- **Status:** in-progress
+- **Status:** done
 
 ### S-03: Session history
 
@@ -193,3 +193,4 @@ Mirrored in Linear: project [Rowing Coach AI](https://linear.app/jesusproject/pr
 
 - **F-01: (foundation) a model API account and key exist, the key is stored as a production and CI secret and declared as a server-only secret, and the deployed app has made one coaching call whose structured answer was validated — with no product UI yet.** — Archived 2026-10-06 → `context/archive/2026-10-07-coaching-model-access/`. Lesson: —.
 - **S-01: user can sign in and set their profile (age, weight, boat) plus at most one erg goal and one water goal.** — Archived 2026-10-08 → `context/archive/2026-10-08-rower-profile-and-goals/`. Lesson: [Ship the schema before the code that needs it](lessons.md).
+- **S-02: user can log an erg or water session with type-specific fields and an optional comment, see its computed metrics against their recent baseline, and get one suggested next session that passes the safety limits (or the labelled safe default).** — Archived 2026-10-08 → `context/archive/2026-10-08-first-session-suggestion/`. Lesson: —.
