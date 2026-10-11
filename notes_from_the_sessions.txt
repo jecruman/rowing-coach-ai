@@ -1479,3 +1479,24 @@ fetch("/api/coaching/try", { method: "POST", headers: { "Content-Type": "applica
   If you'd like a check before implementing, run /10x-plan-review rower-profile-and-goals.
 
 
+
+● I pushed the archive commit 5274060 to GitHub and moved JES-12 to Done in Linear, with a closing comment. The comment summarises what shipped, lists the commits from 20b0fa4 to 5274060, adds the new lesson,
+  and notes that S-02 can start.
+
+  S-01 is now closed in the repo, the roadmap and Linear. I've also updated memory, including the reminder that Supabase login and link have to be run in your own terminal.
+
+  Milestone M-1 progress: F-01 and S-01 are done.
+
+  F-01 coaching-model-access ✓──┐
+                                ├──► S-02 first-session-suggestion (north star, JES-13) ← next
+  S-01 rower-profile-and-goals ✓┘         ├──► S-03 session-history
+                                          ├──► S-04 suggestion-done-loop
+                                          └──► S-05 metric-trend
+
+  Next: /10x-new first-session-suggestion, then /10x-plan first-session-suggestion.
+
+  It's the biggest slice so far. Logging a session, the computed metrics and the three safety limits come together with the coaching model, and both lessons apply.
+
+  Before that, it's worth deciding on the Workers Paid plan ($5/month). S-02 makes the coaching call part of everyday use, and it already measured 21 ms of CPU against the free plan's 10 ms limit.
+  
+ 

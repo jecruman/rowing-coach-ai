@@ -19,7 +19,9 @@
       "WebFetch(domain:cli.netlify.com)",
       "WebFetch(domain:render.com)",
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 1)",
-      "mcp__linear__save_comment"
+      "mcp__linear__save_comment",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --limit 1 --json databaseId --jq '.[0].databaseId')",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --branch main --limit 1)"
     ],
     "deny": [
       "Bash(rm -rf *)"
