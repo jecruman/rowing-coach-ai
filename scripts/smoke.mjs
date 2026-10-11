@@ -178,6 +178,12 @@ const steps = [
     () => request(`/api/sessions/${globalThis.crypto.randomUUID()}/suggestion`, { method: "POST", json: {} }),
     { status: 404 },
   ],
+  [
+    "delete removes the session and opens the list",
+    () => request(`/api${sessionPath || "/sessions/missing"}/delete`, { method: "POST", form: {} }),
+    { status: 302, location: "/sessions?deleted=1" },
+  ],
+  ["deleted session page is not found", () => request(sessionPath || "/sessions/missing"), { status: 404 }],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   [
