@@ -13,6 +13,7 @@ import {
   loadSession,
   loadSessionsUpTo,
   loadStoredSuggestion,
+  loadSuggestionOutcome,
   storedSuggestionPayload,
   type SessionResult,
 } from "@/lib/services/sessions/load";
@@ -46,6 +47,11 @@ const [history, profileAndGoals, storedSuggestion] =
       ])
     : [null, null, null];
 const initialSuggestion = storedSuggestion?.stored ? storedSuggestionPayload(storedSuggestion.stored) : null;
+// The rower's done/skipped mark for the stored suggestion; a failed read just shows no mark.
+const suggestionOutcome =
+  supabase && storedSuggestion?.stored
+    ? (await loadSuggestionOutcome(supabase, storedSuggestion.stored.id)).outcome
+    : null;
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;
@@ -115,7 +121,7 @@ const values: { label: string; value: string }[] = session
             />
           )}
 
-          <SuggestionPanel client:load sessionId={session.id} initial={initialSuggestion} />
+          <SuggestionPanel client:load sessionId={session.id} initial={initialSuggestion} outcome={suggestionOutcome} />
 
           <a
             href="/sessions/new"

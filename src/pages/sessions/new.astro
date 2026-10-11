@@ -3,6 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 import Topbar from "@/components/Topbar.astro";
 import SessionForm from "@/components/sessions/SessionForm";
 import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+import { loadMarkableSuggestion } from "@/lib/services/sessions/load";
 
 /** Longest `?error=` text shown; the param is link-controlled, so keep crafted text short. */
 const MAX_ERROR_LENGTH = 200;
@@ -11,6 +13,11 @@ const error = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ??
 
 // Server date as the initial value; the form switches to the rower's local date on mount.
 const today = new Date().toISOString().slice(0, 10);
+
+// The latest session's stored, unmarked suggestion, asked about as "Did you do it?". A failed read only hides the
+// question (it is logged by the loader); it never blocks logging.
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { markable } = supabase && Astro.locals.user ? await loadMarkableSuggestion(supabase) : { markable: null };
 ---
 
 <Layout title="Log a session">
@@ -25,7 +32,7 @@ const today = new Date().toISOString().slice(0, 10);
       <ServerError message={error} />
 
       <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
-        <SessionForm today={today} client:load />
+        <SessionForm today={today} markable={markable} client:load />
       </section>
     </div>
   </div>

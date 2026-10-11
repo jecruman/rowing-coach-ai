@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   SuggestionPayloadSchema,
   type SuggestionDefaultReason,
+  type SuggestionOutcome,
   type SuggestionPayload,
 } from "@/lib/services/coaching/schema";
 import { formatTime } from "@/lib/services/profile/rules";
@@ -14,7 +15,11 @@ interface Props {
   sessionId: string;
   /** The stored suggestion read by the page; when present nothing is requested. */
   initial: SuggestionPayload | null;
+  /** The rower's mark for the stored suggestion, entered when logging the next session. */
+  outcome?: SuggestionOutcome | null;
 }
+
+const OUTCOME_TEXT: Record<SuggestionOutcome, string> = { done: "Done", skipped: "Skipped" };
 
 type State =
   | { status: "loading" }
@@ -111,7 +116,7 @@ function Suggestion({ payload }: { payload: SuggestionPayload }) {
 }
 
 /** The suggested next session: the stored one, or requested once on mount with a waiting state. */
-export default function SuggestionPanel({ sessionId, initial }: Props) {
+export default function SuggestionPanel({ sessionId, initial, outcome = null }: Props) {
   const [state, setState] = useState<State>(initial ? { status: "ready", payload: initial } : { status: "loading" });
 
   // Requested once after hydration when the page had no stored suggestion; the state is set when the answer arrives.
@@ -149,6 +154,12 @@ export default function SuggestionPanel({ sessionId, initial }: Props) {
         )}
 
         {state.status === "ready" && <Suggestion payload={state.payload} />}
+
+        {state.status === "ready" && outcome && (
+          <p className="mt-4 border-t border-white/10 pt-4 text-sm text-blue-100/70">
+            You marked this: <span className="font-medium text-white">{OUTCOME_TEXT[outcome]}</span>
+          </p>
+        )}
 
         {state.status === "signedOut" && (
           <p className="text-sm">

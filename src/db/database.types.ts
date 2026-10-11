@@ -200,6 +200,48 @@ export type Database = {
         }
         Relationships: []
       }
+      suggestion_outcomes: {
+        Row: {
+          created_at: string
+          id: string
+          logged_session_id: string
+          outcome: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logged_session_id: string
+          outcome: string
+          suggestion_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logged_session_id?: string
+          outcome?: string
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_outcomes_logged_session_id_fkey"
+            columns: ["logged_session_id"]
+            isOneToOne: true
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggestion_outcomes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: true
+            referencedRelation: "coach_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -66,6 +66,7 @@ describe("SessionInputSchema", () => {
       watts: null,
       boat: null,
       comment: null,
+      mark: null,
     });
   });
 
@@ -154,5 +155,36 @@ describe("SessionInputSchema", () => {
       comment: "x".repeat(1000),
     });
     expect(result.success).toBe(true);
+  });
+
+  describe("done/skipped mark", () => {
+    const suggestionId = "5f0c6a3e-8a4b-4f3e-9c1d-2b7e6a9d4c10";
+
+    it.each(["done", "skipped"] as const)("accepts a %s mark with its suggestion id", (outcome) => {
+      const result = parse({ ...erg, markedSuggestionId: suggestionId, outcome });
+      expect(result.success && result.data.mark).toEqual({ suggestionId, outcome });
+    });
+
+    it.each([
+      ["no mark fields", {}],
+      ["empty mark fields", { markedSuggestionId: "", outcome: "" }],
+      ["not answering", { outcome: "none" }],
+    ])("treats %s as no mark", (_label, fields) => {
+      const result = parse({ ...water, ...fields });
+      expect(result.success && result.data.mark).toBeNull();
+    });
+
+    it.each([
+      [{ ...erg, markedSuggestionId: suggestionId }, "Choose done or skipped for the suggested session"],
+      [
+        { ...erg, markedSuggestionId: suggestionId, outcome: "none" },
+        "Choose done or skipped for the suggested session",
+      ],
+      [{ ...erg, outcome: "done" }, "Choose done or skipped for the suggested session"],
+      [{ ...erg, markedSuggestionId: "not-a-uuid", outcome: "done" }, "The suggested session to mark is not valid"],
+      [{ ...erg, markedSuggestionId: suggestionId, outcome: "maybe" }, "Choose done, skipped or not answering"],
+    ])("rejects %j", (input, message) => {
+      expect(errorOf(input)).toBe(message);
+    });
   });
 });

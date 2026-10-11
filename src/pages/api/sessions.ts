@@ -1,6 +1,7 @@
 import type { APIContext, APIRoute } from "astro";
 
 import { createClient } from "@/lib/supabase";
+import { loadMarkableSuggestion } from "@/lib/services/sessions/load";
 import { firstIssueMessage, SessionInputSchema } from "@/lib/services/sessions/rules";
 
 export const prerender = false;
@@ -35,6 +36,8 @@ export const POST: APIRoute = async (context) => {
     watts: form.get("watts"),
     boat: form.get("boat"),
     comment: form.get("comment"),
+    markedSuggestionId: form.get("markedSuggestionId"),
+    outcome: form.get("outcome"),
   });
   if (!parsed.success) {
     return errorRedirect(context, firstIssueMessage(parsed.error));
@@ -46,6 +49,23 @@ export const POST: APIRoute = async (context) => {
   }
 
   const session = parsed.data;
+
+  // The mark is checked before the insert, because the new session becomes the latest one. It is kept only for the
+  // suggestion still stored, unmarked, on the latest session; a stale question (e.g. a newer session logged in
+  // another tab) or a failed read drops the mark silently — the session itself is always saved.
+  let mark = session.mark;
+  if (mark) {
+    const { markable } = await loadMarkableSuggestion(supabase);
+    if (markable?.suggestionId !== mark.suggestionId) {
+      mark = null;
+    } else if (session.rowedOn < markable.rowedOn) {
+      // "Done" would claim an earlier session was the suggested one.
+      return errorRedirect(
+        context,
+        `A marked session can't be dated before the suggested session (${markable.rowedOn})`,
+      );
+    }
+  }
   const { data, error } = await supabase
     .from("sessions")
     .insert({
@@ -70,6 +90,20 @@ export const POST: APIRoute = async (context) => {
     // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; PostgREST code/message only, no user data
     console.error(`[api/sessions] insert failed — ${error.code}: ${error.message}`);
     return errorRedirect(context, "Could not save your session. Please try again.");
+  }
+
+  if (mark) {
+    const { error: markError } = await supabase.from("suggestion_outcomes").insert({
+      user_id: user.id,
+      suggestion_id: mark.suggestionId,
+      logged_session_id: data.id,
+      outcome: mark.outcome,
+    });
+    if (markError) {
+      // The session is saved; the suggestion just stays unmarked (e.g. a parallel submit marked it first).
+      // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; PostgREST code/message only, no user data
+      console.error(`[api/sessions] mark insert failed — ${markError.code}: ${markError.message}`);
+    }
   }
 
   return context.redirect(`/sessions/${data.id}`);

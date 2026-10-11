@@ -13,16 +13,40 @@ import {
 } from "lucide-react";
 import { FormField, inputBase } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
+import type { SuggestionOutcome } from "@/lib/services/coaching/schema";
+import type { MarkableSuggestion } from "@/lib/services/sessions/load";
 import { MAX_COMMENT_LENGTH, SessionInputSchema } from "@/lib/services/sessions/rules";
 import { cn } from "@/lib/utils";
 import { BOATS, type SessionType } from "@/types";
 
-type Field = "sessionType" | "rowedOn" | "distanceM" | "time" | "splits" | "spm" | "dps" | "watts" | "boat" | "comment";
+type Field =
+  | "sessionType"
+  | "rowedOn"
+  | "distanceM"
+  | "time"
+  | "splits"
+  | "spm"
+  | "dps"
+  | "watts"
+  | "boat"
+  | "comment"
+  | "markedSuggestionId"
+  | "outcome";
 
 interface Props {
   /** Server's today (`YYYY-MM-DD`); replaced by the browser's local date on mount if untouched. */
   today: string;
+  /** The latest session's stored, unmarked suggestion; when set, the form asks whether it was done. */
+  markable?: MarkableSuggestion | null;
 }
+
+type OutcomeChoice = SuggestionOutcome | "none";
+
+const OUTCOMES: { value: OutcomeChoice; label: string }[] = [
+  { value: "done", label: "Done" },
+  { value: "skipped", label: "Skipped" },
+  { value: "none", label: "Not answering" },
+];
 
 const TYPES: { type: SessionType; label: string }[] = [
   { type: "erg", label: "Erg" },
@@ -44,7 +68,7 @@ function errorText(message: string | undefined) {
   ) : null;
 }
 
-export default function SessionForm({ today }: Props) {
+export default function SessionForm({ today, markable = null }: Props) {
   const [sessionType, setSessionType] = useState<SessionType>("erg");
   const [rowedOn, setRowedOn] = useState(today);
   const [distanceM, setDistanceM] = useState("");
@@ -55,6 +79,9 @@ export default function SessionForm({ today }: Props) {
   const [watts, setWatts] = useState("");
   const [boat, setBoat] = useState("");
   const [comment, setComment] = useState("");
+  const [outcome, setOutcome] = useState<OutcomeChoice>("none");
+  // The suggestion id is sent only with a done/skipped answer, so "Not answering" sends no mark at all.
+  const markedSuggestionId = markable && outcome !== "none" ? markable.suggestionId : "";
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
 
   // The server renders its own (UTC) date; the rower's "today" is their local date, which is only known after
@@ -77,6 +104,8 @@ export default function SessionForm({ today }: Props) {
       watts,
       boat,
       comment,
+      markedSuggestionId,
+      outcome,
     });
     const next: typeof errors = {};
     if (!parsed.success) {
@@ -85,8 +114,13 @@ export default function SessionForm({ today }: Props) {
         next[field] ??= issue.message;
       }
     }
+    // Mirrors the server's check: a done/skipped answer belongs to a session rowed on or after the suggested one.
+    if (markable && outcome !== "none" && rowedOn < markable.rowedOn) {
+      next.outcome ??= `A marked session can't be dated before the suggested session (${markable.rowedOn})`;
+    }
+    const valid = Object.keys(next).length === 0;
     setErrors(next);
-    return parsed.success;
+    return valid;
   }
 
   function clearError(field: Field) {
@@ -293,6 +327,47 @@ export default function SessionForm({ today }: Props) {
         />
         {errorText(errors.comment)}
       </div>
+
+      {markable && (
+        <fieldset className="rounded-lg border border-white/15 bg-white/5 p-3">
+          <legend className="px-1 text-sm text-blue-100/80">Did you do the suggested session?</legend>
+          <p className="mb-3 text-sm break-words">
+            <span className="text-blue-100/70">
+              After {markable.rowedOn} · {markable.sessionType === "erg" ? "Erg" : "Water"}:
+            </span>{" "}
+            {markable.structure}
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {OUTCOMES.map(({ value, label }) => (
+              <label
+                key={value}
+                className={cn(
+                  "flex cursor-pointer items-center justify-center rounded-lg border px-2 py-2 text-center text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-purple-400",
+                  outcome === value
+                    ? "border-purple-400 bg-purple-600 text-white"
+                    : "border-white/20 bg-white/5 text-blue-100/80 hover:bg-white/15",
+                )}
+              >
+                <input
+                  type="radio"
+                  name="outcome"
+                  value={value}
+                  checked={outcome === value}
+                  onChange={() => {
+                    setOutcome(value);
+                    clearError("outcome");
+                    clearError("markedSuggestionId");
+                  }}
+                  className="sr-only"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          {markedSuggestionId && <input type="hidden" name="markedSuggestionId" value={markedSuggestionId} />}
+          {errorText(errors.outcome ?? errors.markedSuggestionId)}
+        </fieldset>
+      )}
 
       <SubmitButton pendingText="Saving..." icon={<Save className="size-4" />}>
         Save session

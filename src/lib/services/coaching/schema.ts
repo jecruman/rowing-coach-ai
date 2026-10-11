@@ -3,6 +3,10 @@ import { z } from "zod";
 export const SessionTypeSchema = z.enum(["erg", "water"]);
 export type SessionType = z.infer<typeof SessionTypeSchema>;
 
+/** The rower's mark for a stored suggestion: done = the session logged with it is the suggested one. */
+export const SuggestionOutcomeSchema = z.enum(["done", "skipped"]);
+export type SuggestionOutcome = z.infer<typeof SuggestionOutcomeSchema>;
+
 /**
  * One suggested next session — the shape the model must return. The summary numbers
  * (`totalDistanceM`, `totalMinutes`, `targets.maxSpm`, `targets.fastestPacePer500s`) are what the

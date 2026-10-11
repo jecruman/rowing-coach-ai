@@ -77,6 +77,11 @@ const suggestion = { suggestion: { structure: "Steady row" }, is_default: false,
 // Filled in by the steps below: A's first session (has a suggestion) and second session (has none).
 let sessionA;
 let sessionA2;
+// A's suggestion (for sessionA), and B's own session + suggestion used to probe the outcome insert policy.
+let suggestionA;
+let sessionB;
+let suggestionB;
+const ofOutcomeA = () => `?suggestion_id=eq.${suggestionA.id}`;
 const ofSessionA = () => `?id=eq.${sessionA.id}`;
 const ofSuggestionA = () => `?session_id=eq.${sessionA.id}`;
 // RLS rejection of an insert: PostgREST answers 401/403 with Postgres code 42501.
@@ -200,7 +205,8 @@ const steps = [
     async () => {
       const body = { ...suggestion, session_id: sessionA.id };
       const r = await call("/rest/v1/coach_suggestions", { method: "POST", token: a.token, body });
-      return [r.status === 201 && r.data?.[0]?.user_id === a.id, r];
+      suggestionA = r.data?.[0];
+      return [r.status === 201 && suggestionA?.user_id === a.id, r];
     },
   ],
   [
@@ -318,6 +324,121 @@ const steps = [
     },
   ],
   [
+    "A marks own suggestion done with own later session",
+    async () => {
+      const body = { suggestion_id: suggestionA.id, logged_session_id: sessionA2.id, outcome: "done" };
+      const r = await call("/rest/v1/suggestion_outcomes", { method: "POST", token: a.token, body });
+      return [r.status === 201 && r.data?.[0]?.user_id === a.id, r];
+    },
+  ],
+  [
+    "A sees own outcome",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofA}`, { token: a.token });
+      return [r.data?.length === 1 && r.data[0].outcome === "done", r];
+    },
+  ],
+  [
+    "A second mark for the same suggestion is rejected",
+    async () => {
+      const body = { suggestion_id: suggestionA.id, logged_session_id: sessionA.id, outcome: "skipped" };
+      const r = await call("/rest/v1/suggestion_outcomes", { method: "POST", token: a.token, body });
+      return [!ok2xx(r.status), r];
+    },
+  ],
+  [
+    "A update of own outcome affects 0 rows (final)",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofOutcomeA()}`, {
+        method: "PATCH",
+        token: a.token,
+        body: { outcome: "skipped" },
+      });
+      return [ok2xx(r.status) && isEmptyArray(r.data), r];
+    },
+  ],
+  [
+    "A delete of own outcome affects 0 rows (final)",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofOutcomeA()}`, { method: "DELETE", token: a.token });
+      return [ok2xx(r.status) && isEmptyArray(r.data), r];
+    },
+  ],
+  [
+    "B select sees none of A's outcomes",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofA}`, { token: b.token });
+      return [r.status === 200 && isEmptyArray(r.data), r];
+    },
+  ],
+  [
+    "B update of A's outcome affects 0 rows",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofA}`, {
+        method: "PATCH",
+        token: b.token,
+        body: { outcome: "skipped" },
+      });
+      return [ok2xx(r.status) && isEmptyArray(r.data), r];
+    },
+  ],
+  [
+    "B delete of A's outcome affects 0 rows",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofA}`, { method: "DELETE", token: b.token });
+      return [ok2xx(r.status) && isEmptyArray(r.data), r];
+    },
+  ],
+  [
+    "B inserts own session and suggestion",
+    async () => {
+      const s = await call("/rest/v1/sessions", { method: "POST", token: b.token, body: session });
+      sessionB = s.data?.[0];
+      const body = { ...suggestion, session_id: sessionB?.id };
+      const c = await call("/rest/v1/coach_suggestions", { method: "POST", token: b.token, body });
+      suggestionB = c.data?.[0];
+      return [s.status === 201 && c.status === 201 && suggestionB?.user_id === b.id, { session: s, suggestion: c }];
+    },
+  ],
+  [
+    "B marking A's suggestion with own session is rejected",
+    async () => {
+      const body = { suggestion_id: suggestionA.id, logged_session_id: sessionB.id, outcome: "skipped" };
+      const r = await call("/rest/v1/suggestion_outcomes", { method: "POST", token: b.token, body });
+      return [rlsRejected(r), r];
+    },
+  ],
+  [
+    "B marking own suggestion with A's session is rejected",
+    async () => {
+      const body = { suggestion_id: suggestionB.id, logged_session_id: sessionA.id, outcome: "skipped" };
+      const r = await call("/rest/v1/suggestion_outcomes", { method: "POST", token: b.token, body });
+      return [rlsRejected(r), r];
+    },
+  ],
+  [
+    "B insert of an outcome owned by A is rejected",
+    async () => {
+      const body = { user_id: a.id, suggestion_id: suggestionB.id, logged_session_id: sessionB.id, outcome: "done" };
+      const r = await call("/rest/v1/suggestion_outcomes", { method: "POST", token: b.token, body });
+      return [rlsRejected(r), r];
+    },
+  ],
+  [
+    "A's outcome unchanged on re-read",
+    async () => {
+      const r = await call(`/rest/v1/suggestion_outcomes${ofA}`, { token: a.token });
+      const row = r.data?.[0];
+      const ok =
+        r.data?.length === 1 &&
+        row.user_id === a.id &&
+        row.suggestion_id === suggestionA.id &&
+        row.logged_session_id === sessionA2.id &&
+        row.outcome === "done";
+      return [ok, r];
+    },
+  ],
+  [
     "A's sessions and suggestion unchanged on re-read",
     async () => {
       const s = await call(`/rest/v1/sessions${ofSessionA()}`, { token: a.token });
@@ -341,10 +462,11 @@ const steps = [
       const g = await call(`/rest/v1/goals${ofA}`);
       const s = await call(`/rest/v1/sessions${ofA}`);
       const c = await call(`/rest/v1/coach_suggestions${ofA}`);
+      const o = await call(`/rest/v1/suggestion_outcomes${ofA}`);
       // Either RLS hides rows (200 []) or the anon role is refused outright (401/403).
       const hidden = (r) => (r.status === 200 && isEmptyArray(r.data)) || r.status === 401 || r.status === 403;
-      const ok = hidden(p) && hidden(g) && hidden(s) && hidden(c);
-      return [ok, { profiles: p, goals: g, sessions: s, suggestions: c }];
+      const ok = hidden(p) && hidden(g) && hidden(s) && hidden(c) && hidden(o);
+      return [ok, { profiles: p, goals: g, sessions: s, suggestions: c, outcomes: o }];
     },
   ],
 ];

@@ -2,7 +2,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { Database, Json, Tables } from "@/db/database.types";
-import { SessionTypeSchema, SuggestedSessionSchema, type SuggestionPayload } from "@/lib/services/coaching/schema";
+import {
+  SessionTypeSchema,
+  SuggestedSessionSchema,
+  SuggestionOutcomeSchema,
+  type SessionType,
+  type SuggestionOutcome,
+  type SuggestionPayload,
+} from "@/lib/services/coaching/schema";
 import { BOATS, type Boat, type NumberRange, type RowingSession } from "@/types";
 
 /** Columns every session read selects; `toRowingSession` maps exactly these. */
@@ -29,6 +36,7 @@ type SessionRow = Pick<
 
 /** The stored suggestion for one session. `suggestion` is raw JSON; callers parse it with the suggestion schema. */
 export interface StoredSuggestion {
+  id: string;
   suggestion: Json;
   isDefault: boolean;
   defaultReason: "model_failed" | null;
@@ -173,7 +181,7 @@ export async function loadStoredSuggestion(
 
   const { data, error } = await supabase
     .from("coach_suggestions")
-    .select("suggestion, is_default, default_reason, attempts, model, created_at")
+    .select("id, suggestion, is_default, default_reason, attempts, model, created_at")
     .eq("session_id", sessionId)
     .maybeSingle();
   if (error) {
@@ -183,12 +191,93 @@ export async function loadStoredSuggestion(
   if (!data) return { stored: null, loadFailed: false };
   return {
     stored: {
+      id: data.id,
       suggestion: data.suggestion,
       isDefault: data.is_default,
       defaultReason: data.default_reason === "model_failed" ? "model_failed" : null,
       attempts: data.attempts,
       model: data.model,
       createdAt: data.created_at,
+    },
+    loadFailed: false,
+  };
+}
+
+export interface SuggestionOutcomeResult {
+  /** null when the suggestion has not been marked. */
+  outcome: SuggestionOutcome | null;
+  loadFailed: boolean;
+}
+
+/** Reads the done/skipped mark of one stored suggestion as the signed-in user. */
+export async function loadSuggestionOutcome(
+  supabase: SupabaseClient<Database>,
+  suggestionId: string,
+): Promise<SuggestionOutcomeResult> {
+  if (!SessionIdSchema.safeParse(suggestionId).success) return { outcome: null, loadFailed: false };
+
+  const { data, error } = await supabase
+    .from("suggestion_outcomes")
+    .select("outcome")
+    .eq("suggestion_id", suggestionId)
+    .maybeSingle();
+  if (error) {
+    logReadError("suggestion outcome", error);
+    return { outcome: null, loadFailed: true };
+  }
+  if (!data) return { outcome: null, loadFailed: false };
+  const outcome = SuggestionOutcomeSchema.safeParse(data.outcome);
+  return { outcome: outcome.success ? outcome.data : null, loadFailed: false };
+}
+
+/** The suggestion the log form asks about: stored for the rower's latest session and not marked yet. */
+export interface MarkableSuggestion {
+  suggestionId: string;
+  /** The session the suggestion was made after. */
+  sessionId: string;
+  rowedOn: string;
+  createdAt: string;
+  /** The suggested session's type and structure, as shown in the question. */
+  sessionType: SessionType;
+  structure: string;
+}
+
+export interface MarkableSuggestionResult {
+  /** null when the latest session has no stored, readable, unmarked suggestion (or there are no sessions). */
+  markable: MarkableSuggestion | null;
+  loadFailed: boolean;
+}
+
+/**
+ * Reads the suggestion the next log may mark: only the one stored for the latest session (`rowed_on` desc, then
+ * `created_at` desc), and only while it has no mark. Older unmarked suggestions are never asked about.
+ */
+export async function loadMarkableSuggestion(supabase: SupabaseClient<Database>): Promise<MarkableSuggestionResult> {
+  const failed: MarkableSuggestionResult = { markable: null, loadFailed: true };
+  const none: MarkableSuggestionResult = { markable: null, loadFailed: false };
+
+  const latest = await loadLatestSession(supabase);
+  if (latest.loadFailed) return failed;
+  if (!latest.session) return none;
+
+  const { stored, loadFailed } = await loadStoredSuggestion(supabase, latest.session.id);
+  if (loadFailed) return failed;
+  if (!stored) return none;
+  const payload = storedSuggestionPayload(stored);
+  if (!payload) return none;
+
+  const mark = await loadSuggestionOutcome(supabase, stored.id);
+  if (mark.loadFailed) return failed;
+  if (mark.outcome !== null) return none;
+
+  return {
+    markable: {
+      suggestionId: stored.id,
+      sessionId: latest.session.id,
+      rowedOn: latest.session.rowedOn,
+      createdAt: latest.session.createdAt,
+      sessionType: payload.suggestion.sessionType,
+      structure: payload.suggestion.structure,
     },
     loadFailed: false,
   };
