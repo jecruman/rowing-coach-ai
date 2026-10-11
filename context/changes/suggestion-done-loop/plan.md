@@ -343,9 +343,9 @@ The new table only; existing rows are untouched. All existing suggestions start 
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test`
-- [x] 2.2 Lint passes: `npm run lint`
-- [x] 2.3 Type and build check passes: `npm run build`
+- [x] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test` — 4eaec1e
+- [x] 2.2 Lint passes: `npm run lint` — 4eaec1e
+- [x] 2.3 Type and build check passes: `npm run build` — 4eaec1e
 - [ ] 2.4 RLS check still passes: `npm run rls-check`
 - [ ] 2.5 Smoke passes (endpoint still returns the safe default without a key): `npm run smoke`
 
