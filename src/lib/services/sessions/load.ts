@@ -112,6 +112,41 @@ export async function loadLatestSession(supabase: SupabaseClient<Database>): Pro
   return { session: data ? toRowingSession(data) : null, loadFailed: false };
 }
 
+export interface SessionsPage {
+  /** Up to `pageSize` sessions, newest first. */
+  sessions: RowingSession[];
+  /** true when at least one session is ordered after this page. */
+  hasOlder: boolean;
+  loadFailed: boolean;
+}
+
+/** Sessions shown per page of the session list. */
+export const SESSIONS_PAGE_SIZE = 20;
+
+/**
+ * Reads one page (1-based) of the signed-in user's sessions in the agreed order (`rowed_on` desc, then `created_at`
+ * desc). One extra row is requested to tell whether older sessions exist.
+ */
+export async function loadSessionsPage(
+  supabase: SupabaseClient<Database>,
+  page: number,
+  pageSize = SESSIONS_PAGE_SIZE,
+): Promise<SessionsPage> {
+  const from = (page - 1) * pageSize;
+  const { data, error } = await supabase
+    .from("sessions")
+    .select(SESSION_COLUMNS)
+    .order("rowed_on", { ascending: false })
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize);
+  if (error) {
+    logReadError("sessions page", error);
+    return { sessions: [], hasOlder: false, loadFailed: true };
+  }
+  const rows = data;
+  return { sessions: toSessions(rows.slice(0, pageSize)), hasOlder: rows.length > pageSize, loadFailed: false };
+}
+
 export interface SessionHistory {
   /**
    * Up to `limit` sessions of any type, newest first, ending with `session` itself or earlier: sessions ordered

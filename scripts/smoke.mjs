@@ -23,7 +23,7 @@ function storeCookies(response) {
   }
 }
 
-// `form` sends a urlencoded body, `json` a JSON body; a JSON response is returned parsed as `body`.
+// `form` sends a urlencoded body, `json` a JSON body; a JSON response is returned parsed as `body`, any other as `text`.
 async function request(path, { method = "GET", form, json } = {}) {
   const contentType = form ? "application/x-www-form-urlencoded" : json !== undefined ? "application/json" : undefined;
   const response = await fetch(BASE_URL + path, {
@@ -39,7 +39,8 @@ async function request(path, { method = "GET", form, json } = {}) {
   storeCookies(response);
   const isJson = (response.headers.get("content-type") ?? "").includes("application/json");
   const body = isJson ? await response.json().catch(() => null) : null;
-  return { status: response.status, location: response.headers.get("location") ?? "", body };
+  const text = isJson ? "" : await response.text().catch(() => "");
+  return { status: response.status, location: response.headers.get("location") ?? "", body, text };
 }
 
 function suggestionPath() {
@@ -62,6 +63,7 @@ const steps = [
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["new session redirects anonymous user", () => request("/sessions/new"), { status: 302, location: "/auth/signin" }],
+  ["session list redirects anonymous user", () => request("/sessions"), { status: 302, location: "/auth/signin" }],
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -135,6 +137,11 @@ const steps = [
   ],
   ["session page renders", () => request(sessionPath || "/sessions/missing"), { status: 200 }],
   [
+    "session list shows the logged session",
+    () => request("/sessions"),
+    { status: 200, html: (text) => sessionPath !== "" && text.includes(`href="${sessionPath}"`) },
+  ],
+  [
     "suggestion for own session is the safe default",
     () => request(suggestionPath(), { method: "POST", json: {} }),
     { status: 200, check: isUnstoredDefault },
@@ -160,12 +167,13 @@ for (const [name, run, expected] of steps) {
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
     (expected.match === undefined || expected.match.test(actual.location)) &&
-    (expected.check === undefined || expected.check(actual.body));
+    (expected.check === undefined || expected.check(actual.body)) &&
+    (expected.html === undefined || expected.html(actual.text));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
     console.log(
-      `      expected ${expected.status} ${expected.location ?? expected.match ?? expected.check?.name ?? ""}`,
+      `      expected ${expected.status} ${expected.location ?? expected.match ?? expected.check?.name ?? expected.html?.toString() ?? ""}`,
     );
     // Only the flags, never the suggestion text.
     if (actual.body) {

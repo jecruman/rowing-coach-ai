@@ -1,0 +1,106 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+import { formatTime, pacePer500 } from "@/lib/services/profile/rules";
+import { loadSessionsPage, type SessionsPage } from "@/lib/services/sessions/load";
+
+/** Highest page number accepted from the query string; larger values are treated as page 1. */
+const MAX_PAGE = 10_000;
+
+const { user } = Astro.locals;
+
+// `?page=N` is 1-based; anything that is not a whole number in range shows the first page.
+const pageParam = Astro.url.searchParams.get("page") ?? "1";
+const page =
+  /^\d{1,5}$/.test(pageParam) && Number(pageParam) >= 1 && Number(pageParam) <= MAX_PAGE ? Number(pageParam) : 1;
+const deleted = Astro.url.searchParams.get("deleted") === "1";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { sessions, hasOlder, loadFailed }: SessionsPage =
+  supabase && user ? await loadSessionsPage(supabase, page) : { sessions: [], hasOlder: false, loadFailed: false };
+
+const rows = sessions.map((session) => ({
+  href: `/sessions/${session.id}`,
+  date: session.rowedOn,
+  type: session.type === "erg" ? "Erg" : "Water",
+  distance: `${String(session.distanceM)} m`,
+  time: formatTime(session.durationS),
+  pace: `${formatTime(pacePer500(session.distanceM, session.durationS))} /500 m`,
+}));
+---
+
+<Layout title="Sessions">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-md space-y-4 text-white">
+      <Topbar />
+
+      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+        Sessions
+      </h1>
+
+      {deleted && (
+        <p class="rounded-lg border border-green-500/30 bg-green-900/30 px-3 py-2 text-sm text-green-200">
+          Session deleted
+        </p>
+      )}
+
+      {loadFailed ? (
+        <ServerError message="Could not load your sessions — please try again." />
+      ) : rows.length === 0 ? (
+        <section class="rounded-2xl border border-white/10 bg-white/10 p-6 text-center backdrop-blur-xl">
+          <p class="text-sm text-blue-100/70">{page === 1 ? "No sessions logged yet." : "No sessions on this page."}</p>
+        </section>
+      ) : (
+        <ul class="space-y-2">
+          {rows.map((row) => (
+            <li>
+              <a
+                href={row.href}
+                class="block rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl transition-colors hover:bg-white/15"
+              >
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="font-medium">
+                    {row.date} · {row.type}
+                  </span>
+                  <span class="text-sm text-blue-100/70">{row.pace}</span>
+                </div>
+                <div class="mt-1 text-sm text-blue-100/70">
+                  {row.distance} in {row.time}
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {(page > 1 || hasOlder) && (
+        <nav class="flex justify-between text-sm">
+          {page > 1 ? (
+            <a
+              href={page === 2 ? "/sessions" : `/sessions?page=${String(page - 1)}`}
+              class="text-purple-300 hover:underline"
+            >
+              ← Newer
+            </a>
+          ) : (
+            <span />
+          )}
+          {hasOlder && (
+            <a href={`/sessions?page=${String(page + 1)}`} class="text-purple-300 hover:underline">
+              Older →
+            </a>
+          )}
+        </nav>
+      )}
+
+      <a
+        href="/sessions/new"
+        class="block rounded-lg bg-purple-600 px-4 py-3 text-center font-medium text-white transition-colors hover:bg-purple-500"
+      >
+        Log a session
+      </a>
+    </div>
+  </div>
+</Layout>
