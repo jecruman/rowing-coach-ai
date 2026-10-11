@@ -46,6 +46,11 @@ const [history, profileAndGoals, storedSuggestion] =
       ])
     : [null, null, null];
 const initialSuggestion = storedSuggestion?.stored ? storedSuggestionPayload(storedSuggestion.stored) : null;
+// Timestamps compare as instants, not strings: PostgREST may format them with different fractional digits.
+const editedAfterSuggestion =
+  session !== null &&
+  storedSuggestion?.stored != null &&
+  Date.parse(session.updatedAt) > Date.parse(storedSuggestion.stored.createdAt);
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;
@@ -115,7 +120,12 @@ const values: { label: string; value: string }[] = session
             />
           )}
 
-          <SuggestionPanel client:load sessionId={session.id} initial={initialSuggestion} />
+          <SuggestionPanel
+            client:load
+            sessionId={session.id}
+            initial={initialSuggestion}
+            editedAfter={editedAfterSuggestion}
+          />
 
           <a
             href="/sessions/new"
@@ -123,9 +133,14 @@ const values: { label: string; value: string }[] = session
           >
             Log another session
           </a>
-          <a href="/sessions" class="block text-center text-sm text-purple-300 hover:underline">
-            All sessions
-          </a>
+          <div class="flex justify-center gap-6 text-sm">
+            <a href={`/sessions/${session.id}/edit`} class="text-purple-300 hover:underline">
+              Edit session
+            </a>
+            <a href="/sessions" class="text-purple-300 hover:underline">
+              All sessions
+            </a>
+          </div>
         </>
       )}
     </div>

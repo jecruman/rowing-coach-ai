@@ -282,9 +282,9 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Automated
 
-- [x] 1.1 Type check and build pass: `npm run build`
-- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint`
-- [x] 1.3 Unit tests pass: `npm test`
+- [x] 1.1 Type check and build pass: `npm run build` — 5e0fe45
+- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — 5e0fe45
+- [x] 1.3 Unit tests pass: `npm test` — 5e0fe45
 - [ ] 1.4 Smoke passes against a local server, including the new list steps: `npm run smoke`
 
 #### Manual
@@ -297,9 +297,9 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including form-values round-trip and change-detection cases (unchanged, each field changed, range vs single value, splits null vs empty): `npm test`
-- [ ] 2.2 Type check and build pass: `npm run build`
-- [ ] 2.3 Lint passes (ignoring CRLF noise): `npm run lint`
+- [x] 2.1 Unit tests pass, including form-values round-trip and change-detection cases (unchanged, each field changed, range vs single value, splits null vs empty): `npm test`
+- [x] 2.2 Type check and build pass: `npm run build`
+- [x] 2.3 Lint passes (ignoring CRLF noise): `npm run lint`
 - [ ] 2.4 Smoke passes, including the edit steps: `npm run smoke`
 
 #### Manual

@@ -7,7 +7,7 @@ import { BOATS, type Boat, type NumberRange, type RowingSession } from "@/types"
 
 /** Columns every session read selects; `toRowingSession` maps exactly these. */
 const SESSION_COLUMNS =
-  "id, session_type, rowed_on, distance_m, duration_s, splits_s, spm_min, spm_max, dps_min, dps_max, watts, boat, comment, created_at";
+  "id, session_type, rowed_on, distance_m, duration_s, splits_s, spm_min, spm_max, dps_min, dps_max, watts, boat, comment, created_at, updated_at";
 
 type SessionRow = Pick<
   Tables<"sessions">,
@@ -25,6 +25,7 @@ type SessionRow = Pick<
   | "boat"
   | "comment"
   | "created_at"
+  | "updated_at"
 >;
 
 /** The stored suggestion for one session. `suggestion` is raw JSON; callers parse it with the suggestion schema. */
@@ -65,6 +66,7 @@ export function toRowingSession(row: SessionRow): RowingSession | null {
     boat: isBoat(row.boat) ? row.boat : null,
     comment: row.comment,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 

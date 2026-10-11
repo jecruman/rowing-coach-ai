@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { firstIssueMessage, parseSplits, SessionInputSchema } from "./rules";
+import type { RowingSession } from "@/types";
+
+import {
+  firstIssueMessage,
+  parseSplits,
+  sessionInputChanged,
+  SessionInputSchema,
+  toSessionFormValues,
+  type SessionInput,
+} from "./rules";
 
 const erg = {
   sessionType: "erg",
@@ -154,5 +163,108 @@ describe("SessionInputSchema", () => {
       comment: "x".repeat(1000),
     });
     expect(result.success).toBe(true);
+  });
+});
+
+const storedErg: RowingSession = {
+  id: "00000000-0000-4000-8000-000000000001",
+  type: "erg",
+  rowedOn: "2026-10-01",
+  distanceM: 2000,
+  durationS: 450.5,
+  splitsS: [112, 113, 113.5, 112],
+  spm: { min: 24, max: 26 },
+  dps: null,
+  watts: 230,
+  boat: null,
+  comment: "felt strong",
+  createdAt: "2026-10-01T12:00:00.000000+00:00",
+  updatedAt: "2026-10-01T12:00:00.000000+00:00",
+};
+
+const storedWater: RowingSession = {
+  ...storedErg,
+  id: "00000000-0000-4000-8000-000000000002",
+  type: "water",
+  distanceM: 8000,
+  durationS: 3750,
+  splitsS: null,
+  spm: { min: 22, max: 22 },
+  dps: { min: 8.5, max: 9 },
+  watts: null,
+  boat: "1x",
+  comment: null,
+};
+
+const bareErg: RowingSession = { ...storedErg, splitsS: null, spm: null, watts: null, comment: null };
+
+function parseForm(values: Record<string, unknown>): SessionInput {
+  const result = SessionInputSchema.safeParse(values);
+  if (!result.success) throw new Error(firstIssueMessage(result.error));
+  return result.data;
+}
+
+describe("toSessionFormValues", () => {
+  it("writes ranges, splits and times the way a rower types them", () => {
+    expect(toSessionFormValues(storedErg)).toEqual({
+      sessionType: "erg",
+      rowedOn: "2026-10-01",
+      distanceM: "2000",
+      time: "7:30.5",
+      splits: "1:52 1:53 1:53.5 1:52",
+      spm: "24-26",
+      dps: "",
+      watts: "230",
+      boat: "",
+      comment: "felt strong",
+    });
+    expect(toSessionFormValues(storedWater)).toMatchObject({ time: "1:02:30", spm: "22", dps: "8.5-9", boat: "1x" });
+  });
+
+  it.each([
+    ["erg with every field", storedErg],
+    ["water with every field", storedWater],
+    ["erg with only required fields", bareErg],
+  ])("round-trips through SessionInputSchema unchanged (%s)", (_name, session) => {
+    expect(sessionInputChanged(session, parseForm({ ...toSessionFormValues(session) }))).toBe(false);
+  });
+});
+
+describe("sessionInputChanged", () => {
+  const unchanged = () => parseForm({ ...toSessionFormValues(storedErg) });
+
+  it.each<[string, Partial<SessionInput>]>([
+    ["date", { rowedOn: "2026-09-30" }],
+    ["distance", { distanceM: 2001 }],
+    ["time", { durationS: 450.6 }],
+    ["splits", { splitsS: [112, 113, 113.5, 112.1] }],
+    ["number of splits", { splitsS: [112, 113, 113.5] }],
+    ["splits cleared", { splitsS: null }],
+    ["stroke rate", { spm: { min: 24, max: 27 } }],
+    ["stroke rate cleared", { spm: null }],
+    ["watts", { watts: 231 }],
+    ["comment", { comment: "felt tired" }],
+    ["comment cleared", { comment: null }],
+    ["session type", { sessionType: "water" }],
+  ])("detects a changed %s", (_name, change) => {
+    expect(sessionInputChanged(storedErg, { ...unchanged(), ...change })).toBe(true);
+  });
+
+  it("treats a single stroke rate and an equal range as the same value", () => {
+    const input = parseForm({ ...toSessionFormValues(storedWater), spm: "22-22" });
+    expect(sessionInputChanged(storedWater, input)).toBe(false);
+  });
+
+  it("treats a trimmed or blank comment like the stored one", () => {
+    expect(
+      sessionInputChanged(storedErg, parseForm({ ...toSessionFormValues(storedErg), comment: " felt strong " })),
+    ).toBe(false);
+    expect(sessionInputChanged(bareErg, parseForm({ ...toSessionFormValues(bareErg), comment: "   " }))).toBe(false);
+  });
+
+  it("detects changed water-only fields", () => {
+    const base = parseForm({ ...toSessionFormValues(storedWater) });
+    expect(sessionInputChanged(storedWater, { ...base, dps: { min: 8.5, max: 9.5 } })).toBe(true);
+    expect(sessionInputChanged(storedWater, { ...base, boat: "2x" })).toBe(true);
   });
 });

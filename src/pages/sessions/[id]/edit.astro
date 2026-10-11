@@ -1,0 +1,71 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import SessionForm from "@/components/sessions/SessionForm";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+import { loadSession, type SessionResult } from "@/lib/services/sessions/load";
+import { toSessionFormValues } from "@/lib/services/sessions/rules";
+
+/** Longest `?error=` text shown; the param is link-controlled, so keep crafted text short. */
+const MAX_ERROR_LENGTH = 200;
+
+const { user } = Astro.locals;
+const id = Astro.params.id ?? "";
+const error = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ?? null;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const { session, loadFailed }: SessionResult =
+  supabase && user ? await loadSession(supabase, id) : { session: null, loadFailed: false };
+
+if (loadFailed) {
+  Astro.response.status = 500;
+} else if (!session) {
+  // Not found and "belongs to someone else" look the same: RLS hides other users' rows.
+  Astro.response.status = 404;
+}
+
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Layout title="Edit session">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-md space-y-4 text-white">
+      <Topbar />
+
+      {loadFailed ? (
+        <ServerError message="Could not load this session — please try again." />
+      ) : !session ? (
+        <section class="rounded-2xl border border-white/10 bg-white/10 p-6 text-center backdrop-blur-xl">
+          <h1 class="mb-2 text-xl font-semibold">Session not found</h1>
+          <p class="text-sm text-blue-100/70">This session does not exist or is not yours.</p>
+          <a href="/sessions" class="mt-4 inline-block text-sm text-purple-300 hover:underline">
+            All sessions
+          </a>
+        </section>
+      ) : (
+        <>
+          <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+            Edit session
+          </h1>
+
+          <ServerError message={error} />
+
+          <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+            <SessionForm
+              today={today}
+              initial={toSessionFormValues(session)}
+              action={`/api/sessions/${session.id}`}
+              lockType
+              client:load
+            />
+          </section>
+
+          <a href={`/sessions/${session.id}`} class="block text-center text-sm text-purple-300 hover:underline">
+            Cancel
+          </a>
+        </>
+      )}
+    </div>
+  </div>
+</Layout>

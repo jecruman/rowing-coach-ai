@@ -48,4 +48,6 @@ export interface RowingSession {
   comment: string | null;
   /** Insert timestamp; breaks ties between sessions rowed on the same date. */
   createdAt: string;
+  /** Last update timestamp; later than a stored suggestion's `createdAt` when the session was edited after it. */
+  updatedAt: string;
 }
