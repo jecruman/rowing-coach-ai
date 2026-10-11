@@ -289,9 +289,9 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Manual
 
-- [ ] 1.5 On a phone-width browser, `/sessions` lists sessions newest first with date, type, distance, time and pace, and each row opens the right session
-- [ ] 1.6 With more than 20 sessions (or `pageSize` temporarily lowered), "Older" and "Newer" page correctly and the first page has no "Newer" link
-- [ ] 1.7 Dashboard and session page "All sessions" links work
+- [x] 1.5 On a phone-width browser, `/sessions` lists sessions newest first with date, type, distance, time and pace, and each row opens the right session — 5e0fe45
+- [x] 1.6 With more than 20 sessions (or `pageSize` temporarily lowered), "Older" and "Newer" page correctly and the first page has no "Newer" link — 5e0fe45
+- [x] 1.7 Dashboard and session page "All sessions" links work — 5e0fe45
 
 ### Phase 2: Edit session
 
@@ -304,9 +304,9 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Manual
 
-- [ ] 2.5 Edit an erg and a water session on a phone: every field is prefilled correctly, the type toggle is locked, changes show on the session page and the analysis updates
-- [ ] 2.6 Edit a session that has a suggestion: the note "Suggested before you edited this session" appears; open the edit form and save without changes on another session with a suggestion: no note appears
-- [ ] 2.7 An invalid value (e.g. distance 50) returns to the edit form with the error message and the session is unchanged
+- [x] 2.5 Edit an erg and a water session on a phone: every field is prefilled correctly, the type toggle is locked, changes show on the session page and the analysis updates — 2909271
+- [x] 2.6 Edit a session that has a suggestion: the note "Suggested before you edited this session" appears; open the edit form and save without changes on another session with a suggestion: no note appears — 2909271
+- [x] 2.7 An invalid value (e.g. distance 50) returns to the edit form with the error message and the session is unchanged — 2909271
 
 ### Phase 3: Delete session
 
@@ -320,6 +320,6 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Manual
 
-- [ ] 3.6 On a phone, "Delete session" → "Cancel" keeps the session; "Delete" removes it, lands on `/sessions` with "Session deleted", and the session no longer appears in the list or as the dashboard's latest session
-- [ ] 3.7 Deleting a session with a suggestion: the next logged session still gets analysis and a suggestion as usual
+- [x] 3.6 On a phone, "Delete session" → "Cancel" keeps the session; "Delete" removes it, lands on `/sessions` with "Session deleted", and the session no longer appears in the list or as the dashboard's latest session — 0e155b8
+- [x] 3.7 Deleting a session with a suggestion: the next logged session still gets analysis and a suggestion as usual — 0e155b8
 - [ ] 3.8 After merge, the deploy job succeeds and list/edit/delete work on https://rowing-coach-ai.jecruman.workers.dev
