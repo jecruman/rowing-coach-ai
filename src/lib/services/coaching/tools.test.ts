@@ -6,6 +6,7 @@ import type { RowingSession } from "@/types";
 import { buildCoachingContext } from "./context";
 import type { CoachingContext } from "./context";
 import type { Goals } from "./limits";
+import type { SuggestedSession } from "./schema";
 import { buildCoachingTools, fenceComment, MAX_HISTORY_SESSIONS } from "./tools";
 
 let nextId = 0;
@@ -142,5 +143,58 @@ describe("buildCoachingTools", () => {
     expect(parsed.goals).toEqual([
       { sessionType: "water", distanceM: 1000, targetTime: "4:00", goalPacePer500m: "2:00", eventDate: "2027-05-01" },
     ]);
+  });
+
+  describe("done/skipped answers", () => {
+    const suggested: SuggestedSession = {
+      sessionType: "water",
+      structure: "4 × 8 min / 2 min rest",
+      totalDistanceM: 7000,
+      totalMinutes: 40,
+      targets: { maxSpm: 24, fastestPacePer500s: 125 },
+      focus: "Rhythm",
+      reason: "Steady volume.",
+      techniqueTip: "Quiet hands.",
+    };
+
+    function answeredContext(outcome: "done" | "skipped") {
+      const earlier = session("water", 16);
+      const current = session("water", 20);
+      return buildCoachingContext(current, [current, earlier], null, {}, [
+        { loggedSessionId: current.id, suggestedForSessionId: earlier.id, outcome, suggestion: suggested },
+      ]);
+    }
+
+    it("getTrainingHistory shows the suggestion each session was marked against", async () => {
+      const parsed = JSON.parse(await runTool(answeredContext("done"), "getTrainingHistory")) as {
+        sessions: { answeredSuggestion: unknown }[];
+      };
+
+      expect(parsed.sessions[0]?.answeredSuggestion).toEqual({
+        outcome: "done",
+        suggested: {
+          sessionType: "water",
+          structure: "4 × 8 min / 2 min rest",
+          totalMinutes: 40,
+          totalDistanceM: 7000,
+          maxSpm: 24,
+          fastestPacePer500m: "2:05",
+        },
+      });
+      expect(parsed.sessions[1]?.answeredSuggestion).toBeNull();
+    });
+
+    it("getSessionMetrics shows the skip cap only after a skip", async () => {
+      interface Metrics {
+        session: { answeredSuggestion: { outcome: string } };
+        limits: { skipCap?: unknown };
+      }
+      const skipped = JSON.parse(await runTool(answeredContext("skipped"), "getSessionMetrics")) as Metrics;
+      const done = JSON.parse(await runTool(answeredContext("done"), "getSessionMetrics")) as Metrics;
+
+      expect(skipped.session.answeredSuggestion.outcome).toBe("skipped");
+      expect(skipped.limits.skipCap).toEqual({ sessionType: "water", minutes: 40, distanceM: 7000 });
+      expect(done.limits.skipCap).toBeUndefined();
+    });
   });
 });

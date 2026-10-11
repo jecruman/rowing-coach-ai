@@ -324,10 +324,10 @@ The new table only; existing rows are untouched. All existing suggestions start 
 
 #### Automated
 
-- [x] 1.1 Migration is pushed and types are regenerated: `npx supabase db push` succeeds and `src/db/database.types.ts` contains `suggestion_outcomes`
-- [x] 1.2 Unit tests pass: `npm test`
-- [x] 1.3 Lint passes: `npm run lint`
-- [x] 1.4 Type and build check passes: `npm run build`
+- [x] 1.1 Migration is pushed and types are regenerated: `npx supabase db push` succeeds and `src/db/database.types.ts` contains `suggestion_outcomes` — a19a4b8
+- [x] 1.2 Unit tests pass: `npm test` — a19a4b8
+- [x] 1.3 Lint passes: `npm run lint` — a19a4b8
+- [x] 1.4 Type and build check passes: `npm run build` — a19a4b8
 - [ ] 1.5 RLS check passes including the new outcome checks: `npm run rls-check`
 - [ ] 1.6 Smoke passes unchanged: `npm run smoke`
 
@@ -343,9 +343,9 @@ The new table only; existing rows are untouched. All existing suggestions start 
 
 #### Automated
 
-- [ ] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test`
-- [ ] 2.2 Lint passes: `npm run lint`
-- [ ] 2.3 Type and build check passes: `npm run build`
+- [x] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test`
+- [x] 2.2 Lint passes: `npm run lint`
+- [x] 2.3 Type and build check passes: `npm run build`
 - [ ] 2.4 RLS check still passes: `npm run rls-check`
 - [ ] 2.5 Smoke passes (endpoint still returns the safe default without a key): `npm run smoke`
 

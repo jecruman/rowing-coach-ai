@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import type { Database, Json, Tables } from "@/db/database.types";
+import type { AnsweredSuggestion } from "@/lib/services/coaching/context";
 import {
   SessionTypeSchema,
   SuggestedSessionSchema,
@@ -281,4 +282,48 @@ export async function loadMarkableSuggestion(supabase: SupabaseClient<Database>)
     },
     loadFailed: false,
   };
+}
+
+export interface AnsweredSuggestionsResult {
+  answered: AnsweredSuggestion[];
+  loadFailed: boolean;
+}
+
+/**
+ * Reads the marked suggestions whose logged session is one of `sessionIds`, with the suggestion each mark refers to.
+ * A mark whose stored suggestion no longer matches the schema is left out (with a log line).
+ */
+export async function loadSuggestionOutcomes(
+  supabase: SupabaseClient<Database>,
+  sessionIds: readonly string[],
+): Promise<AnsweredSuggestionsResult> {
+  const ids = sessionIds.filter((id) => SessionIdSchema.safeParse(id).success);
+  if (ids.length === 0) return { answered: [], loadFailed: false };
+
+  const { data, error } = await supabase
+    .from("suggestion_outcomes")
+    .select("outcome, logged_session_id, coach_suggestions (session_id, suggestion)")
+    .in("logged_session_id", ids);
+  if (error) {
+    logReadError("suggestion outcomes", error);
+    return { answered: [], loadFailed: true };
+  }
+
+  const answered: AnsweredSuggestion[] = [];
+  for (const row of data) {
+    const outcome = SuggestionOutcomeSchema.safeParse(row.outcome);
+    const suggestion = SuggestedSessionSchema.safeParse(row.coach_suggestions.suggestion);
+    if (!outcome.success || !suggestion.success) {
+      // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; no suggestion content logged
+      console.error("[sessions/load] marked suggestion does not match the schema");
+      continue;
+    }
+    answered.push({
+      loggedSessionId: row.logged_session_id,
+      suggestedForSessionId: row.coach_suggestions.session_id,
+      outcome: outcome.data,
+      suggestion: suggestion.data,
+    });
+  }
+  return { answered, loadFailed: false };
 }

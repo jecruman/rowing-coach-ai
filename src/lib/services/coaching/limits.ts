@@ -34,10 +34,28 @@ export interface LimitContext {
   mustBeEasy: boolean;
   /** When `mustBeEasy`: per type with a goal, every pace target must be slower than this (s/500 m). Empty otherwise. */
   easyPaceFloorS: Partial<Record<SessionType, number>>;
+  /**
+   * No make-up rule: set when the logged session was marked as skipping the previous suggestion. The next suggestion's
+   * total minutes (any type) and total distance (same type, when the skipped one had a distance) may not exceed it.
+   */
+  skipCap: SkipCap | null;
+}
+
+export interface SkipCap {
+  sessionType: SessionType;
+  minutes: number;
+  distanceM: number | null;
 }
 
 export type ViolationCode =
-  "volume_distance" | "volume_time" | "no_baseline_for_type" | "rate_cap" | "not_easy_rate" | "not_easy_pace";
+  | "volume_distance"
+  | "volume_time"
+  | "no_baseline_for_type"
+  | "rate_cap"
+  | "not_easy_rate"
+  | "not_easy_pace"
+  | "skip_time"
+  | "skip_distance";
 
 export interface Violation {
   code: ViolationCode;
@@ -72,8 +90,14 @@ function volumeCap(sessions: RowingSession[]): VolumeCap | null {
 /**
  * Limit context for the suggestion that follows `session`. `history` may hold any sessions; only `session`
  * and those strictly before it count, so the result never changes when later sessions are logged.
+ * `skipped` is the suggestion the rower marked as skipped when logging `session` (null otherwise).
  */
-export function limitContext(session: RowingSession, history: readonly RowingSession[], goals: Goals): LimitContext {
+export function limitContext(
+  session: RowingSession,
+  history: readonly RowingSession[],
+  goals: Goals,
+  skipped: SuggestedSession | null = null,
+): LimitContext {
   const upToSession = [session, ...previousSessions(session, history)];
 
   const volumeCaps: LimitContext["volumeCaps"] = {};
@@ -95,7 +119,11 @@ export function limitContext(session: RowingSession, history: readonly RowingSes
     }
   }
 
-  return { volumeCaps, maxSpmCap: clearDrop ? DROP_RATE_CAP : null, mustBeEasy, easyPaceFloorS };
+  const skipCap: SkipCap | null = skipped
+    ? { sessionType: skipped.sessionType, minutes: skipped.totalMinutes, distanceM: skipped.totalDistanceM }
+    : null;
+
+  return { volumeCaps, maxSpmCap: clearDrop ? DROP_RATE_CAP : null, mustBeEasy, easyPaceFloorS, skipCap };
 }
 
 /** Every limit the suggestion breaks; empty when it may be shown. Numbers are compared rounded to 0.1. */
@@ -148,18 +176,42 @@ export function validateSuggestion(suggestion: CheckedSuggestion, context: Limit
     }
   }
 
+  const { skipCap } = context;
+  if (skipCap) {
+    if (round1(suggestion.totalMinutes) > round1(skipCap.minutes)) {
+      violations.push({
+        code: "skip_time",
+        message: `The rower skipped the previous suggestion (${String(skipCap.minutes)} min), so missed work is not made up: total time ${String(suggestion.totalMinutes)} min must be at most ${String(skipCap.minutes)} min.`,
+      });
+    }
+    if (
+      type === skipCap.sessionType &&
+      skipCap.distanceM !== null &&
+      suggestion.totalDistanceM !== null &&
+      round1(suggestion.totalDistanceM) > skipCap.distanceM
+    ) {
+      violations.push({
+        code: "skip_distance",
+        message: `The rower skipped the previous ${type} suggestion (${String(skipCap.distanceM)} m), so missed work is not made up: total distance ${String(suggestion.totalDistanceM)} m must be at most ${String(skipCap.distanceM)} m.`,
+      });
+    }
+  }
+
   return violations;
 }
 
 /**
  * The safe default for `sessionType`, clamped to the context: steady technique row, at most 35 min and within the
- * time cap, max 22 spm, no pace or distance target. It passes `validateSuggestion` for any type that has a volume
- * cap — always true for the logged session's own type.
+ * time cap and the skip cap, max 22 spm, no pace or distance target. It passes `validateSuggestion` for any type
+ * that has a volume cap — always true for the logged session's own type.
  */
 export function safeDefaultFor(sessionType: SessionType, context: LimitContext): SuggestedSession {
-  const cap = context.volumeCaps[sessionType];
+  const limits = [context.volumeCaps[sessionType]?.minutes, context.skipCap?.minutes].filter(
+    (minutes): minutes is number => minutes !== undefined,
+  );
+  const limit = limits.length > 0 ? Math.min(...limits) : null;
   // Whole minutes below the cap; a cap under one minute (very short sessions) is rounded down to 0.1 instead.
-  const capMinutes = cap ? (cap.minutes >= 1 ? Math.floor(cap.minutes) : Math.floor(cap.minutes * 10) / 10) : null;
+  const capMinutes = limit === null ? null : limit >= 1 ? Math.floor(limit) : Math.floor(limit * 10) / 10;
   const totalMinutes = capMinutes === null ? SAFE_DEFAULT_MINUTES : Math.min(SAFE_DEFAULT_MINUTES, capMinutes);
   return {
     sessionType,
