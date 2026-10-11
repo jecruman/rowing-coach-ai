@@ -166,7 +166,7 @@ const steps = [
         method: "POST",
         form: { ...smokeSession, sessionType: "water", distanceM: "8000" },
       }),
-    { status: 302, location: `${sessionPath}/edit?error=` },
+    { status: 302, match: /^\/sessions\/[0-9a-f-]{36}\/edit\?error=/ },
   ],
   [
     "suggestion for own session is the safe default",

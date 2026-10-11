@@ -312,9 +312,9 @@ None. No new migration; existing policies, trigger and cascade cover update and 
 
 #### Automated
 
-- [x] 3.1 Type check and build pass: `npm run build`
-- [x] 3.2 Lint passes (ignoring CRLF noise): `npm run lint`
-- [x] 3.3 Unit tests pass: `npm test`
+- [x] 3.1 Type check and build pass: `npm run build` — 0e155b8
+- [x] 3.2 Lint passes (ignoring CRLF noise): `npm run lint` — 0e155b8
+- [x] 3.3 Unit tests pass: `npm test` — 0e155b8
 - [ ] 3.4 RLS check passes, including owner update/delete and cascade: `npm run rls-check`
 - [ ] 3.5 Smoke passes, including the delete steps: `npm run smoke`
 
