@@ -327,4 +327,4 @@ marks the suggestion as made before the edit. Run `npx supabase db push` (lesson
 
 - [x] 3.6 On a phone, "Delete session" → "Cancel" keeps the session; "Delete" removes it, lands on `/sessions` with "Session deleted", and the session no longer appears in the list or as the dashboard's latest session — 0e155b8
 - [x] 3.7 Deleting a session with a suggestion: the next logged session still gets analysis and a suggestion as usual — 0e155b8
-- [ ] 3.8 After merge, the deploy job succeeds and list/edit/delete work on https://rowing-coach-ai.jecruman.workers.dev
+- [x] 3.8 After merge, the deploy job succeeds and list/edit/delete work on https://rowing-coach-ai.jecruman.workers.dev — ddcb5a5
