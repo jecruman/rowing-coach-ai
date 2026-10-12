@@ -15,7 +15,7 @@ import { FormField, inputBase } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import type { SuggestionOutcome } from "@/lib/services/coaching/schema";
 import type { MarkableSuggestion } from "@/lib/services/sessions/load";
-import { MAX_COMMENT_LENGTH, SessionInputSchema } from "@/lib/services/sessions/rules";
+import { MAX_COMMENT_LENGTH, SessionInputSchema, type SessionFormValues } from "@/lib/services/sessions/rules";
 import { cn } from "@/lib/utils";
 import { BOATS, type SessionType } from "@/types";
 
@@ -34,9 +34,15 @@ type Field =
   | "outcome";
 
 interface Props {
-  /** Server's today (`YYYY-MM-DD`); replaced by the browser's local date on mount if untouched. */
+  /** Server's today (`YYYY-MM-DD`); replaced by the browser's local date on mount if untouched. Unused when editing. */
   today: string;
-  /** The latest session's stored, unmarked suggestion; when set, the form asks whether it was done. */
+  /** Values of the session being edited; when set, the form edits instead of logging and keeps the stored date. */
+  initial?: SessionFormValues;
+  /** Where the form posts; defaults to the log endpoint. */
+  action?: string;
+  /** Shows the session type but does not let it change (editing); the value is still submitted. */
+  lockType?: boolean;
+  /** The latest session's stored, unmarked suggestion; when set (logging only), the form asks whether it was done. */
   markable?: MarkableSuggestion | null;
 }
 
@@ -68,17 +74,23 @@ function errorText(message: string | undefined) {
   ) : null;
 }
 
-export default function SessionForm({ today, markable = null }: Props) {
-  const [sessionType, setSessionType] = useState<SessionType>("erg");
-  const [rowedOn, setRowedOn] = useState(today);
-  const [distanceM, setDistanceM] = useState("");
-  const [time, setTime] = useState("");
-  const [splits, setSplits] = useState("");
-  const [spm, setSpm] = useState("");
-  const [dps, setDps] = useState("");
-  const [watts, setWatts] = useState("");
-  const [boat, setBoat] = useState("");
-  const [comment, setComment] = useState("");
+export default function SessionForm({
+  today,
+  initial,
+  action = "/api/sessions",
+  lockType = false,
+  markable = null,
+}: Props) {
+  const [sessionType, setSessionType] = useState<SessionType>(initial?.sessionType ?? "erg");
+  const [rowedOn, setRowedOn] = useState(initial?.rowedOn ?? today);
+  const [distanceM, setDistanceM] = useState(initial?.distanceM ?? "");
+  const [time, setTime] = useState(initial?.time ?? "");
+  const [splits, setSplits] = useState(initial?.splits ?? "");
+  const [spm, setSpm] = useState(initial?.spm ?? "");
+  const [dps, setDps] = useState(initial?.dps ?? "");
+  const [watts, setWatts] = useState(initial?.watts ?? "");
+  const [boat, setBoat] = useState(initial?.boat ?? "");
+  const [comment, setComment] = useState(initial?.comment ?? "");
   const [outcome, setOutcome] = useState<OutcomeChoice>("none");
   // The suggestion id is sent only with a done/skipped answer, so "Not answering" sends no mark at all.
   const markedSuggestionId = markable && outcome !== "none" ? markable.suggestionId : "";
@@ -86,10 +98,13 @@ export default function SessionForm({ today, markable = null }: Props) {
 
   // The server renders its own (UTC) date; the rower's "today" is their local date, which is only known after
   // hydration (reading it during render would mismatch the server HTML), so it is synced once on mount.
+  // An edited session keeps its stored date.
+  const editing = initial !== undefined;
   useEffect(() => {
+    if (editing) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off sync with the browser clock after hydration
     setRowedOn((current) => (current === today ? localIsoDate() : current));
-  }, [today]);
+  }, [today, editing]);
 
   /** Mirrors the server: the same schema the endpoint uses; the server stays authoritative. */
   function validate() {
@@ -134,23 +149,27 @@ export default function SessionForm({ today, markable = null }: Props) {
   }
 
   return (
-    <form method="POST" action="/api/sessions" className="space-y-4" onSubmit={handleSubmit} noValidate>
+    <form method="POST" action={action} className="space-y-4" onSubmit={handleSubmit} noValidate>
       <fieldset>
         <legend className="mb-1 block text-sm text-blue-100/80">Session type</legend>
+        {/* Disabled radios are not submitted, so a locked type is sent through a hidden field instead. */}
+        {lockType && <input type="hidden" name="sessionType" value={sessionType} />}
         <div className="grid grid-cols-2 gap-2">
           {TYPES.map(({ type, label }) => (
             <label
               key={type}
               className={cn(
-                "flex cursor-pointer items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-purple-400",
+                "flex items-center justify-center rounded-lg border px-4 py-2 text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-purple-400",
+                lockType ? "cursor-not-allowed" : "cursor-pointer",
                 sessionType === type
                   ? "border-purple-400 bg-purple-600 text-white"
-                  : "border-white/20 bg-white/5 text-blue-100/80 hover:bg-white/15",
+                  : cn("border-white/20 bg-white/5 text-blue-100/80", lockType ? "opacity-50" : "hover:bg-white/15"),
               )}
             >
               <input
                 type="radio"
-                name="sessionType"
+                name={lockType ? undefined : "sessionType"}
+                disabled={lockType}
                 value={type}
                 checked={sessionType === type}
                 onChange={() => {
@@ -370,7 +389,7 @@ export default function SessionForm({ today, markable = null }: Props) {
       )}
 
       <SubmitButton pendingText="Saving..." icon={<Save className="size-4" />}>
-        Save session
+        {editing ? "Save changes" : "Save session"}
       </SubmitButton>
     </form>
   );

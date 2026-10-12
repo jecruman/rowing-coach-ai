@@ -15,6 +15,8 @@ interface Props {
   sessionId: string;
   /** The stored suggestion read by the page; when present nothing is requested. */
   initial: SuggestionPayload | null;
+  /** true when the session was edited after its stored suggestion was made; shown only with a stored suggestion. */
+  editedAfter?: boolean;
   /** The rower's mark for the stored suggestion, entered when logging the next session. */
   outcome?: SuggestionOutcome | null;
 }
@@ -116,7 +118,7 @@ function Suggestion({ payload }: { payload: SuggestionPayload }) {
 }
 
 /** The suggested next session: the stored one, or requested once on mount with a waiting state. */
-export default function SuggestionPanel({ sessionId, initial, outcome = null }: Props) {
+export default function SuggestionPanel({ sessionId, initial, editedAfter = false, outcome = null }: Props) {
   const [state, setState] = useState<State>(initial ? { status: "ready", payload: initial } : { status: "loading" });
 
   // Requested once after hydration when the page had no stored suggestion; the state is set when the answer arrives.
@@ -150,6 +152,12 @@ export default function SuggestionPanel({ sessionId, initial, outcome = null }: 
           <p role="status" className="flex items-center gap-2 text-sm text-blue-100/80">
             <span className="size-4 shrink-0 animate-spin rounded-full border-2 border-white/30 border-t-white" />
             Coach is thinking… this can take up to about a minute and a half.
+          </p>
+        )}
+
+        {state.status === "ready" && editedAfter && state.payload.stored && (
+          <p className="mb-4 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-blue-100/80">
+            Suggested before you edited this session.
           </p>
         )}
 

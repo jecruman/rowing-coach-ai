@@ -149,6 +149,9 @@ export const POST: APIRoute = async (context) => {
     const { error } = await supabase.from("coach_suggestions").insert({
       user_id: user.id,
       session_id: session.id,
+      // The version of the session this suggestion was built from; an edit saved while the model was working
+      // therefore still marks it as made before the edit.
+      session_updated_at: session.updatedAt,
       suggestion: result.suggestion,
       is_default: result.isDefault,
       default_reason: result.defaultReason,
@@ -158,6 +161,10 @@ export const POST: APIRoute = async (context) => {
 
     if (error) {
       if (error.code !== UNIQUE_VIOLATION) {
+        // Deleted while the model was working: the insert's session check fails. Nothing is stored; say so
+        // instead of logging a database failure.
+        const current = await loadSession(supabase, session.id);
+        if (!current.loadFailed && !current.session) return json({ error: "Session not found" }, 404);
         logFailure("insert", error);
         return serverError();
       }

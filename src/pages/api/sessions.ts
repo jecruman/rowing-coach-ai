@@ -2,7 +2,12 @@ import type { APIContext, APIRoute } from "astro";
 
 import { createClient } from "@/lib/supabase";
 import { loadMarkableSuggestion } from "@/lib/services/sessions/load";
-import { firstIssueMessage, SessionInputSchema } from "@/lib/services/sessions/rules";
+import {
+  firstIssueMessage,
+  sessionFormFields,
+  SessionInputSchema,
+  toSessionColumns,
+} from "@/lib/services/sessions/rules";
 
 export const prerender = false;
 
@@ -25,17 +30,10 @@ export const POST: APIRoute = async (context) => {
     return errorRedirect(context, "Invalid form submission");
   }
 
+  // The done/skipped mark exists only on the log form, so it is read here and not in the shared form fields
+  // (the edit endpoint parses the same fields and must never see a mark).
   const parsed = SessionInputSchema.safeParse({
-    sessionType: form.get("sessionType"),
-    rowedOn: form.get("rowedOn"),
-    distanceM: form.get("distanceM"),
-    time: form.get("time"),
-    splits: form.get("splits"),
-    spm: form.get("spm"),
-    dps: form.get("dps"),
-    watts: form.get("watts"),
-    boat: form.get("boat"),
-    comment: form.get("comment"),
+    ...sessionFormFields(form),
     markedSuggestionId: form.get("markedSuggestionId"),
     outcome: form.get("outcome"),
   });
@@ -66,23 +64,10 @@ export const POST: APIRoute = async (context) => {
       );
     }
   }
+
   const { data, error } = await supabase
     .from("sessions")
-    .insert({
-      user_id: user.id,
-      session_type: session.sessionType,
-      rowed_on: session.rowedOn,
-      distance_m: session.distanceM,
-      duration_s: session.durationS,
-      splits_s: session.splitsS,
-      spm_min: session.spm?.min ?? null,
-      spm_max: session.spm?.max ?? null,
-      dps_min: session.dps?.min ?? null,
-      dps_max: session.dps?.max ?? null,
-      watts: session.watts,
-      boat: session.boat,
-      comment: session.comment,
-    })
+    .insert({ user_id: user.id, ...toSessionColumns(session) })
     .select("id")
     .single();
 

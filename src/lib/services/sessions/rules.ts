@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 import { SuggestionOutcomeSchema, type SuggestionOutcome } from "@/lib/services/coaching/schema";
-import { emptyToNull, parseTime } from "@/lib/services/profile/rules";
-import { BOATS, type Boat, type NumberRange, type SessionType } from "@/types";
+import { emptyToNull, formatTime, parseTime } from "@/lib/services/profile/rules";
+import { BOATS, type Boat, type NumberRange, type RowingSession, type SessionType } from "@/types";
 
 export { firstIssueMessage } from "@/lib/services/profile/rules";
 
@@ -247,3 +247,105 @@ export const SessionInputSchema = z
       ? { sessionType: "erg", ...common, dps: null, watts: input.watts, boat: null }
       : { sessionType: "water", ...common, dps: input.dps, watts: null, boat: input.boat };
   });
+
+/** The session form fields as `SessionInputSchema` input; missing fields come through as null. */
+export function sessionFormFields(form: FormData): Record<keyof SessionFormValues, FormDataEntryValue | null> {
+  return {
+    sessionType: form.get("sessionType"),
+    rowedOn: form.get("rowedOn"),
+    distanceM: form.get("distanceM"),
+    time: form.get("time"),
+    splits: form.get("splits"),
+    spm: form.get("spm"),
+    dps: form.get("dps"),
+    watts: form.get("watts"),
+    boat: form.get("boat"),
+    comment: form.get("comment"),
+  };
+}
+
+/** `sessions` columns written by both insert and update (everything the rower can enter). */
+export function toSessionColumns(session: SessionInput) {
+  return {
+    session_type: session.sessionType,
+    rowed_on: session.rowedOn,
+    distance_m: session.distanceM,
+    duration_s: session.durationS,
+    splits_s: session.splitsS,
+    spm_min: session.spm?.min ?? null,
+    spm_max: session.spm?.max ?? null,
+    dps_min: session.dps?.min ?? null,
+    dps_max: session.dps?.max ?? null,
+    watts: session.watts,
+    boat: session.boat,
+    comment: session.comment,
+  };
+}
+
+/** The session form's values as typed (all strings); the shape `SessionInputSchema` parses. */
+export interface SessionFormValues {
+  sessionType: SessionType;
+  rowedOn: string;
+  distanceM: string;
+  time: string;
+  splits: string;
+  spm: string;
+  dps: string;
+  watts: string;
+  boat: string;
+  comment: string;
+}
+
+function rangeText(range: NumberRange | null): string {
+  if (range === null) return "";
+  return range.min === range.max ? String(range.min) : `${String(range.min)}-${String(range.max)}`;
+}
+
+/**
+ * A stored session as form values, for the edit form. Parsing the result with `SessionInputSchema` gives back the
+ * session's values, so saving an untouched edit form changes nothing.
+ */
+export function toSessionFormValues(session: RowingSession): SessionFormValues {
+  return {
+    sessionType: session.type,
+    rowedOn: session.rowedOn,
+    distanceM: String(session.distanceM),
+    time: formatTime(session.durationS),
+    splits: session.splitsS ? session.splitsS.map(formatTime).join(" ") : "",
+    spm: rangeText(session.spm),
+    dps: rangeText(session.dps),
+    watts: session.watts === null ? "" : String(session.watts),
+    boat: session.boat ?? "",
+    comment: session.comment ?? "",
+  };
+}
+
+function sameRange(a: NumberRange | null, b: NumberRange | null): boolean {
+  return a === null || b === null ? a === b : a.min === b.min && a.max === b.max;
+}
+
+function sameSplits(a: number[] | null, b: number[] | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.length === b.length && a.every((split, i) => split === b[i]);
+}
+
+/** Browsers submit textarea line breaks as CRLF; a comment stored with LF is the same text. */
+function normaliseNewlines(text: string | null): string | null {
+  return text === null ? null : text.replaceAll("\r\n", "\n");
+}
+
+/** Whether saving `input` would change any stored value of `stored` (used to skip no-op updates). */
+export function sessionInputChanged(stored: RowingSession, input: SessionInput): boolean {
+  return !(
+    stored.type === input.sessionType &&
+    stored.rowedOn === input.rowedOn &&
+    stored.distanceM === input.distanceM &&
+    stored.durationS === input.durationS &&
+    sameSplits(stored.splitsS, input.splitsS) &&
+    sameRange(stored.spm, input.spm) &&
+    sameRange(stored.dps, input.dps) &&
+    stored.watts === input.watts &&
+    stored.boat === input.boat &&
+    normaliseNewlines(stored.comment) === normaliseNewlines(input.comment)
+  );
+}

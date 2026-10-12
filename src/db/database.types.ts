@@ -48,6 +48,7 @@ export type Database = {
           is_default: boolean
           model: string
           session_id: string
+          session_updated_at: string | null
           suggestion: Json
           user_id: string
         }
@@ -59,6 +60,7 @@ export type Database = {
           is_default?: boolean
           model: string
           session_id: string
+          session_updated_at?: string | null
           suggestion: Json
           user_id?: string
         }
@@ -70,6 +72,7 @@ export type Database = {
           is_default?: boolean
           model?: string
           session_id?: string
+          session_updated_at?: string | null
           suggestion?: Json
           user_id?: string
         }

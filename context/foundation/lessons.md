@@ -15,3 +15,10 @@
 - **Problem:** Migrations reach production only by a manual `supabase db push`; a merge that adds a migration plus code using it deploys the code regardless, so pages can query tables that don't exist yet.
 - **Rule:** Before merging code that depends on a new migration, run `npx supabase db push`, regenerate `src/db/database.types.ts` with `npx supabase gen types typescript --linked`, and commit both with the migration. Plans put the push in the first phase, before any code uses the new tables.
 - **Applies to:** Every change that adds files under `supabase/migrations/`.
+
+## Push migrations from a checkout that has every applied migration
+
+- **Context**: Changes developed in parallel worktrees (or sessions) that each add files under `supabase/migrations/` — all checkouts share one cloud Supabase project.
+- **Problem**: S-04 pushed its migration from its worktree; `db push` from main/S-03 then failed with "Remote migration versions not found in local migrations directory", and the CLI's suggested `migration repair --status reverted` would have marked S-04's applied migration as reverted. Worktrees isolate code, not the database.
+- **Rule**: Run `npx supabase db push` from a checkout that contains every migration already applied to the remote (copy the other branch's files in temporarily, never commit them); never run `supabase migration repair --status reverted` for another change's migration. Prefer only one database-changing change in flight at a time.
+- **Applies to**: plan, implement

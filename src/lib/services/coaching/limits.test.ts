@@ -24,6 +24,7 @@ function session(type: RowingSession["type"], rowedOn: string, overrides: Partia
     boat: null,
     comment: null,
     createdAt: `${rowedOn}T12:00:00.000000+00:00`,
+    updatedAt: `${rowedOn}T12:00:00.000000+00:00`,
     ...overrides,
   };
 }
