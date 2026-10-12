@@ -3,7 +3,7 @@ project: Rowing Coach AI
 version: 1
 status: draft
 created: 2026-10-06
-updated: 2026-10-08
+updated: 2026-10-11
 prd_version: 1
 main_goal: market-feedback
 top_blocker: decisions
@@ -44,8 +44,8 @@ A masters single sculler currently gets post-session feedback from one long gene
 | F-01 | coaching-model-access    | (foundation) the deployed app can make one validated coaching call to an external model | —             | Business Logic, NFR (response time)   | done |
 | S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | done |
 | S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | done |
-| S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | proposed |
-| S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | proposed |
+| S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | in-progress |
+| S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | planning |
 | S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | proposed |
 
 ## Streams
@@ -127,7 +127,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - What happens to an existing suggestion when the session it was based on is edited or deleted? — Owner: user. Block: no.
 - **Risk:** sequenced after the north star because there is nothing to manage until sessions exist; editing past sessions changes the baseline, so later suggestions must recompute rather than reuse stale numbers.
-- **Status:** proposed
+- **Status:** in-progress
 
 ### S-04: Done / skipped loop
 
@@ -140,7 +140,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - How does a "skipped" or "done" mark change the next suggestion, concretely enough to test? (Socrates note on FR-010) — Owner: user. Block: no.
 - **Risk:** completes the PRD's primary success criterion; without a testable rule for "reflects it", this slice can pass review while changing nothing for the rower.
-- **Status:** proposed
+- **Status:** planning
 
 ### S-05: Metric trend
 

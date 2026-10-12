@@ -1,7 +1,12 @@
 import type { APIContext, APIRoute } from "astro";
 
 import { createClient } from "@/lib/supabase";
-import { firstIssueMessage, SessionInputSchema } from "@/lib/services/sessions/rules";
+import {
+  firstIssueMessage,
+  sessionFormFields,
+  SessionInputSchema,
+  toSessionColumns,
+} from "@/lib/services/sessions/rules";
 
 export const prerender = false;
 
@@ -24,18 +29,7 @@ export const POST: APIRoute = async (context) => {
     return errorRedirect(context, "Invalid form submission");
   }
 
-  const parsed = SessionInputSchema.safeParse({
-    sessionType: form.get("sessionType"),
-    rowedOn: form.get("rowedOn"),
-    distanceM: form.get("distanceM"),
-    time: form.get("time"),
-    splits: form.get("splits"),
-    spm: form.get("spm"),
-    dps: form.get("dps"),
-    watts: form.get("watts"),
-    boat: form.get("boat"),
-    comment: form.get("comment"),
-  });
+  const parsed = SessionInputSchema.safeParse(sessionFormFields(form));
   if (!parsed.success) {
     return errorRedirect(context, firstIssueMessage(parsed.error));
   }
@@ -45,24 +39,9 @@ export const POST: APIRoute = async (context) => {
     return errorRedirect(context, "Supabase is not configured");
   }
 
-  const session = parsed.data;
   const { data, error } = await supabase
     .from("sessions")
-    .insert({
-      user_id: user.id,
-      session_type: session.sessionType,
-      rowed_on: session.rowedOn,
-      distance_m: session.distanceM,
-      duration_s: session.durationS,
-      splits_s: session.splitsS,
-      spm_min: session.spm?.min ?? null,
-      spm_max: session.spm?.max ?? null,
-      dps_min: session.dps?.min ?? null,
-      dps_max: session.dps?.max ?? null,
-      watts: session.watts,
-      boat: session.boat,
-      comment: session.comment,
-    })
+    .insert({ user_id: user.id, ...toSessionColumns(parsed.data) })
     .select("id")
     .single();
 

@@ -347,6 +347,34 @@ const steps = [
       return [ok, { profiles: p, goals: g, sessions: s, suggestions: c }];
     },
   ],
+  // Owner edit and delete (session history) run last, so the "unchanged" checks above still see the original rows.
+  [
+    "A update of own session affects 1 row",
+    async () => {
+      const r = await call(`/rest/v1/sessions${ofSessionA()}`, {
+        method: "PATCH",
+        token: a.token,
+        body: { distance_m: 2100 },
+      });
+      return [ok2xx(r.status) && r.data?.length === 1 && r.data[0].distance_m === 2100, r];
+    },
+  ],
+  [
+    "A delete of own session affects 1 row",
+    async () => {
+      const r = await call(`/rest/v1/sessions${ofSessionA()}`, { method: "DELETE", token: a.token });
+      return [ok2xx(r.status) && r.data?.length === 1 && r.data[0].id === sessionA.id, r];
+    },
+  ],
+  [
+    "deleting A's session also removes its suggestion",
+    async () => {
+      const s = await call(`/rest/v1/sessions${ofSessionA()}`, { token: a.token });
+      const c = await call(`/rest/v1/coach_suggestions${ofSuggestionA()}`, { token: a.token });
+      const ok = s.status === 200 && isEmptyArray(s.data) && c.status === 200 && isEmptyArray(c.data);
+      return [ok, { sessions: s, suggestions: c }];
+    },
+  ],
 ];
 
 let failed = 0;

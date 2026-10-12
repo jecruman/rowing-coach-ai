@@ -4,11 +4,13 @@ import Topbar from "@/components/Topbar.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import SessionAnalysis from "@/components/sessions/SessionAnalysis.astro";
 import SuggestionPanel from "@/components/sessions/SuggestionPanel";
+import DeleteSessionButton from "@/components/sessions/DeleteSessionButton";
 import { createClient } from "@/lib/supabase";
 import { isHardSession } from "@/lib/services/coaching/limits";
 import { analyseSession } from "@/lib/services/coaching/metrics";
 import { loadProfileAndGoals } from "@/lib/services/profile/load";
 import { formatTime } from "@/lib/services/profile/rules";
+import { editedAfterSuggestion } from "@/lib/services/sessions/staleness";
 import {
   loadSession,
   loadSessionsUpTo,
@@ -18,11 +20,16 @@ import {
 } from "@/lib/services/sessions/load";
 import type { NumberRange } from "@/types";
 
+/** Longest `?error=` text shown; the param is link-controlled, so keep crafted text short. */
+const MAX_ERROR_LENGTH = 200;
+
 /** Rows of any type read for the analysis; enough to find the last 3 of the session's type in a mixed history. */
 const HISTORY_LIMIT = 30;
 
 const { user } = Astro.locals;
 const id = Astro.params.id ?? "";
+// Set by the delete endpoint when the delete failed.
+const actionError = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ?? null;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const { session, loadFailed }: SessionResult =
@@ -46,6 +53,10 @@ const [history, profileAndGoals, storedSuggestion] =
       ])
     : [null, null, null];
 const initialSuggestion = storedSuggestion?.stored ? storedSuggestionPayload(storedSuggestion.stored) : null;
+const isEditedAfterSuggestion =
+  session !== null &&
+  storedSuggestion?.stored != null &&
+  editedAfterSuggestion(session.updatedAt, storedSuggestion.stored);
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;
@@ -89,6 +100,8 @@ const values: { label: string; value: string }[] = session
             {session.type === "erg" ? "Erg session" : "Water session"}
           </h1>
 
+          <ServerError message={actionError} />
+
           <section class="rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
             <dl class="space-y-3">
               {values.map(({ label, value }) => (
@@ -115,7 +128,12 @@ const values: { label: string; value: string }[] = session
             />
           )}
 
-          <SuggestionPanel client:load sessionId={session.id} initial={initialSuggestion} />
+          <SuggestionPanel
+            client:load
+            sessionId={session.id}
+            initial={initialSuggestion}
+            editedAfter={isEditedAfterSuggestion}
+          />
 
           <a
             href="/sessions/new"
@@ -123,6 +141,16 @@ const values: { label: string; value: string }[] = session
           >
             Log another session
           </a>
+          <div class="flex justify-center gap-6 text-sm">
+            <a href={`/sessions/${session.id}/edit`} class="text-purple-300 hover:underline">
+              Edit session
+            </a>
+            <a href="/sessions" class="text-purple-300 hover:underline">
+              All sessions
+            </a>
+          </div>
+
+          <DeleteSessionButton client:load sessionId={session.id} />
         </>
       )}
     </div>

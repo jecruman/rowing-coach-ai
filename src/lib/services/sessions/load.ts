@@ -7,7 +7,7 @@ import { BOATS, type Boat, type NumberRange, type RowingSession } from "@/types"
 
 /** Columns every session read selects; `toRowingSession` maps exactly these. */
 const SESSION_COLUMNS =
-  "id, session_type, rowed_on, distance_m, duration_s, splits_s, spm_min, spm_max, dps_min, dps_max, watts, boat, comment, created_at";
+  "id, session_type, rowed_on, distance_m, duration_s, splits_s, spm_min, spm_max, dps_min, dps_max, watts, boat, comment, created_at, updated_at";
 
 type SessionRow = Pick<
   Tables<"sessions">,
@@ -25,6 +25,7 @@ type SessionRow = Pick<
   | "boat"
   | "comment"
   | "created_at"
+  | "updated_at"
 >;
 
 /** The stored suggestion for one session. `suggestion` is raw JSON; callers parse it with the suggestion schema. */
@@ -35,6 +36,8 @@ export interface StoredSuggestion {
   attempts: number;
   model: string;
   createdAt: string;
+  /** `updated_at` of the session when the suggestion was built; null for suggestions stored before it was recorded. */
+  sessionUpdatedAt: string | null;
 }
 
 /** Ids are uuids; anything else cannot match a row, and PostgREST would answer it with an error. */
@@ -65,6 +68,7 @@ export function toRowingSession(row: SessionRow): RowingSession | null {
     boat: isBoat(row.boat) ? row.boat : null,
     comment: row.comment,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -110,6 +114,41 @@ export async function loadLatestSession(supabase: SupabaseClient<Database>): Pro
     return { session: null, loadFailed: true };
   }
   return { session: data ? toRowingSession(data) : null, loadFailed: false };
+}
+
+export interface SessionsPage {
+  /** Up to `pageSize` sessions, newest first. */
+  sessions: RowingSession[];
+  /** true when at least one session is ordered after this page. */
+  hasOlder: boolean;
+  loadFailed: boolean;
+}
+
+/** Sessions shown per page of the session list. */
+export const SESSIONS_PAGE_SIZE = 20;
+
+/**
+ * Reads one page (1-based) of the signed-in user's sessions in the agreed order (`rowed_on` desc, then `created_at`
+ * desc). One extra row is requested to tell whether older sessions exist.
+ */
+export async function loadSessionsPage(
+  supabase: SupabaseClient<Database>,
+  page: number,
+  pageSize = SESSIONS_PAGE_SIZE,
+): Promise<SessionsPage> {
+  const from = (page - 1) * pageSize;
+  const { data, error } = await supabase
+    .from("sessions")
+    .select(SESSION_COLUMNS)
+    .order("rowed_on", { ascending: false })
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize);
+  if (error) {
+    logReadError("sessions page", error);
+    return { sessions: [], hasOlder: false, loadFailed: true };
+  }
+  const rows = data;
+  return { sessions: toSessions(rows.slice(0, pageSize)), hasOlder: rows.length > pageSize, loadFailed: false };
 }
 
 export interface SessionHistory {
@@ -173,7 +212,7 @@ export async function loadStoredSuggestion(
 
   const { data, error } = await supabase
     .from("coach_suggestions")
-    .select("suggestion, is_default, default_reason, attempts, model, created_at")
+    .select("suggestion, is_default, default_reason, attempts, model, created_at, session_updated_at")
     .eq("session_id", sessionId)
     .maybeSingle();
   if (error) {
@@ -189,6 +228,7 @@ export async function loadStoredSuggestion(
       attempts: data.attempts,
       model: data.model,
       createdAt: data.created_at,
+      sessionUpdatedAt: data.session_updated_at,
     },
     loadFailed: false,
   };

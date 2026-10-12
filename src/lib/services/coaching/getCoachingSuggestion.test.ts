@@ -24,6 +24,7 @@ function session(rowedOn: string, overrides: Partial<RowingSession> = {}): Rowin
     boat: "1x",
     comment: null,
     createdAt: `${rowedOn}T12:00:00.000000+00:00`,
+    updatedAt: `${rowedOn}T12:00:00.000000+00:00`,
     ...overrides,
   };
 }

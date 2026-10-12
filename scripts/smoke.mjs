@@ -23,7 +23,7 @@ function storeCookies(response) {
   }
 }
 
-// `form` sends a urlencoded body, `json` a JSON body; a JSON response is returned parsed as `body`.
+// `form` sends a urlencoded body, `json` a JSON body; a JSON response is returned parsed as `body`, any other as `text`.
 async function request(path, { method = "GET", form, json } = {}) {
   const contentType = form ? "application/x-www-form-urlencoded" : json !== undefined ? "application/json" : undefined;
   const response = await fetch(BASE_URL + path, {
@@ -39,8 +39,21 @@ async function request(path, { method = "GET", form, json } = {}) {
   storeCookies(response);
   const isJson = (response.headers.get("content-type") ?? "").includes("application/json");
   const body = isJson ? await response.json().catch(() => null) : null;
-  return { status: response.status, location: response.headers.get("location") ?? "", body };
+  const text = isJson ? "" : await response.text().catch(() => "");
+  return { status: response.status, location: response.headers.get("location") ?? "", body, text };
 }
+
+// The values the smoke session is logged with; the edit steps resend them with one field changed.
+const smokeSession = {
+  sessionType: "erg",
+  rowedOn: new Date().toISOString().slice(0, 10),
+  distanceM: "2000",
+  time: "7:30.5",
+  splits: "1:52 1:53 1:53.5 1:51",
+  spm: "24-26",
+  watts: "230",
+  comment: "smoke test",
+};
 
 function suggestionPath() {
   return `/api${sessionPath || "/sessions/missing"}/suggestion`;
@@ -62,6 +75,7 @@ const steps = [
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["new session redirects anonymous user", () => request("/sessions/new"), { status: 302, location: "/auth/signin" }],
+  ["session list redirects anonymous user", () => request("/sessions"), { status: 302, location: "/auth/signin" }],
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -108,16 +122,7 @@ const steps = [
     async () => {
       const actual = await request("/api/sessions", {
         method: "POST",
-        form: {
-          sessionType: "erg",
-          rowedOn: new Date().toISOString().slice(0, 10),
-          distanceM: "2000",
-          time: "7:30.5",
-          splits: "1:52 1:53 1:53.5 1:51",
-          spm: "24-26",
-          watts: "230",
-          comment: "smoke test",
-        },
+        form: smokeSession,
       });
       sessionPath = actual.location;
       return actual;
@@ -135,6 +140,35 @@ const steps = [
   ],
   ["session page renders", () => request(sessionPath || "/sessions/missing"), { status: 200 }],
   [
+    "session list shows the logged session",
+    () => request("/sessions"),
+    { status: 200, html: (text) => sessionPath !== "" && text.includes(`href="${sessionPath}"`) },
+  ],
+  ["edit page renders", () => request(`${sessionPath || "/sessions/missing"}/edit`), { status: 200 }],
+  [
+    "edit saves a changed distance and opens the session page",
+    () =>
+      request(`/api${sessionPath || "/sessions/missing"}`, {
+        method: "POST",
+        form: { ...smokeSession, distanceM: "2100" },
+      }),
+    { status: 302, match: SESSION_PATH },
+  ],
+  [
+    "session page shows the edited distance",
+    () => request(sessionPath || "/sessions/missing"),
+    { status: 200, html: (text) => text.includes("2100 m") },
+  ],
+  [
+    "edit rejects a session type change",
+    () =>
+      request(`/api${sessionPath || "/sessions/missing"}`, {
+        method: "POST",
+        form: { ...smokeSession, sessionType: "water", distanceM: "8000" },
+      }),
+    { status: 302, match: /^\/sessions\/[0-9a-f-]{36}\/edit\?error=/ },
+  ],
+  [
     "suggestion for own session is the safe default",
     () => request(suggestionPath(), { method: "POST", json: {} }),
     { status: 200, check: isUnstoredDefault },
@@ -144,8 +178,19 @@ const steps = [
     () => request(`/api/sessions/${globalThis.crypto.randomUUID()}/suggestion`, { method: "POST", json: {} }),
     { status: 404 },
   ],
+  [
+    "delete removes the session and opens the list",
+    () => request(`/api${sessionPath || "/sessions/missing"}/delete`, { method: "POST", form: {} }),
+    { status: 302, location: "/sessions?deleted=1" },
+  ],
+  ["deleted session page is not found", () => request(sessionPath || "/sessions/missing"), { status: 404 }],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
+  [
+    "edit page redirects signed-out user",
+    () => request(`${sessionPath || "/sessions/missing"}/edit`),
+    { status: 302, location: "/auth/signin" },
+  ],
   [
     "suggestion rejects signed-out user",
     () => request(suggestionPath(), { method: "POST", json: {} }),
@@ -160,12 +205,13 @@ for (const [name, run, expected] of steps) {
     actual.status === expected.status &&
     (expected.location === undefined || actual.location.startsWith(expected.location)) &&
     (expected.match === undefined || expected.match.test(actual.location)) &&
-    (expected.check === undefined || expected.check(actual.body));
+    (expected.check === undefined || expected.check(actual.body)) &&
+    (expected.html === undefined || expected.html(actual.text));
   console.log(`${ok ? "PASS" : "FAIL"}  ${name}  -> ${actual.status} ${actual.location}`);
   if (!ok) {
     failed++;
     console.log(
-      `      expected ${expected.status} ${expected.location ?? expected.match ?? expected.check?.name ?? ""}`,
+      `      expected ${expected.status} ${expected.location ?? expected.match ?? expected.check?.name ?? expected.html?.toString() ?? ""}`,
     );
     // Only the flags, never the suggestion text.
     if (actual.body) {
