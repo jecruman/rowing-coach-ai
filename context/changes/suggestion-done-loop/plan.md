@@ -333,11 +333,11 @@ The new table only; existing rows are untouched. All existing suggestions start 
 
 #### Manual
 
-- [ ] 1.7 After a session with a stored suggestion, `/sessions/new` shows the question with that suggestion's structure; choosing Done and saving shows "You marked this: Done" on the previous session's panel
-- [ ] 1.8 Logging again right after (the latest session now has no mark-able stored suggestion, or it was already marked) shows no question
-- [ ] 1.9 Choosing "Not answering" leaves the suggestion unmarked and the next log asks about the new latest suggestion instead
-- [ ] 1.10 Dating the new session before the suggested session with a mark selected shows the form error; without a mark it saves normally
-- [ ] 1.11 An account that isn't allowlisted (unstored default) never sees the question
+- [x] 1.7 After a session with a stored suggestion, `/sessions/new` shows the question with that suggestion's structure; choosing Done and saving shows "You marked this: Done" on the previous session's panel — cb448c4
+- [x] 1.8 Logging again right after (the latest session now has no mark-able stored suggestion, or it was already marked) shows no question — cb448c4
+- [x] 1.9 Choosing "Not answering" leaves the suggestion unmarked and the next log asks about the new latest suggestion instead — cb448c4
+- [x] 1.10 Dating the new session before the suggested session with a mark selected shows the form error; without a mark it saves normally — cb448c4
+- [x] 1.11 An account that isn't allowlisted (unstored default) never sees the question — cb448c4
 
 ### Phase 2: Make the next suggestion reflect it
 
@@ -351,6 +351,6 @@ The new table only; existing rows are untouched. All existing suggestions start 
 
 #### Manual
 
-- [ ] 2.6 On an allowlisted account: mark the latest suggestion **Skipped** while logging; the new session's suggestion has total minutes ≤ the skipped suggestion's (and distance ≤ it when the same type)
-- [ ] 2.7 Mark **Done** while logging the suggested session; the new suggestion's reason refers to how that session went compared with the suggestion
-- [ ] 2.8 `wrangler tail` shows no new errors; any `skip_time`/`skip_distance` violation in attempt 1 is followed by a compliant attempt 2 or a clamped default
+- [x] 2.6 On an allowlisted account: mark the latest suggestion **Skipped** while logging; the new session's suggestion has total minutes ≤ the skipped suggestion's (and distance ≤ it when the same type) — cb448c4
+- [x] 2.7 Mark **Done** while logging the suggested session; the new suggestion's reason refers to how that session went compared with the suggestion — cb448c4
+- [x] 2.8 `wrangler tail` shows no new errors; any `skip_time`/`skip_distance` violation in attempt 1 is followed by a compliant attempt 2 or a clamped default — cb448c4

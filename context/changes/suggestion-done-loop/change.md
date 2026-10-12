@@ -1,9 +1,9 @@
 ---
 change_id: suggestion-done-loop
 title: Suggestion done loop
-status: implementing
+status: implemented
 created: 2026-10-11
-updated: 2026-10-11
+updated: 2026-10-12
 archived_at: null
 ---
 
