@@ -1,4 +1,5 @@
 import type { APIContext, APIRoute } from "astro";
+import { z } from "zod";
 
 import { loadSession } from "@/lib/services/sessions/load";
 import {
@@ -11,6 +12,9 @@ import {
 import { createClient } from "@/lib/supabase";
 
 export const prerender = false;
+
+/** Ids are uuids; anything else cannot match a row and is not echoed into a redirect. */
+const SessionIdSchema = z.guid();
 
 function errorRedirect(context: APIContext, id: string, message: string): Response {
   return context.redirect(`/sessions/${id}/edit?error=${encodeURIComponent(message)}`);
@@ -27,12 +31,16 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/auth/signin");
   }
 
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
+  const id = context.params.id ?? "";
+  if (!SessionIdSchema.safeParse(id).success) {
     return context.redirect("/sessions");
   }
 
-  const id = context.params.id ?? "";
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return errorRedirect(context, id, "Supabase is not configured");
+  }
+
   const { session, loadFailed } = await loadSession(supabase, id);
   if (loadFailed) {
     return errorRedirect(context, id, "Could not load this session. Please try again.");

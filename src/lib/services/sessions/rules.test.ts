@@ -262,6 +262,19 @@ describe("sessionInputChanged", () => {
     expect(sessionInputChanged(bareErg, parseForm({ ...toSessionFormValues(bareErg), comment: "   " }))).toBe(false);
   });
 
+  it("treats a comment's CRLF line breaks (as a browser submits them) like the stored LF ones", () => {
+    const stored = { ...storedErg, comment: "felt strong\nlegs heavy" };
+    const input = parseForm({ ...toSessionFormValues(stored), comment: "felt strong\r\nlegs heavy" });
+    expect(sessionInputChanged(stored, input)).toBe(false);
+    expect(sessionInputChanged(stored, { ...input, comment: "felt strong\r\nlegs light" })).toBe(true);
+  });
+
+  it("round-trips splits of an hour or more", () => {
+    const stored = { ...storedWater, splitsS: [3750, 3800.5] };
+    expect(toSessionFormValues(stored).splits).toBe("1:02:30 1:03:20.5");
+    expect(sessionInputChanged(stored, parseForm({ ...toSessionFormValues(stored) }))).toBe(false);
+  });
+
   it("detects changed water-only fields", () => {
     const base = parseForm({ ...toSessionFormValues(storedWater) });
     expect(sessionInputChanged(storedWater, { ...base, dps: { min: 8.5, max: 9.5 } })).toBe(true);

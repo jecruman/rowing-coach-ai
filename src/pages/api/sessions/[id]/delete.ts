@@ -29,7 +29,7 @@ export const POST: APIRoute = async (context) => {
     return context.redirect(`/sessions/${id}?error=${encodeURIComponent("Supabase is not configured")}`);
   }
 
-  const { error } = await supabase.from("sessions").delete().eq("id", id);
+  const { data, error } = await supabase.from("sessions").delete().eq("id", id).select("id");
   if (error) {
     // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; PostgREST code/message only, no user data
     console.error(`[api/sessions/delete] delete failed — ${error.code}: ${error.message}`);
@@ -38,5 +38,6 @@ export const POST: APIRoute = async (context) => {
     );
   }
 
-  return context.redirect("/sessions?deleted=1");
+  // Nothing deleted: not found, or someone else's. Land on the list without a "deleted" notice.
+  return context.redirect(data.length > 0 ? "/sessions?deleted=1" : "/sessions");
 };

@@ -10,6 +10,7 @@ import { isHardSession } from "@/lib/services/coaching/limits";
 import { analyseSession } from "@/lib/services/coaching/metrics";
 import { loadProfileAndGoals } from "@/lib/services/profile/load";
 import { formatTime } from "@/lib/services/profile/rules";
+import { editedAfterSuggestion } from "@/lib/services/sessions/staleness";
 import {
   loadSession,
   loadSessionsUpTo,
@@ -52,11 +53,10 @@ const [history, profileAndGoals, storedSuggestion] =
       ])
     : [null, null, null];
 const initialSuggestion = storedSuggestion?.stored ? storedSuggestionPayload(storedSuggestion.stored) : null;
-// Timestamps compare as instants, not strings: PostgREST may format them with different fractional digits.
-const editedAfterSuggestion =
+const isEditedAfterSuggestion =
   session !== null &&
   storedSuggestion?.stored != null &&
-  Date.parse(session.updatedAt) > Date.parse(storedSuggestion.stored.createdAt);
+  editedAfterSuggestion(session.updatedAt, storedSuggestion.stored);
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;
@@ -132,7 +132,7 @@ const values: { label: string; value: string }[] = session
             client:load
             sessionId={session.id}
             initial={initialSuggestion}
-            editedAfter={editedAfterSuggestion}
+            editedAfter={isEditedAfterSuggestion}
           />
 
           <a

@@ -263,7 +263,12 @@ List reads are one indexed query (`sessions_user_rowed_on_idx`) of at most 21 ro
 
 ## Migration Notes
 
-None. No new migration; existing policies, trigger and cascade cover update and delete.
+None planned: existing policies, trigger and cascade cover update and delete.
+
+**Addendum (implementation review F1, 2026-10-12):** one migration was added after review —
+`20261012090000_coach_suggestions_session_updated_at.sql` adds a nullable `coach_suggestions.session_updated_at`,
+set by the suggestion endpoint from the session version it read, so an edit saved while the model is working still
+marks the suggestion as made before the edit. Run `npx supabase db push` (lessons.md) before merging.
 
 ## References
 

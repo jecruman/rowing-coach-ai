@@ -302,6 +302,11 @@ function sameSplits(a: number[] | null, b: number[] | null): boolean {
   return a.length === b.length && a.every((split, i) => split === b[i]);
 }
 
+/** Browsers submit textarea line breaks as CRLF; a comment stored with LF is the same text. */
+function normaliseNewlines(text: string | null): string | null {
+  return text === null ? null : text.replaceAll("\r\n", "\n");
+}
+
 /** Whether saving `input` would change any stored value of `stored` (used to skip no-op updates). */
 export function sessionInputChanged(stored: RowingSession, input: SessionInput): boolean {
   return !(
@@ -314,6 +319,6 @@ export function sessionInputChanged(stored: RowingSession, input: SessionInput):
     sameRange(stored.dps, input.dps) &&
     stored.watts === input.watts &&
     stored.boat === input.boat &&
-    stored.comment === input.comment
+    normaliseNewlines(stored.comment) === normaliseNewlines(input.comment)
   );
 }

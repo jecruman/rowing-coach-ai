@@ -23,7 +23,7 @@ From the dashboard the rower opens `/sessions`, a paged newest-first list. Any s
 | Editable fields | All except session type; type enforced server-side | Reuses `SessionForm` and `SessionInputSchema` without clearing type-specific fields |
 | List | `/sessions`, 20 per page, newest first, date/type/distance/time/pace | Stays fast as history grows; matches the existing index and order |
 | Delete UX | Inline "Delete this session and its suggestion? Delete / Cancel", redirect with notice | Phone-friendly, explicit about losing the suggestion, no soft-delete machinery |
-| Schema | No migration | Policies, trigger and cascade already exist |
+| Schema | No migration at first; review F1 added one nullable column `coach_suggestions.session_updated_at` | An edit saved while a suggestion is generating must still mark it as made before the edit |
 
 ## Scope
 

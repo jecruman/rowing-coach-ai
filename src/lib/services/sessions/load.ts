@@ -36,6 +36,8 @@ export interface StoredSuggestion {
   attempts: number;
   model: string;
   createdAt: string;
+  /** `updated_at` of the session when the suggestion was built; null for suggestions stored before it was recorded. */
+  sessionUpdatedAt: string | null;
 }
 
 /** Ids are uuids; anything else cannot match a row, and PostgREST would answer it with an error. */
@@ -210,7 +212,7 @@ export async function loadStoredSuggestion(
 
   const { data, error } = await supabase
     .from("coach_suggestions")
-    .select("suggestion, is_default, default_reason, attempts, model, created_at")
+    .select("suggestion, is_default, default_reason, attempts, model, created_at, session_updated_at")
     .eq("session_id", sessionId)
     .maybeSingle();
   if (error) {
@@ -226,6 +228,7 @@ export async function loadStoredSuggestion(
       attempts: data.attempts,
       model: data.model,
       createdAt: data.created_at,
+      sessionUpdatedAt: data.session_updated_at,
     },
     loadFailed: false,
   };
