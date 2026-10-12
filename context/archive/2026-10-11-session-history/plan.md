@@ -287,44 +287,44 @@ marks the suggestion as made before the edit. Run `npx supabase db push` (lesson
 
 #### Automated
 
-- [x] 1.1 Type check and build pass: `npm run build` — 5e0fe45
-- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — 5e0fe45
-- [x] 1.3 Unit tests pass: `npm test` — 5e0fe45
-- [x] 1.4 Smoke passes against a local server, including the new list steps: `npm run smoke` — 5e0fe45
+- [x] 1.1 Type check and build pass: `npm run build` — ddcb5a5
+- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — ddcb5a5
+- [x] 1.3 Unit tests pass: `npm test` — ddcb5a5
+- [x] 1.4 Smoke passes against a local server, including the new list steps: `npm run smoke` — ddcb5a5
 
 #### Manual
 
-- [x] 1.5 On a phone-width browser, `/sessions` lists sessions newest first with date, type, distance, time and pace, and each row opens the right session — 5e0fe45
-- [x] 1.6 With more than 20 sessions (or `pageSize` temporarily lowered), "Older" and "Newer" page correctly and the first page has no "Newer" link — 5e0fe45
-- [x] 1.7 Dashboard and session page "All sessions" links work — 5e0fe45
+- [x] 1.5 On a phone-width browser, `/sessions` lists sessions newest first with date, type, distance, time and pace, and each row opens the right session — ddcb5a5
+- [x] 1.6 With more than 20 sessions (or `pageSize` temporarily lowered), "Older" and "Newer" page correctly and the first page has no "Newer" link — ddcb5a5
+- [x] 1.7 Dashboard and session page "All sessions" links work — ddcb5a5
 
 ### Phase 2: Edit session
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including form-values round-trip and change-detection cases (unchanged, each field changed, range vs single value, splits null vs empty): `npm test` — 2909271
-- [x] 2.2 Type check and build pass: `npm run build` — 2909271
-- [x] 2.3 Lint passes (ignoring CRLF noise): `npm run lint` — 2909271
-- [x] 2.4 Smoke passes, including the edit steps: `npm run smoke` — f6c1050
+- [x] 2.1 Unit tests pass, including form-values round-trip and change-detection cases (unchanged, each field changed, range vs single value, splits null vs empty): `npm test` — ddcb5a5
+- [x] 2.2 Type check and build pass: `npm run build` — ddcb5a5
+- [x] 2.3 Lint passes (ignoring CRLF noise): `npm run lint` — ddcb5a5
+- [x] 2.4 Smoke passes, including the edit steps: `npm run smoke` — ddcb5a5
 
 #### Manual
 
-- [x] 2.5 Edit an erg and a water session on a phone: every field is prefilled correctly, the type toggle is locked, changes show on the session page and the analysis updates — 2909271
-- [x] 2.6 Edit a session that has a suggestion: the note "Suggested before you edited this session" appears; open the edit form and save without changes on another session with a suggestion: no note appears — 2909271
-- [x] 2.7 An invalid value (e.g. distance 50) returns to the edit form with the error message and the session is unchanged — 2909271
+- [x] 2.5 Edit an erg and a water session on a phone: every field is prefilled correctly, the type toggle is locked, changes show on the session page and the analysis updates — ddcb5a5
+- [x] 2.6 Edit a session that has a suggestion: the note "Suggested before you edited this session" appears; open the edit form and save without changes on another session with a suggestion: no note appears — ddcb5a5
+- [x] 2.7 An invalid value (e.g. distance 50) returns to the edit form with the error message and the session is unchanged — ddcb5a5
 
 ### Phase 3: Delete session
 
 #### Automated
 
-- [x] 3.1 Type check and build pass: `npm run build` — 0e155b8
-- [x] 3.2 Lint passes (ignoring CRLF noise): `npm run lint` — 0e155b8
-- [x] 3.3 Unit tests pass: `npm test` — 0e155b8
-- [x] 3.4 RLS check passes, including owner update/delete and cascade: `npm run rls-check` — 0e155b8
-- [x] 3.5 Smoke passes, including the delete steps: `npm run smoke` — f6c1050
+- [x] 3.1 Type check and build pass: `npm run build` — ddcb5a5
+- [x] 3.2 Lint passes (ignoring CRLF noise): `npm run lint` — ddcb5a5
+- [x] 3.3 Unit tests pass: `npm test` — ddcb5a5
+- [x] 3.4 RLS check passes, including owner update/delete and cascade: `npm run rls-check` — ddcb5a5
+- [x] 3.5 Smoke passes, including the delete steps: `npm run smoke` — ddcb5a5
 
 #### Manual
 
-- [x] 3.6 On a phone, "Delete session" → "Cancel" keeps the session; "Delete" removes it, lands on `/sessions` with "Session deleted", and the session no longer appears in the list or as the dashboard's latest session — 0e155b8
-- [x] 3.7 Deleting a session with a suggestion: the next logged session still gets analysis and a suggestion as usual — 0e155b8
+- [x] 3.6 On a phone, "Delete session" → "Cancel" keeps the session; "Delete" removes it, lands on `/sessions` with "Session deleted", and the session no longer appears in the list or as the dashboard's latest session — ddcb5a5
+- [x] 3.7 Deleting a session with a suggestion: the next logged session still gets analysis and a suggestion as usual — ddcb5a5
 - [x] 3.8 After merge, the deploy job succeeds and list/edit/delete work on https://rowing-coach-ai.jecruman.workers.dev — ddcb5a5
