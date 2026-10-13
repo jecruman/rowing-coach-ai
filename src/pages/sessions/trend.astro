@@ -4,12 +4,11 @@ import Topbar from "@/components/Topbar.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
 import { SessionTypeSchema, type SessionType } from "@/lib/services/coaching/schema";
-import { formatTime } from "@/lib/services/profile/rules";
+import { formatTime, signed } from "@/lib/services/profile/rules";
 import { loadLatestSession, loadTrendSessions, type TrendSessions } from "@/lib/services/sessions/load";
 import {
   buildTrend,
   resolveTrendQuery,
-  signed,
   TREND_METRIC_IDS,
   TREND_METRICS,
   trendChartGeometry,
@@ -64,7 +63,8 @@ function formatAxis(value: number): string {
   return `${String(value)} ${definition.unit}`;
 }
 
-const metricText = metric === "dps" ? "DPS" : definition.label.toLowerCase();
+// Drift needs 2+ splits: naming the requirement keeps single-split sessions from looking like missing data.
+const metricText = metric === "dps" ? "DPS" : metric === "drift" ? "2 or more splits" : definition.label.toLowerCase();
 const first = points.at(0);
 const latest = points.at(-1);
 const geometry = trendChartGeometry(

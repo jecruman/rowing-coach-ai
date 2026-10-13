@@ -172,7 +172,12 @@ const steps = [
   [
     "trend page renders (DPS on erg opens water)",
     () => request("/sessions/trend?metric=dps&type=erg"),
-    { status: 200 },
+    {
+      status: 200,
+      html: (text) =>
+        !text.includes("Could not load your sessions") &&
+        /href="\/sessions\/trend\?metric=dps&(?:amp;)?type=water"[^>]*aria-current="true"/.test(text),
+    },
   ],
   [
     "suggestion for own session is the safe default",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatTime, GoalInputSchema, pacePer500, parseTime, ProfileInputSchema } from "./rules";
+import { formatTime, GoalInputSchema, pacePer500, parseTime, ProfileInputSchema, signed } from "./rules";
 
 describe("parseTime", () => {
   it.each([
@@ -47,6 +47,14 @@ describe("formatTime", () => {
     const seconds = parseTime(text);
     expect(seconds).not.toBeNull();
     expect(formatTime(seconds ?? 0)).toBe(text);
+  });
+});
+
+describe("signed", () => {
+  it("marks the sign, with a true minus and ±0 for no change", () => {
+    expect(signed(1.5)).toBe("+1.5");
+    expect(signed(-0.3)).toBe("−0.3");
+    expect(signed(0)).toBe("±0");
   });
 });
 

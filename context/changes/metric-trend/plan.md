@@ -122,7 +122,7 @@ The `/sessions/trend` page, links into it, and smoke coverage.
 
 **File**: `src/lib/services/sessions/trend.ts` and `src/components/sessions/SessionAnalysis.astro`
 
-**Intent**: Move the `signed()` helper into the trend module (exported) so the analysis card and the trend page format changes identically.
+**Intent**: Move the `signed()` helper into the trend module (exported) so the analysis card and the trend page format changes identically. (Superseded by the review addendum below: it lives in `src/lib/services/profile/rules.ts`.)
 
 **Contract**: `signed(value: number): string` — `+1.5`, `−0.3`, `±0`; `SessionAnalysis.astro` imports it instead of defining its own. Covered by a unit test.
 
@@ -141,6 +141,8 @@ The `/sessions/trend` page, links into it, and smoke coverage.
 **Intent**: Cover the new page like the other `/sessions*` pages.
 
 **Contract**: anonymous `GET /sessions/trend` → 302 to `/auth/signin`; signed-in `GET /sessions/trend?metric=dps&type=erg` → 200.
+
+> **Review addendum (2026-10-13, `reviews/impl-review-round1.md`, `reviews/impl-review.md`):** accepted additions beyond this phase — two faint guide lines and a dot on the latest point in the SVG (dataviz mark rules), and an "All sessions" link at the bottom of the trend page. Triage also moved `signed()` and its test to `src/lib/services/profile/rules.ts` / `rules.test.ts` (F3), made the drift empty state read "with 2 or more splits" (F2), and made the signed-in smoke step assert no load error and the active Water picker (F1). Implementation adaptations recorded here: `buildTrend` takes the session type explicitly — `buildTrend(sessions, metric, type)` — and the Erg link while DPS is selected switches the metric to pace (DPS is water-only, so `dps` + `erg` would only resolve back to water).
 
 ### Success Criteria:
 
@@ -166,7 +168,7 @@ The `/sessions/trend` page, links into it, and smoke coverage.
 
 ### Unit Tests:
 
-- `resolveTrendQuery`, `buildTrend`, `trendChartGeometry`, `signed` in `src/lib/services/sessions/trend.test.ts`, using `water()` / `erg()`-style fixtures.
+- `resolveTrendQuery`, `buildTrend`, `trendChartGeometry` in `src/lib/services/sessions/trend.test.ts`, using `water()` / `erg()`-style fixtures; `signed` in `src/lib/services/profile/rules.test.ts`.
 - Key edges: same-date ordering, single-split drift, missing SPM/DPS, 21+ sessions, flat series, pace inversion.
 
 ### Integration Tests:

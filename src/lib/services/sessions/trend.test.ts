@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { RowingSession } from "@/types";
 
-import { buildTrend, resolveTrendQuery, signed, TREND_SIZE, trendChartGeometry } from "./trend";
+import { buildTrend, resolveTrendQuery, TREND_SIZE, trendChartGeometry } from "./trend";
 
 let nextId = 0;
 
@@ -136,13 +136,5 @@ describe("trendChartGeometry", () => {
 
   it("puts lower values higher when inverted (pace)", () => {
     expect(trendChartGeometry([120, 115], { ...box, invert: true }).points).toBe("10,90 290,10");
-  });
-});
-
-describe("signed", () => {
-  it("marks the sign, with a true minus and ±0 for no change", () => {
-    expect(signed(1.5)).toBe("+1.5");
-    expect(signed(-0.3)).toBe("−0.3");
-    expect(signed(0)).toBe("±0");
   });
 });
