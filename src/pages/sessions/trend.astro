@@ -1,0 +1,228 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Topbar from "@/components/Topbar.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import { createClient } from "@/lib/supabase";
+import { SessionTypeSchema, type SessionType } from "@/lib/services/coaching/schema";
+import { formatTime } from "@/lib/services/profile/rules";
+import { loadLatestSession, loadTrendSessions, type TrendSessions } from "@/lib/services/sessions/load";
+import {
+  buildTrend,
+  resolveTrendQuery,
+  signed,
+  TREND_METRIC_IDS,
+  TREND_METRICS,
+  trendChartGeometry,
+  type TrendMetric,
+} from "@/lib/services/sessions/trend";
+
+/** Chart box in SVG units; the SVG scales to the column width through its viewBox. */
+const CHART = { width: 300, height: 150, padding: 8 };
+
+const { user } = Astro.locals;
+const params = Astro.url.searchParams;
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+// The latest session's type is the default, so it is read only when `?type=` does not name one.
+// A failed read falls back to erg (the loader logs it); the trend read below reports its own failure.
+const typeGiven = SessionTypeSchema.safeParse(params.get("type")).success;
+const latestType: SessionType | null =
+  supabase && user && !typeGiven ? ((await loadLatestSession(supabase)).session?.type ?? null) : null;
+const { metric, type } = resolveTrendQuery(params, latestType);
+const definition = TREND_METRICS[metric];
+
+const { sessions, loadFailed }: TrendSessions =
+  supabase && user ? await loadTrendSessions(supabase, type, metric) : { sessions: [], loadFailed: false };
+const { points, change } = buildTrend(sessions, metric, type);
+
+const typeLabel = (value: SessionType) => (value === "erg" ? "Erg" : "Water");
+const href = (nextMetric: TrendMetric, nextType: SessionType) =>
+  `/sessions/trend?metric=${nextMetric}&type=${nextType}`;
+
+// DPS exists only for water: its link opens water, and leaving water while on DPS switches back to pace.
+const metricLinks = TREND_METRIC_IDS.filter((id) => !(TREND_METRICS[id].waterOnly && type === "erg")).map((id) => ({
+  label: TREND_METRICS[id].label,
+  href: href(id, TREND_METRICS[id].waterOnly ? "water" : type),
+  active: id === metric,
+}));
+const typeLinks = (["erg", "water"] as const).map((id) => ({
+  label: typeLabel(id),
+  href: href(definition.waterOnly && id === "erg" ? "pace" : metric, id),
+  active: id === type,
+}));
+
+/** A value as the Analysis card shows it. */
+function formatValue(value: number): string {
+  if (metric === "pace") return `${formatTime(value)} /500 m`;
+  if (metric === "drift") return `${signed(value)} s`;
+  return `${String(value)} ${definition.unit}`;
+}
+
+/** An axis label: the bare value (pace as a clock time), the unit is in the heading. */
+function formatAxis(value: number): string {
+  if (metric === "pace") return formatTime(value);
+  return `${String(value)} ${definition.unit}`;
+}
+
+const metricText = metric === "dps" ? "DPS" : definition.label.toLowerCase();
+const first = points.at(0);
+const latest = points.at(-1);
+const geometry = trendChartGeometry(
+  points.map((point) => point.value),
+  { ...CHART, invert: definition.invertAxis },
+);
+const coordinates = geometry.points === "" ? [] : geometry.points.split(" ").map((pair) => pair.split(",").map(Number));
+const lastCoordinate = coordinates.at(-1);
+// Inverted (pace): the smaller, faster value sits at the top.
+const axisTop = formatAxis(definition.invertAxis ? geometry.yMin : geometry.yMax);
+const axisBottom = formatAxis(definition.invertAxis ? geometry.yMax : geometry.yMin);
+const changeText = change === null ? null : `${signed(change)} ${metric === "pace" ? "s /500 m" : definition.unit}`;
+
+const rows = [...points].reverse().map((point) => ({
+  href: `/sessions/${point.sessionId}`,
+  date: point.rowedOn,
+  value: formatValue(point.value),
+  spm: metric === "dps" && point.spmMid !== null ? `${String(point.spmMid)} spm` : null,
+}));
+
+const pickerClass = (active: boolean) =>
+  active
+    ? "rounded-lg bg-purple-600 px-3 py-1.5 font-medium text-white"
+    : "rounded-lg border border-white/10 bg-white/10 px-3 py-1.5 text-blue-100/80 transition-colors hover:bg-white/15";
+---
+
+<Layout title="Trends">
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto w-full max-w-md space-y-4 text-white">
+      <Topbar />
+
+      <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
+        Trends
+      </h1>
+
+      <nav aria-label="Metric" class="flex flex-wrap gap-2 text-sm">
+        {metricLinks.map((link) => (
+          <a href={link.href} class:list={pickerClass(link.active)} aria-current={link.active ? "true" : undefined}>
+            {link.label}
+          </a>
+        ))}
+      </nav>
+      <nav aria-label="Session type" class="flex flex-wrap gap-2 text-sm">
+        {typeLinks.map((link) => (
+          <a href={link.href} class:list={pickerClass(link.active)} aria-current={link.active ? "true" : undefined}>
+            {link.label}
+          </a>
+        ))}
+      </nav>
+
+      {loadFailed ? (
+        <ServerError message="Could not load your sessions — please try again." />
+      ) : (
+        <>
+          {first && latest && points.length >= 2 ? (
+            <section
+              class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl"
+              aria-labelledby="trend-heading"
+            >
+              <div class="mb-3 flex items-baseline justify-between gap-4">
+                <h2 id="trend-heading" class="text-lg font-semibold">
+                  {definition.label}
+                  {metric === "pace" && " /500 m"} · {typeLabel(type)}
+                </h2>
+                {metric === "pace" && <p class="text-xs text-blue-100/70">faster ↑</p>}
+              </div>
+
+              <div class="flex gap-2">
+                <div class="flex flex-col justify-between py-1 text-right text-xs text-blue-100/70 tabular-nums">
+                  <span>{axisTop}</span>
+                  <span>{axisBottom}</span>
+                </div>
+                <svg
+                  role="img"
+                  aria-label={`${definition.label} trend, ${first.rowedOn} to ${latest.rowedOn}`}
+                  viewBox={`0 0 ${String(CHART.width)} ${String(CHART.height)}`}
+                  class="h-auto w-full min-w-0 flex-1"
+                >
+                  <line
+                    x1="0"
+                    x2={CHART.width}
+                    y1={CHART.padding}
+                    y2={CHART.padding}
+                    stroke="rgb(255 255 255 / 0.1)"
+                    stroke-width="1"
+                    vector-effect="non-scaling-stroke"
+                  />
+                  <line
+                    x1="0"
+                    x2={CHART.width}
+                    y1={CHART.height - CHART.padding}
+                    y2={CHART.height - CHART.padding}
+                    stroke="rgb(255 255 255 / 0.1)"
+                    stroke-width="1"
+                    vector-effect="non-scaling-stroke"
+                  />
+                  <polyline
+                    points={geometry.points}
+                    fill="none"
+                    stroke="#a855f7"
+                    stroke-width="2"
+                    stroke-linejoin="round"
+                    stroke-linecap="round"
+                    vector-effect="non-scaling-stroke"
+                  />
+                  {lastCoordinate && (
+                    <circle
+                      cx={lastCoordinate[0]}
+                      cy={lastCoordinate[1]}
+                      r="4"
+                      fill="#a855f7"
+                      stroke="#272c3e"
+                      stroke-width="2"
+                    />
+                  )}
+                </svg>
+              </div>
+
+              <div class="mt-1 flex justify-between pl-2 text-xs text-blue-100/70">
+                <span>{first.rowedOn}</span>
+                <span>{latest.rowedOn}</span>
+              </div>
+
+              {changeText !== null && (
+                <p class="mt-4 border-t border-white/10 pt-4 text-sm">
+                  <span class="text-blue-100/70">first → latest:</span> <span class="font-medium">{changeText}</span>
+                </p>
+              )}
+            </section>
+          ) : (
+            <section class="rounded-2xl border border-white/10 bg-white/10 p-6 text-center backdrop-blur-xl">
+              <p class="text-sm text-blue-100/70">
+                Log at least 2 {type} sessions with {metricText} to see a trend.
+              </p>
+            </section>
+          )}
+
+          {rows.length > 0 && (
+            <ul class="space-y-2">
+              {rows.map((row) => (
+                <li>
+                  <a
+                    href={row.href}
+                    class="block rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl transition-colors hover:bg-white/15"
+                  >
+                    <span class="font-medium">{row.date}</span> · {row.value}
+                    {row.spm !== null && <span class="text-sm text-blue-100/70">· {row.spm}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+
+      <a href="/sessions" class="block text-center text-sm text-purple-300 hover:underline">
+        All sessions
+      </a>
+    </div>
+  </div>
+</Layout>

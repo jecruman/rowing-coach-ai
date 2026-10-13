@@ -1,6 +1,7 @@
 ---
 import type { AnalysisLabel, SessionAnalysis } from "@/lib/services/coaching/metrics";
 import { formatTime } from "@/lib/services/profile/rules";
+import { signed } from "@/lib/services/sessions/trend";
 import type { SessionType } from "@/types";
 
 interface Props {
@@ -21,13 +22,6 @@ const LABEL_TEXT: Record<AnalysisLabel, string> = {
   paceGoodImprovement: "Pace: good improvement",
   techniqueLimitingEfficiency: "Technique may be limiting efficiency",
 };
-
-/** Signed number with one decimal at most: +1.5, −0.3, ±0. */
-function signed(value: number): string {
-  if (value === 0) return "±0";
-  const text = String(Math.abs(value));
-  return value > 0 ? `+${text}` : `−${text}`;
-}
 
 const rows: { label: string; value: string; delta: string | null }[] = [
   {

@@ -68,6 +68,13 @@ export function resolveTrendQuery(params: URLSearchParams, latestType: SessionTy
   return { metric, type };
 }
 
+/** Signed number with one decimal at most: +1.5, −0.3, ±0. */
+export function signed(value: number): string {
+  if (value === 0) return "±0";
+  const text = String(Math.abs(value));
+  return value > 0 ? `+${text}` : `−${text}`;
+}
+
 export interface TrendPoint {
   sessionId: string;
   rowedOn: string;
