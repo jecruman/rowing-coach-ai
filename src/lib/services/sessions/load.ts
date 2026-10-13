@@ -11,6 +11,7 @@ import {
   type SuggestionOutcome,
   type SuggestionPayload,
 } from "@/lib/services/coaching/schema";
+import { TREND_METRICS, TREND_SIZE, type TrendMetric } from "@/lib/services/sessions/trend";
 import { BOATS, type Boat, type NumberRange, type RowingSession } from "@/types";
 
 /** Columns every session read selects; `toRowingSession` maps exactly these. */
@@ -192,6 +193,36 @@ export async function loadSessionsUpTo(
     .limit(limit);
   if (error) {
     logReadError("history", error);
+    return { sessions: [], loadFailed: true };
+  }
+  return { sessions: toSessions(data), loadFailed: false };
+}
+
+export interface TrendSessions {
+  /** Up to `limit` sessions of the requested type that can have the metric, newest first. */
+  sessions: RowingSession[];
+  loadFailed: boolean;
+}
+
+/**
+ * Reads the window a trend needs: the newest `limit` sessions of `type` whose column for `metric` is set, in the
+ * agreed order (`rowed_on` desc, then `created_at` desc). Split drift can still be null after the read (one split).
+ */
+export async function loadTrendSessions(
+  supabase: SupabaseClient<Database>,
+  type: SessionType,
+  metric: TrendMetric,
+  limit = TREND_SIZE,
+): Promise<TrendSessions> {
+  const column = TREND_METRICS[metric].requiredColumn;
+  let query = supabase.from("sessions").select(SESSION_COLUMNS).eq("session_type", type);
+  if (column !== null) query = query.not(column, "is", null);
+  const { data, error } = await query
+    .order("rowed_on", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    logReadError("trend", error);
     return { sessions: [], loadFailed: true };
   }
   return { sessions: toSessions(data), loadFailed: false };
