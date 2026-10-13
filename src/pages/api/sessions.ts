@@ -11,6 +11,9 @@ import {
 
 export const prerender = false;
 
+/** Postgres unique violation: another submit marked this suggestion first. */
+const UNIQUE_VIOLATION = "23505";
+
 function errorRedirect(context: APIContext, message: string): Response {
   return context.redirect(`/sessions/new?error=${encodeURIComponent(message)}`);
 }
@@ -50,10 +53,14 @@ export const POST: APIRoute = async (context) => {
 
   // The mark is checked before the insert, because the new session becomes the latest one. It is kept only for the
   // suggestion still stored, unmarked, on the latest session; a stale question (e.g. a newer session logged in
-  // another tab) or a failed read drops the mark silently — the session itself is always saved.
+  // another tab) drops the mark silently. A failed read fails closed, like the suggestion endpoint: dropping a skip
+  // without telling the rower would remove its no make-up cap.
   let mark = session.mark;
   if (mark) {
-    const { markable } = await loadMarkableSuggestion(supabase);
+    const { markable, loadFailed } = await loadMarkableSuggestion(supabase);
+    if (loadFailed) {
+      return errorRedirect(context, "Could not save your answer about the suggested session. Please try again.");
+    }
     if (markable?.suggestionId !== mark.suggestionId) {
       mark = null;
     } else if (session.rowedOn < markable.rowedOn) {
@@ -85,9 +92,15 @@ export const POST: APIRoute = async (context) => {
       outcome: mark.outcome,
     });
     if (markError) {
-      // The session is saved; the suggestion just stays unmarked (e.g. a parallel submit marked it first).
       // eslint-disable-next-line no-console -- surfaced in `wrangler tail`; PostgREST code/message only, no user data
       console.error(`[api/sessions] mark insert failed — ${markError.code}: ${markError.message}`);
+      // A parallel submit marking it first is fine. Otherwise the session is saved but the answer is not, so the
+      // rower is told (the next suggestion will not reflect it).
+      if (markError.code !== UNIQUE_VIOLATION) {
+        const notice =
+          "Your session was saved, but your answer about the previous suggestion wasn't, so the next suggestion can't take it into account.";
+        return context.redirect(`/sessions/${data.id}?error=${encodeURIComponent(notice)}`);
+      }
     }
   }
 

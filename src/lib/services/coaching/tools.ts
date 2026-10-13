@@ -29,6 +29,19 @@ function rangeText(range: NumberRange | null): string | null {
   return range.min === range.max ? String(range.min) : `${String(range.min)}-${String(range.max)}`;
 }
 
+/** Longest suggested structure (SuggestedSessionSchema `structure`); applied again before the text reaches the model. */
+const MAX_STRUCTURE_LENGTH = 300;
+
+/**
+ * Wraps a stored suggestion's structure in `<suggested_structure>` tags. Stored suggestions are normally
+ * model-written, but a rower can insert their own `coach_suggestions` row, so the text is treated as user text
+ * (lessons.md): capped and fenced, with angle brackets made harmless as in `fenceComment`.
+ */
+export function fenceStructure(structure: string): string {
+  const text = structure.slice(0, MAX_STRUCTURE_LENGTH).replaceAll("<", "‹").replaceAll(">", "›");
+  return `<suggested_structure>${text}</suggested_structure>`;
+}
+
 /**
  * The suggestion the rower marked when logging a session, as the model sees it: for "done" the session is the
  * suggested one, so the targets can be compared with what was rowed. Suggestion text is model-written, not fenced.
@@ -40,7 +53,7 @@ function describeAnswered(answered: AnsweredSuggestion | undefined) {
     outcome: answered.outcome,
     suggested: {
       sessionType: suggestion.sessionType,
-      structure: suggestion.structure,
+      structure: fenceStructure(suggestion.structure),
       totalMinutes: suggestion.totalMinutes,
       totalDistanceM: suggestion.totalDistanceM,
       maxSpm: suggestion.targets.maxSpm,
@@ -105,7 +118,7 @@ export function buildCoachingTools(context: CoachingContext) {
 
   const getTrainingHistory = betaZodTool({
     name: "getTrainingHistory",
-    description: `The rower's sessions up to and including the one just logged, newest first, at most ${String(MAX_HISTORY_SESSIONS)}. Each comment is the rower's own words inside <rower_comment> tags. answeredSuggestion is the previous suggestion the rower marked when logging that session: "done" means this session is the suggested one (compare it with the suggested targets), "skipped" means the suggestion was not done; null means no answer.`,
+    description: `The rower's sessions up to and including the one just logged, newest first, at most ${String(MAX_HISTORY_SESSIONS)}. Each comment is the rower's own words inside <rower_comment> tags. answeredSuggestion is the previous suggestion the rower marked when logging that session: "done" means this session is the suggested one (compare it with the suggested targets), "skipped" means the suggestion was not done; null means no answer. Each suggested structure is inside <suggested_structure> tags.`,
     inputSchema: z.object({
       limit: z
         .number()

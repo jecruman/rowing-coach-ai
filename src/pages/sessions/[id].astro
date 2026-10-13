@@ -15,7 +15,6 @@ import {
   loadSession,
   loadSessionsUpTo,
   loadStoredSuggestion,
-  loadSuggestionOutcome,
   storedSuggestionPayload,
   type SessionResult,
 } from "@/lib/services/sessions/load";
@@ -29,7 +28,7 @@ const HISTORY_LIMIT = 30;
 
 const { user } = Astro.locals;
 const id = Astro.params.id ?? "";
-// Set by the delete endpoint when the delete failed.
+// Set by the delete endpoint when the delete failed, and by the log endpoint when the done/skipped answer was not saved.
 const actionError = Astro.url.searchParams.get("error")?.slice(0, MAX_ERROR_LENGTH) ?? null;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -59,10 +58,7 @@ const isEditedAfterSuggestion =
   storedSuggestion?.stored != null &&
   editedAfterSuggestion(session.updatedAt, storedSuggestion.stored);
 // The rower's done/skipped mark for the stored suggestion; a failed read just shows no mark.
-const suggestionOutcome =
-  supabase && storedSuggestion?.stored
-    ? (await loadSuggestionOutcome(supabase, storedSuggestion.stored.id)).outcome
-    : null;
+const suggestionOutcome = storedSuggestion?.stored?.outcome ?? null;
 const analysis = session && history ? analyseSession(session, history.loadFailed ? [] : history.sessions) : null;
 const isHard =
   session && profileAndGoals && !profileAndGoals.loadFailed ? isHardSession(session, profileAndGoals.goals) : null;

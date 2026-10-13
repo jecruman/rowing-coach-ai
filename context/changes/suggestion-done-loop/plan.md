@@ -316,6 +316,14 @@ The new table only; existing rows are untouched. All existing suggestions start 
 - Agent tools: `src/lib/services/coaching/tools.ts:63-160`
 - Suggestion endpoint: `src/pages/api/sessions/[id]/suggestion.ts`
 
+## Review Addendum (2026-10-13)
+
+Recorded during `/10x-impl-review` (`reviews/impl-review.md`):
+
+- **Known limitation — mark ordering is enforced only in the app (F5, accepted).** The `suggestion_outcomes` insert policy checks ownership of both rows but not that the logged session is dated on or after the suggested session. A direct API insert, or an S-03 edit that moves a marked session's `rowed_on` earlier, can make a "done" point to an earlier session. No safety impact: the skip cap can only tighten limits, and only for the rower's own sessions; the effect is a misleading history for the coach. Anything that later reads marks (e.g. S-05 trends) must not assume the logged session comes after the suggested one.
+- **Unplanned addition — client-side date check (F6).** `SessionForm` also blocks submitting a done/skipped answer with a date before the suggested session; it mirrors the server check in `POST /api/sessions`, which stays authoritative.
+- **Changed after review — a failed read no longer drops the mark silently (F2).** Superseding "Critical Implementation Details" above: when a mark was submitted and the markable-suggestion read fails, the log is rejected with a form error before the session is saved; a mark insert that fails for anything other than a unique conflict saves the session and shows an `?error=` notice on its page. A unique conflict (parallel submit) is still silent.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
