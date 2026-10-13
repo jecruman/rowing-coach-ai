@@ -4,6 +4,7 @@ import type { RowingSession } from "@/types";
 
 import { isHardSession, limitContext, safeDefaultFor, validateSuggestion } from "./limits";
 import type { CheckedSuggestion, Goals, LimitContext } from "./limits";
+import type { SuggestedSession } from "./schema";
 
 let nextId = 0;
 
@@ -71,6 +72,7 @@ describe("limitContext", () => {
       maxSpmCap: null,
       mustBeEasy: false,
       easyPaceFloorS: {},
+      skipCap: null,
     });
   });
 
@@ -149,6 +151,7 @@ describe("validateSuggestion", () => {
     maxSpmCap: null,
     mustBeEasy: false,
     easyPaceFloorS: {},
+    skipCap: null,
   };
 
   it("accepts exactly 110 % of distance and time", () => {
@@ -260,6 +263,7 @@ describe("safeDefaultFor", () => {
       maxSpmCap: 32,
       mustBeEasy: true,
       easyPaceFloorS: { erg: 125, water: 125 },
+      skipCap: null,
     };
     for (const type of ["erg", "water"] as const) {
       expect(validateSuggestion(safeDefaultFor(type, context), context)).toEqual([]);
@@ -271,5 +275,68 @@ describe("safeDefaultFor", () => {
     expect(safeDefaultFor("water", limitContext(long, [long], {})).totalMinutes).toBe(35);
     const short = session("erg", "2026-10-01", { durationS: 480 }); // cap 8.8 min
     expect(safeDefaultFor("erg", limitContext(short, [short], {})).totalMinutes).toBe(8);
+  });
+});
+
+describe("no make-up rule after a skip", () => {
+  /** The suggestion the rower skipped: 6 km / 30 min of water rowing. */
+  function skipped(overrides: Partial<SuggestedSession> = {}): SuggestedSession {
+    return {
+      sessionType: "water",
+      structure: "3 × 10 min / 2 min rest",
+      totalDistanceM: 6000,
+      totalMinutes: 30,
+      targets: { maxSpm: 24, fastestPacePer500s: null },
+      focus: "Rhythm",
+      reason: "Build steady volume.",
+      techniqueTip: "Relax the shoulders.",
+      ...overrides,
+    };
+  }
+
+  // Volume caps are generous (two long sessions), so only the skip cap can fire below.
+  const long1 = session("water", "2026-10-01", { distanceM: 10000, durationS: 3600 });
+  const long2 = session("erg", "2026-10-02", { distanceM: 10000, durationS: 3600 });
+  const logged = session("water", "2026-10-03", { distanceM: 10000, durationS: 3600 });
+  const history = [logged, long2, long1];
+
+  it("sets the skip cap only from a skipped suggestion", () => {
+    expect(limitContext(logged, history, {}, skipped()).skipCap).toEqual({
+      sessionType: "water",
+      minutes: 30,
+      distanceM: 6000,
+    });
+    expect(limitContext(logged, history, {}).skipCap).toBeNull();
+  });
+
+  it("allows exactly the skipped suggestion's time and distance", () => {
+    const context = limitContext(logged, history, {}, skipped());
+    expect(codes(suggestion({ totalMinutes: 30, totalDistanceM: 6000 }), context)).toEqual([]);
+  });
+
+  it("rejects more time or more same-type distance than the skipped suggestion", () => {
+    const context = limitContext(logged, history, {}, skipped());
+    expect(codes(suggestion({ totalMinutes: 30.1, totalDistanceM: 6000 }), context)).toEqual(["skip_time"]);
+    expect(codes(suggestion({ totalMinutes: 30, totalDistanceM: 6001 }), context)).toEqual(["skip_distance"]);
+  });
+
+  it("caps only the time when the next suggestion is another type", () => {
+    const context = limitContext(logged, history, {}, skipped());
+    const erg = suggestion({ sessionType: "erg", totalMinutes: 30, totalDistanceM: 9000 });
+    expect(codes(erg, context)).toEqual([]);
+    expect(codes({ ...erg, totalMinutes: 31 }, context)).toEqual(["skip_time"]);
+  });
+
+  it("caps only the time when the skipped suggestion had no distance", () => {
+    const context = limitContext(logged, history, {}, skipped({ totalDistanceM: null }));
+    expect(codes(suggestion({ totalMinutes: 30, totalDistanceM: 9000 }), context)).toEqual([]);
+    expect(codes(suggestion({ totalMinutes: 31, totalDistanceM: 9000 }), context)).toEqual(["skip_time"]);
+  });
+
+  it("clamps the safe default to the skip cap", () => {
+    const context = limitContext(logged, history, {}, skipped({ totalMinutes: 20.5 }));
+    const fallback = safeDefaultFor("water", context);
+    expect(fallback.totalMinutes).toBe(20);
+    expect(validateSuggestion(fallback, context)).toEqual([]);
   });
 });

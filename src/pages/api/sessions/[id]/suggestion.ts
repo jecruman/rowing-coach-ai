@@ -10,6 +10,7 @@ import {
   loadSession,
   loadSessionsUpTo,
   loadStoredSuggestion,
+  loadSuggestionOutcomes,
   storedSuggestionPayload,
 } from "@/lib/services/sessions/load";
 import { createClient } from "@/lib/supabase";
@@ -85,11 +86,20 @@ export const POST: APIRoute = async (context) => {
     ]);
     if (history.loadFailed || profileAndGoals.loadFailed) return serverError();
 
+    // The rower's done/skipped marks for this history. A failed read would drop a skip (and its no make-up cap),
+    // so it fails the request too.
+    const outcomes = await loadSuggestionOutcomes(
+      supabase,
+      history.sessions.map((s) => s.id),
+    );
+    if (outcomes.loadFailed) return serverError();
+
     const coachingContext = buildCoachingContext(
       session,
       history.sessions,
       profileAndGoals.profile,
       profileAndGoals.goals,
+      outcomes.answered,
     );
 
     if (!isCoachingAllowed(user.email)) {

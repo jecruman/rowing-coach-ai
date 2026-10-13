@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { SuggestionOutcomeSchema, type SuggestionOutcome } from "@/lib/services/coaching/schema";
 import { emptyToNull, formatTime, parseTime } from "@/lib/services/profile/rules";
 import { BOATS, type Boat, type NumberRange, type RowingSession, type SessionType } from "@/types";
 
@@ -158,6 +159,14 @@ const CommentSchema = z.string().max(MAX_COMMENT_LENGTH, {
   error: `Comment must be at most ${MAX_COMMENT_LENGTH} characters`,
 });
 
+/** "Not answering" sends `none` (or nothing); only done/skipped are marks. */
+const OutcomeSchema = z.preprocess(
+  (value) => (value === "none" ? null : emptyToNull(value)),
+  z.enum(SuggestionOutcomeSchema.options, { error: "Choose done, skipped or not answering" }).nullable(),
+);
+
+const MarkedSuggestionIdSchema = z.guid({ error: "The suggested session to mark is not valid" });
+
 const optional = <T extends z.ZodType>(schema: T) => z.preprocess(emptyToNull, schema.nullable());
 const required = <T extends z.ZodType>(schema: T) => z.preprocess(emptyToNull, schema);
 
@@ -169,6 +178,9 @@ const commonFields = {
   splits: optional(SplitsSchema),
   spm: optional(SpmSchema),
   comment: optional(CommentSchema),
+  /** The stored suggestion the rower marks with this log; sent only together with `outcome`. */
+  markedSuggestionId: optional(MarkedSuggestionIdSchema),
+  outcome: OutcomeSchema,
 };
 
 /** Unknown keys are stripped, so water-only fields sent with an erg session are ignored (and vice versa). */
@@ -197,6 +209,8 @@ export interface SessionInput {
   watts: number | null;
   boat: Boat | null;
   comment: string | null;
+  /** The done/skipped mark entered with this log, or null when the rower did not answer. */
+  mark: { suggestionId: string; outcome: SuggestionOutcome } | null;
 }
 
 /**
@@ -207,6 +221,15 @@ export const SessionInputSchema = z
   .discriminatedUnion("sessionType", [ErgInputSchema, WaterInputSchema], {
     error: "Choose erg or water",
   })
+  .superRefine((input, ctx) => {
+    if ((input.markedSuggestionId === null) !== (input.outcome === null)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["outcome"],
+        message: "Choose done or skipped for the suggested session",
+      });
+    }
+  })
   .transform((input): SessionInput => {
     const common = {
       rowedOn: input.rowedOn,
@@ -215,6 +238,10 @@ export const SessionInputSchema = z
       splitsS: input.splits,
       spm: input.spm,
       comment: input.comment,
+      mark:
+        input.markedSuggestionId !== null && input.outcome !== null
+          ? { suggestionId: input.markedSuggestionId, outcome: input.outcome }
+          : null,
     };
     return input.sessionType === "erg"
       ? { sessionType: "erg", ...common, dps: null, watts: input.watts, boat: null }

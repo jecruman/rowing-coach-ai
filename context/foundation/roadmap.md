@@ -45,7 +45,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 | S-01 | rower-profile-and-goals  | sign in and set their profile plus one erg goal and one water goal                   | —             | FR-001, FR-002, FR-003                | done |
 | S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | done |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | done |
-| S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | planning |
+| S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | in-progress |
 | S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | proposed |
 
 ## Streams
@@ -140,7 +140,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - How does a "skipped" or "done" mark change the next suggestion, concretely enough to test? (Socrates note on FR-010) — Owner: user. Block: no.
 - **Risk:** completes the PRD's primary success criterion; without a testable rule for "reflects it", this slice can pass review while changing nothing for the rower.
-- **Status:** planning
+- **Status:** in-progress
 
 ### S-05: Metric trend
 
