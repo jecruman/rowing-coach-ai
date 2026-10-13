@@ -76,6 +76,7 @@ const steps = [
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["new session redirects anonymous user", () => request("/sessions/new"), { status: 302, location: "/auth/signin" }],
   ["session list redirects anonymous user", () => request("/sessions"), { status: 302, location: "/auth/signin" }],
+  ["trend redirects anonymous user", () => request("/sessions/trend"), { status: 302, location: "/auth/signin" }],
   [
     "signup creates account",
     () => request("/api/auth/signup", { method: "POST", form: { email, password } }),
@@ -167,6 +168,16 @@ const steps = [
         form: { ...smokeSession, sessionType: "water", distanceM: "8000" },
       }),
     { status: 302, match: /^\/sessions\/[0-9a-f-]{36}\/edit\?error=/ },
+  ],
+  [
+    "trend page renders (DPS on erg opens water)",
+    () => request("/sessions/trend?metric=dps&type=erg"),
+    {
+      status: 200,
+      html: (text) =>
+        !text.includes("Could not load your sessions") &&
+        /href="\/sessions\/trend\?metric=dps&(?:amp;)?type=water"[^>]*aria-current="true"/.test(text),
+    },
   ],
   [
     "suggestion for own session is the safe default",

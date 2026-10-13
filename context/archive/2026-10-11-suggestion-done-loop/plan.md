@@ -332,33 +332,33 @@ Recorded during `/10x-impl-review` (`reviews/impl-review.md`):
 
 #### Automated
 
-- [x] 1.1 Migration is pushed and types are regenerated: `npx supabase db push` succeeds and `src/db/database.types.ts` contains `suggestion_outcomes` — a19a4b8
-- [x] 1.2 Unit tests pass: `npm test` — a19a4b8
-- [x] 1.3 Lint passes: `npm run lint` — a19a4b8
-- [x] 1.4 Type and build check passes: `npm run build` — a19a4b8
-- [x] 1.5 RLS check passes including the new outcome checks: `npm run rls-check` — d60e645
-- [x] 1.6 Smoke passes unchanged: `npm run smoke` — d60e645
+- [x] 1.1 Migration is pushed and types are regenerated: `npx supabase db push` succeeds and `src/db/database.types.ts` contains `suggestion_outcomes` — 842e38c
+- [x] 1.2 Unit tests pass: `npm test` — 842e38c
+- [x] 1.3 Lint passes: `npm run lint` — 842e38c
+- [x] 1.4 Type and build check passes: `npm run build` — 842e38c
+- [x] 1.5 RLS check passes including the new outcome checks: `npm run rls-check` — 842e38c
+- [x] 1.6 Smoke passes unchanged: `npm run smoke` — 842e38c
 
 #### Manual
 
-- [x] 1.7 After a session with a stored suggestion, `/sessions/new` shows the question with that suggestion's structure; choosing Done and saving shows "You marked this: Done" on the previous session's panel — cb448c4
-- [x] 1.8 Logging again right after (the latest session now has no mark-able stored suggestion, or it was already marked) shows no question — cb448c4
-- [x] 1.9 Choosing "Not answering" leaves the suggestion unmarked and the next log asks about the new latest suggestion instead — cb448c4
-- [x] 1.10 Dating the new session before the suggested session with a mark selected shows the form error; without a mark it saves normally — cb448c4
-- [x] 1.11 An account that isn't allowlisted (unstored default) never sees the question — cb448c4
+- [x] 1.7 After a session with a stored suggestion, `/sessions/new` shows the question with that suggestion's structure; choosing Done and saving shows "You marked this: Done" on the previous session's panel — 842e38c
+- [x] 1.8 Logging again right after (the latest session now has no mark-able stored suggestion, or it was already marked) shows no question — 842e38c
+- [x] 1.9 Choosing "Not answering" leaves the suggestion unmarked and the next log asks about the new latest suggestion instead — 842e38c
+- [x] 1.10 Dating the new session before the suggested session with a mark selected shows the form error; without a mark it saves normally — 842e38c
+- [x] 1.11 An account that isn't allowlisted (unstored default) never sees the question — 842e38c
 
 ### Phase 2: Make the next suggestion reflect it
 
 #### Automated
 
-- [x] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test` — 4eaec1e
-- [x] 2.2 Lint passes: `npm run lint` — 4eaec1e
-- [x] 2.3 Type and build check passes: `npm run build` — 4eaec1e
-- [x] 2.4 RLS check still passes: `npm run rls-check` — d60e645
-- [x] 2.5 Smoke passes (endpoint still returns the safe default without a key): `npm run smoke` — d60e645
+- [x] 2.1 Unit tests pass, including the new skip-cap and tool-output tests: `npm test` — 842e38c
+- [x] 2.2 Lint passes: `npm run lint` — 842e38c
+- [x] 2.3 Type and build check passes: `npm run build` — 842e38c
+- [x] 2.4 RLS check still passes: `npm run rls-check` — 842e38c
+- [x] 2.5 Smoke passes (endpoint still returns the safe default without a key): `npm run smoke` — 842e38c
 
 #### Manual
 
-- [x] 2.6 On an allowlisted account: mark the latest suggestion **Skipped** while logging; the new session's suggestion has total minutes ≤ the skipped suggestion's (and distance ≤ it when the same type) — cb448c4
-- [x] 2.7 Mark **Done** while logging the suggested session; the new suggestion's reason refers to how that session went compared with the suggestion — cb448c4
-- [x] 2.8 `wrangler tail` shows no new errors; any `skip_time`/`skip_distance` violation in attempt 1 is followed by a compliant attempt 2 or a clamped default — cb448c4
+- [x] 2.6 On an allowlisted account: mark the latest suggestion **Skipped** while logging; the new session's suggestion has total minutes ≤ the skipped suggestion's (and distance ≤ it when the same type) — 842e38c
+- [x] 2.7 Mark **Done** while logging the suggested session; the new suggestion's reason refers to how that session went compared with the suggestion — 842e38c
+- [x] 2.8 `wrangler tail` shows no new errors; any `skip_time`/`skip_distance` violation in attempt 1 is followed by a compliant attempt 2 or a clamped default — 842e38c

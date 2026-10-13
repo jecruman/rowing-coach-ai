@@ -42,6 +42,13 @@ export function formatTime(seconds: number): string {
   return h > 0 ? `${String(h)}:${String(m).padStart(2, "0")}:${ss}` : `${String(m)}:${ss}`;
 }
 
+/** Signed number with one decimal at most: +1.5, −0.3, ±0. */
+export function signed(value: number): string {
+  if (value === 0) return "±0";
+  const text = String(Math.abs(value));
+  return value > 0 ? `+${text}` : `−${text}`;
+}
+
 /** Pace per 500 m in seconds: 1000 m in 230 s → 115 (`"1:55"`). */
 export function pacePer500(distanceM: number, targetSeconds: number): number {
   return (targetSeconds * 500) / distanceM;
