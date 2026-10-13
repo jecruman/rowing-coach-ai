@@ -46,7 +46,7 @@ A masters single sculler currently gets post-session feedback from one long gene
 | S-02 | first-session-suggestion | log a session and get computed metrics plus one safe suggested next session           | F-01, S-01    | US-01, FR-004, FR-005, FR-007, FR-008 | done |
 | S-03 | session-history          | view, edit and delete their logged sessions                                          | S-02          | FR-006                                | done |
 | S-04 | suggestion-done-loop     | mark a suggestion done or skipped and get a next suggestion that reflects it          | S-02          | US-01, FR-009, FR-010                 | done |
-| S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | in-progress |
+| S-05 | metric-trend             | see how one metric changed over their sessions                                       | S-02          | FR-011                                | done |
 
 ## Streams
 
@@ -153,7 +153,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Erg-only, water-only or both, given water data is noisier? (Socrates note on FR-011) — Owner: user. Block: no.
 - **Risk:** nice-to-have (PRD secondary success criterion); sequenced last so it never delays the coaching loop, and it needs several logged sessions before it shows anything.
-- **Status:** in-progress
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -196,3 +196,4 @@ Mirrored in Linear: project [Rowing Coach AI](https://linear.app/jesusproject/pr
 - **S-02: user can log an erg or water session with type-specific fields and an optional comment, see its computed metrics against their recent baseline, and get one suggested next session that passes the safety limits (or the labelled safe default).** — Archived 2026-10-08 → `context/archive/2026-10-08-first-session-suggestion/`. Lesson: —.
 - **S-03: user can view, edit and delete their logged sessions.** — Archived 2026-10-12 → `context/archive/2026-10-11-session-history/`. Lesson: —.
 - **S-04: user can mark a suggested session as done or skipped, and after logging the next session gets a new suggestion that reflects it.** — Archived 2026-10-13 → `context/archive/2026-10-11-suggestion-done-loop/`. Lesson: —.
+- **S-05: user can see how one metric (e.g. DPS at a given SPM, or pace per 500 m) changed over their sessions.** — Archived 2026-10-13 → `context/archive/2026-10-13-metric-trend/`. Lesson: —.

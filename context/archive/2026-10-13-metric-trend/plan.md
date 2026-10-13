@@ -207,22 +207,22 @@ None — no schema change.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass, including the new trend tests: `npm test` — fb733fd
-- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — fb733fd
-- [x] 1.3 Type check passes: `npx astro check` — fb733fd
+- [x] 1.1 Unit tests pass, including the new trend tests: `npm test` — e5107ec
+- [x] 1.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — e5107ec
+- [x] 1.3 Type check passes: `npx astro check` — e5107ec
 
 ### Phase 2: Trend page and navigation
 
 #### Automated
 
-- [x] 2.1 Type check and build pass: `npx astro check && npm run build` — 4635361
-- [x] 2.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — 4635361
-- [x] 2.3 Unit tests pass: `npm test` — 4635361
-- [x] 2.4 Smoke passes against a local server, including the new trend steps: `npm run smoke` — 4635361
+- [x] 2.1 Type check and build pass: `npx astro check && npm run build` — e5107ec
+- [x] 2.2 Lint passes (ignoring CRLF "Delete ␍" noise): `npm run lint` — e5107ec
+- [x] 2.3 Unit tests pass: `npm test` — e5107ec
+- [x] 2.4 Smoke passes against a local server, including the new trend steps: `npm run smoke` — e5107ec
 
 #### Manual
 
-- [x] 2.5 On a phone-width browser with ≥ 2 erg sessions, `/sessions/trend` shows the pace line (faster up), the list newest first and the first → latest change, and the numbers match each session's Analysis card — 4635361
-- [x] 2.6 Switching to Water + DPS shows DPS points with each session's stroke rate in the list; the DPS picker is hidden while Erg is selected — 4635361
-- [x] 2.7 A metric/type with 0 or 1 matching sessions shows the "Log at least 2 …" message and no chart — 4635361
-- [x] 2.8 Dashboard "Trends" and session list "See trends" links open the page — 4635361
+- [x] 2.5 On a phone-width browser with ≥ 2 erg sessions, `/sessions/trend` shows the pace line (faster up), the list newest first and the first → latest change, and the numbers match each session's Analysis card — e5107ec
+- [x] 2.6 Switching to Water + DPS shows DPS points with each session's stroke rate in the list; the DPS picker is hidden while Erg is selected — e5107ec
+- [x] 2.7 A metric/type with 0 or 1 matching sessions shows the "Log at least 2 …" message and no chart — e5107ec
+- [x] 2.8 Dashboard "Trends" and session list "See trends" links open the page — e5107ec

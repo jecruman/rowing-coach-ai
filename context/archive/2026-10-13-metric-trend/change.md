@@ -1,10 +1,10 @@
 ---
 change_id: metric-trend
 title: Metric trend
-status: impl_reviewed
+status: archived
 created: 2026-10-13
 updated: 2026-10-13
-archived_at: null
+archived_at: 2026-10-13T20:30:33Z
 ---
 
 ## Notes
