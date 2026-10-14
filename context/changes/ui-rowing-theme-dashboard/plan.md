@@ -493,32 +493,32 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [x] 1.1 `src/components/ui/card.tsx` exists and is the only new file under `src/components/ui`
+- [x] 1.1 `src/components/ui/card.tsx` exists and is the only new file under `src/components/ui` — f958709
 - [ ] 1.2 `npm run lint` passes
-- [x] 1.3 `npx astro check` passes
-- [x] 1.4 `npm test` passes
-- [x] 1.5 `npm run build` succeeds
-- [x] 1.6 No hex inside the `bg-cosmic` block of `src/styles/global.css`
+- [x] 1.3 `npx astro check` passes — f958709
+- [x] 1.4 `npm test` passes — f958709
+- [x] 1.5 `npm run build` succeeds — f958709
+- [x] 1.6 No hex inside the `bg-cosmic` block of `src/styles/global.css` — f958709
 - [ ] 1.7 `npm run smoke` passes against the preview build, including sign-in → `/dashboard`
 
 #### Manual
 
-- [x] 1.8 Signing in lands on `/dashboard`
-- [x] 1.9 Unmigrated pages (sessions list, profile, sign-in) are still legible on the new background
+- [x] 1.8 Signing in lands on `/dashboard` — f958709
+- [x] 1.9 Unmigrated pages (sessions list, profile, sign-in) are still legible on the new background — f958709
 
 ### Phase 2: Token values — Erg & Water
 
 #### Automated
 
-- [ ] 2.1 `@theme inline` contains no raw colour values (only `var()` / `calc()`)
-- [ ] 2.2 `--color-coach`, `--color-coach-foreground` and `--color-destructive-foreground` are published in `@theme inline`
+- [x] 2.1 `@theme inline` contains no raw colour values (only `var()` / `calc()`)
+- [x] 2.2 `--color-coach`, `--color-coach-foreground` and `--color-destructive-foreground` are published in `@theme inline`
 - [ ] 2.3 `npm run lint`, `npx astro check` and `npm run build` pass
-- [ ] 2.4 `context/changes/ui-rowing-theme-dashboard/tokens.md` exists with both theme columns
+- [x] 2.4 `context/changes/ui-rowing-theme-dashboard/tokens.md` exists with both theme columns
 
 #### Manual
 
-- [ ] 2.5 All pages show navy surfaces; shadcn buttons already in use render teal/destructive from tokens
-- [ ] 2.6 Hovering an `outline`/`ghost` button shows a subtle tint, not orange
+- [x] 2.5 All pages show navy surfaces; shadcn buttons already in use render teal/destructive from tokens
+- [x] 2.6 Hovering an `outline`/`ghost` button shows a subtle tint, not orange
 
 ### Phase 3: Shared navigation
 
