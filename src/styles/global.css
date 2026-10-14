@@ -110,8 +110,9 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Migration shim: token-built stand-in for the old hex gradient. Delete once no view uses bg-cosmic. */
 @utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
+  background-image: linear-gradient(to bottom, var(--background), var(--card), var(--background));
 }
 
 @layer base {
