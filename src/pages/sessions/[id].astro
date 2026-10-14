@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import Topbar from "@/components/Topbar.astro";
+import AppNav from "@/components/AppNav.astro";
 import { ServerError } from "@/components/auth/ServerError";
 import SessionAnalysis from "@/components/sessions/SessionAnalysis.astro";
 import SuggestionPanel from "@/components/sessions/SuggestionPanel";
@@ -84,7 +84,7 @@ const values: { label: string; value: string }[] = session
 <Layout title="Session">
   <div class="bg-cosmic min-h-screen p-4">
     <div class="mx-auto w-full max-w-md space-y-4 text-white">
-      <Topbar />
+      <AppNav current="sessions" />
 
       {loadFailed ? (
         <ServerError message="Could not load this session — please try again." />

@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import Topbar from "@/components/Topbar.astro";
+import AppNav from "@/components/AppNav.astro";
 import SessionForm from "@/components/sessions/SessionForm";
 import { ServerError } from "@/components/auth/ServerError";
 import { createClient } from "@/lib/supabase";
@@ -23,7 +23,7 @@ const { markable } = supabase && Astro.locals.user ? await loadMarkableSuggestio
 <Layout title="Log a session">
   <div class="bg-cosmic min-h-screen p-4">
     <div class="mx-auto w-full max-w-md space-y-4 text-white">
-      <Topbar />
+      <AppNav current="sessions" />
 
       <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
         Log a session

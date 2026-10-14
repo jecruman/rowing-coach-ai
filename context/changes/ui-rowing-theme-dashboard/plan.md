@@ -510,30 +510,30 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [x] 2.1 `@theme inline` contains no raw colour values (only `var()` / `calc()`)
-- [x] 2.2 `--color-coach`, `--color-coach-foreground` and `--color-destructive-foreground` are published in `@theme inline`
+- [x] 2.1 `@theme inline` contains no raw colour values (only `var()` / `calc()`) — bdb23ef
+- [x] 2.2 `--color-coach`, `--color-coach-foreground` and `--color-destructive-foreground` are published in `@theme inline` — bdb23ef
 - [ ] 2.3 `npm run lint`, `npx astro check` and `npm run build` pass
-- [x] 2.4 `context/changes/ui-rowing-theme-dashboard/tokens.md` exists with both theme columns
+- [x] 2.4 `context/changes/ui-rowing-theme-dashboard/tokens.md` exists with both theme columns — bdb23ef
 
 #### Manual
 
-- [x] 2.5 All pages show navy surfaces; shadcn buttons already in use render teal/destructive from tokens
-- [x] 2.6 Hovering an `outline`/`ghost` button shows a subtle tint, not orange
+- [x] 2.5 All pages show navy surfaces; shadcn buttons already in use render teal/destructive from tokens — bdb23ef
+- [x] 2.6 Hovering an `outline`/`ghost` button shows a subtle tint, not orange — bdb23ef
 
 ### Phase 3: Shared navigation
 
 #### Automated
 
-- [ ] 3.1 `grep -rn "Topbar" src/pages` returns no hits
-- [ ] 3.2 `src/components/AppNav.astro` returns 0 hits from the hardcoded-value scan
+- [x] 3.1 `grep -rn "Topbar" src/pages` returns no hits
+- [x] 3.2 `src/components/AppNav.astro` returns 0 hits from the hardcoded-value scan
 - [ ] 3.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
 - [ ] 3.4 `npm run smoke` passes
 
 #### Manual
 
-- [ ] 3.5 On each of the 6 pages the nav shows the right current item, and Trends/Profile are reachable from every one
-- [ ] 3.6 Tabbing through the nav shows a teal focus ring on each link and on Sign out
-- [ ] 3.7 At 390 px the nav fits without horizontal scrolling
+- [x] 3.5 On each of the 6 pages the nav shows the right current item, and Trends/Profile are reachable from every one
+- [x] 3.6 Tabbing through the nav shows a teal focus ring on each link and on Sign out
+- [x] 3.7 At 390 px the nav fits without horizontal scrolling
 
 ### Phase 4: Dashboard view
 

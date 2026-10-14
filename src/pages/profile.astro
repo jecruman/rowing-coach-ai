@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import Topbar from "@/components/Topbar.astro";
+import AppNav from "@/components/AppNav.astro";
 import ProfileForm from "@/components/profile/ProfileForm";
 import GoalForm from "@/components/profile/GoalForm";
 import { ServerError } from "@/components/auth/ServerError";
@@ -39,7 +39,7 @@ const GOAL_SECTIONS: { type: SessionType; title: string }[] = [
 <Layout title="Profile">
   <div class="bg-cosmic min-h-screen p-4">
     <div class="mx-auto w-full max-w-md space-y-4 text-white">
-      <Topbar />
+      <AppNav current="profile" />
 
       <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent">
         Your profile and goals
