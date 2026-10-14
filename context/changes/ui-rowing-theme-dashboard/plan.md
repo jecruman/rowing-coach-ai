@@ -524,31 +524,31 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [x] 3.1 `grep -rn "Topbar" src/pages` returns no hits
-- [x] 3.2 `src/components/AppNav.astro` returns 0 hits from the hardcoded-value scan
+- [x] 3.1 `grep -rn "Topbar" src/pages` returns no hits — 2c8acf8
+- [x] 3.2 `src/components/AppNav.astro` returns 0 hits from the hardcoded-value scan — 2c8acf8
 - [ ] 3.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
 - [ ] 3.4 `npm run smoke` passes
 
 #### Manual
 
-- [x] 3.5 On each of the 6 pages the nav shows the right current item, and Trends/Profile are reachable from every one
-- [x] 3.6 Tabbing through the nav shows a teal focus ring on each link and on Sign out
-- [x] 3.7 At 390 px the nav fits without horizontal scrolling
+- [x] 3.5 On each of the 6 pages the nav shows the right current item, and Trends/Profile are reachable from every one — 2c8acf8
+- [x] 3.6 Tabbing through the nav shows a teal focus ring on each link and on Sign out — 2c8acf8
+- [x] 3.7 At 390 px the nav fits without horizontal scrolling — 2c8acf8
 
 ### Phase 4: Dashboard view
 
 #### Automated
 
-- [ ] 4.1 Hardcoded-value scan returns 0 hits on `dashboard.astro`, `DashboardView.astro` and `ServerError.tsx`
-- [ ] 4.2 `ServerError.tsx` renders `role="alert"`
+- [x] 4.1 Hardcoded-value scan returns 0 hits on `dashboard.astro`, `DashboardView.astro` and `ServerError.tsx`
+- [x] 4.2 `ServerError.tsx` renders `role="alert"`
 - [ ] 4.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
 - [ ] 4.4 `npm run smoke` passes ("dashboard renders for signed-in user")
 
 #### Manual
 
-- [ ] 4.5 Dashboard at 1280 px and 390 px: one clear primary action, goals readable, no horizontal scroll
-- [ ] 4.6 A new account with no sessions sees the empty state, not a missing link
-- [ ] 4.7 Keyboard: every control shows the teal focus ring in tab order
+- [x] 4.5 Dashboard at 1280 px and 390 px: one clear primary action, goals readable, no horizontal scroll
+- [x] 4.6 A new account with no sessions sees the empty state, not a missing link
+- [x] 4.7 Keyboard: every control shows the teal focus ring in tab order
 
 ### Phase 5: States and visual gate
 
