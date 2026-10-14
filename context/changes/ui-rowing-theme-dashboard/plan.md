@@ -539,30 +539,30 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [x] 4.1 Hardcoded-value scan returns 0 hits on `dashboard.astro`, `DashboardView.astro` and `ServerError.tsx`
-- [x] 4.2 `ServerError.tsx` renders `role="alert"`
+- [x] 4.1 Hardcoded-value scan returns 0 hits on `dashboard.astro`, `DashboardView.astro` and `ServerError.tsx` — b46d0d7
+- [x] 4.2 `ServerError.tsx` renders `role="alert"` — b46d0d7
 - [ ] 4.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
 - [ ] 4.4 `npm run smoke` passes ("dashboard renders for signed-in user")
 
 #### Manual
 
-- [x] 4.5 Dashboard at 1280 px and 390 px: one clear primary action, goals readable, no horizontal scroll
-- [x] 4.6 A new account with no sessions sees the empty state, not a missing link
-- [x] 4.7 Keyboard: every control shows the teal focus ring in tab order
+- [x] 4.5 Dashboard at 1280 px and 390 px: one clear primary action, goals readable, no horizontal scroll — b46d0d7
+- [x] 4.6 A new account with no sessions sees the empty state, not a missing link — b46d0d7
+- [x] 4.7 Keyboard: every control shows the teal focus ring in tab order — b46d0d7
 
 ### Phase 5: States and visual gate
 
 #### Automated
 
 - [ ] 5.1 `npm run build` succeeds and `npm run smoke` passes including `/dev/kitchen-sink` → 404
-- [ ] 5.2 Hardcoded-value scan returns 0 hits on `src/pages/dev/kitchen-sink.astro`
+- [x] 5.2 Hardcoded-value scan returns 0 hits on `src/pages/dev/kitchen-sink.astro`
 - [ ] 5.3 `screenshots/` contains desktop and mobile captures of the kitchen sink and the dashboard
 
 #### Manual
 
-- [ ] 5.4 Every matrix cell is shown or marked N/A with its reason
-- [ ] 5.5 Contrast log in `tokens.md` shows all listed pairs passing
-- [ ] 5.6 Focus ring is visible on every dashboard control in the dark theme
+- [x] 5.4 Every matrix cell is shown or marked N/A with its reason
+- [x] 5.5 Contrast log in `tokens.md` shows all listed pairs passing
+- [x] 5.6 Focus ring is visible on every dashboard control in the dark theme
 
 ### Phase 6: Make it stick
 

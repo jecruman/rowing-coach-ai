@@ -50,10 +50,22 @@ Pairs not in the table: `--card-foreground`, `--popover-foreground`, `--secondar
 Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Any lightness adjustment made to
 reach a target is recorded here and mirrored in `global.css`.
 
-| Pair                         | Theme | Target | Measured | Adjustment |
-| ---------------------------- | ----- | ------ | -------- | ---------- |
-| foreground / background      | dark  | 4.5:1  | TBD      | TBD        |
-| muted-foreground / card      | dark  | 4.5:1  | TBD      | TBD        |
-| primary-foreground / primary | dark  | 4.5:1  | TBD      | TBD        |
-| destructive / card           | dark  | 4.5:1  | TBD      | TBD        |
-| ring / background            | dark  | 3:1    | TBD      | TBD        |
+Measured 2026-10-14 from the shipped `.dark` values in `src/styles/global.css` (oklch → sRGB → WCAG
+relative luminance; translucent fills composited over `--card`). No adjustments were needed.
+
+| Pair                                                     | Theme | Target | Measured | Adjustment |
+| -------------------------------------------------------- | ----- | ------ | -------- | ---------- |
+| foreground / background                                  | dark  | 4.5:1  | 17.04:1  | none       |
+| foreground / card                                        | dark  | 4.5:1  | 15.41:1  | none       |
+| muted-foreground / card                                  | dark  | 4.5:1  | 7.01:1   | none       |
+| muted-foreground / background                            | dark  | 4.5:1  | 7.75:1   | none       |
+| primary-foreground / primary                             | dark  | 4.5:1  | 7.97:1   | none       |
+| primary (link text) / card                               | dark  | 4.5:1  | 7.33:1   | none       |
+| destructive text / destructive 10% on card (ServerError) | dark  | 4.5:1  | 5.31:1   | none       |
+| white / destructive 60% on card (destructive Button)     | dark  | 4.5:1  | 6.10:1   | none       |
+| coach-foreground / coach                                 | dark  | 4.5:1  | 8.72:1   | none       |
+| accent-foreground / accent (selected nav item)           | dark  | 4.5:1  | 12.03:1  | none       |
+| ring / background                                        | dark  | 3:1    | 10.05:1  | none       |
+| ring / card                                              | dark  | 3:1    | 9.09:1   | none       |
+
+Light (`:root`) values are not shipped and were not measured; measure them in the change that ships a theme toggle.

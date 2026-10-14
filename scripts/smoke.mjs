@@ -72,6 +72,7 @@ function isUnstoredDefault(body) {
 
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
+  ["kitchen sink is not shipped", () => request("/dev/kitchen-sink"), { status: 404 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["new session redirects anonymous user", () => request("/sessions/new"), { status: 302, location: "/auth/signin" }],

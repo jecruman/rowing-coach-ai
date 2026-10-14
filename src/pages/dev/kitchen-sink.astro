@@ -1,0 +1,185 @@
+---
+// Dev-only review page: every dashboard state from fixtures (no Supabase), plus the button and token states
+// the dashboard relies on. Production builds answer 404 (proved by scripts/smoke.mjs).
+import Layout from "@/layouts/Layout.astro";
+import AppNav from "@/components/AppNav.astro";
+import DashboardView, { type DashboardGoal } from "@/components/dashboard/DashboardView.astro";
+import { ServerError } from "@/components/auth/ServerError";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+// Status-and-empty-body instead of `return new Response(...)`: a frontmatter-level return crashes the
+// @typescript-eslint/no-misused-promises rule. Same 404 pattern as src/pages/sessions/[id].astro.
+const enabled = import.meta.env.DEV;
+if (!enabled) {
+  Astro.response.status = 404;
+}
+
+const email = "rower@example.com";
+const profileFacts = ["Single scull", "age 34"];
+const goals: DashboardGoal[] = [
+  { label: "Erg", target: "2000 m in 7:05.0" },
+  { label: "Water", target: "5000 m in 21:30.0" },
+];
+const latestSession = {
+  id: "00000000-0000-0000-0000-000000000000",
+  rowedOn: "2026-10-12",
+  type: "erg" as const,
+  distanceM: 6000,
+};
+
+const base = {
+  email,
+  profileLoadFailed: false,
+  needsSetup: false,
+  profileFacts,
+  goals,
+  latestSession,
+  latestLoadFailed: false,
+};
+
+const dashboardStates = [
+  { id: "default", title: "Default — set-up profile and latest session", props: base },
+  { id: "empty", title: "Empty — no sessions yet", props: { ...base, latestSession: null } },
+  { id: "needs-setup", title: "Empty — profile needs setup", props: { ...base, needsSetup: true, goals: [] } },
+  { id: "profile-error", title: "Error — profile failed to load", props: { ...base, profileLoadFailed: true } },
+  { id: "latest-error", title: "Error — latest session failed to load", props: { ...base, latestLoadFailed: true } },
+];
+
+const matrix = [
+  { state: "default", status: "Shown", where: "Default card below" },
+  { state: "hover", status: "Shown", where: "Pointer check: hover any link or button; Button row below" },
+  {
+    state: "focus-visible",
+    status: "Shown",
+    where: "Tab through the page; the Button row has a forced-focus example using --ring",
+  },
+  {
+    state: "disabled",
+    status: "N/A for the dashboard",
+    where: "No disabled controls on the dashboard; the token is shown on the Button row",
+  },
+  { state: "error", status: "Shown", where: "Profile error and latest-session error cards below" },
+  { state: "empty", status: "Shown", where: "No sessions and profile-needs-setup cards below" },
+  {
+    state: "loading",
+    status: "N/A",
+    where: "Server-rendered page with no client fetch, so no layout jump is possible",
+  },
+];
+
+const swatches = [
+  { role: "background", classes: "bg-background text-foreground" },
+  { role: "card", classes: "bg-card text-card-foreground" },
+  { role: "primary", classes: "bg-primary text-primary-foreground" },
+  { role: "muted", classes: "bg-muted text-muted-foreground" },
+  { role: "accent", classes: "bg-accent text-accent-foreground" },
+  { role: "destructive", classes: "bg-destructive text-destructive-foreground" },
+  { role: "ring", classes: "bg-ring text-background" },
+  { role: "coach", classes: "bg-coach text-coach-foreground" },
+];
+---
+
+{enabled && (
+  <Layout title="Kitchen sink">
+    <div class="min-h-screen bg-background p-4 text-foreground">
+      <div class="mx-auto w-full max-w-6xl space-y-8">
+        <AppNav current="dashboard" />
+
+        <section aria-labelledby="matrix-heading" class="space-y-3">
+          <h1 id="matrix-heading" class="text-2xl font-semibold">
+            Kitchen sink — dashboard state matrix
+          </h1>
+          <p class="text-sm text-muted-foreground">Dev builds only. Every view below is rendered from fixtures.</p>
+          <div class="overflow-x-auto rounded-xl border border-border bg-card text-card-foreground">
+            <table class="w-full text-left text-sm">
+              <thead class="text-muted-foreground">
+                <tr class="border-b border-border">
+                  <th scope="col" class="px-3 py-2 font-medium">
+                    State
+                  </th>
+                  <th scope="col" class="px-3 py-2 font-medium">
+                    Status
+                  </th>
+                  <th scope="col" class="px-3 py-2 font-medium">
+                    Where / why
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {matrix.map((row) => (
+                  <tr class="border-b border-border last:border-b-0">
+                    <th scope="row" class="px-3 py-2 font-medium">
+                      {row.state}
+                    </th>
+                    <td class:list={cn("px-3 py-2", row.status !== "Shown" && "text-muted-foreground")}>
+                      {row.status}
+                    </td>
+                    <td class="px-3 py-2 text-muted-foreground">{row.where}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+          {dashboardStates.map((state) => (
+            <section aria-labelledby={`state-${state.id}`} class="space-y-3 rounded-xl border border-border p-3">
+              <h2 id={`state-${state.id}`} class="text-sm font-semibold text-muted-foreground">
+                {state.title}
+              </h2>
+              <DashboardView {...state.props} />
+            </section>
+          ))}
+        </div>
+
+        <section aria-labelledby="buttons-heading" class="space-y-3">
+          <h2 id="buttons-heading" class="text-lg font-semibold">
+            Buttons — hover, disabled, focus-visible
+          </h2>
+          <div class="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4">
+            <Button>Default</Button>
+            <Button variant="outline">Outline</Button>
+            <Button variant="ghost">Ghost</Button>
+            <Button variant="link">Link</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button disabled>Disabled</Button>
+            <Button className="border-ring ring-3 ring-ring/50">Forced focus</Button>
+            <Button variant="outline" className="border-ring ring-3 ring-ring/50">
+              Forced focus (outline)
+            </Button>
+          </div>
+          <p class="text-sm text-muted-foreground">
+            Hover each button with a pointer; press Tab to see the real focus-visible ring.
+          </p>
+        </section>
+
+        <section aria-labelledby="feedback-heading" class="space-y-3">
+          <h2 id="feedback-heading" class="text-lg font-semibold">
+            Feedback
+          </h2>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <ServerError message="Couldn't load your profile and goals — please try again." />
+            <p class="rounded-lg bg-coach px-3 py-2 text-sm font-medium text-coach-foreground">
+              Reserved: coach suggestion
+            </p>
+          </div>
+        </section>
+
+        <section aria-labelledby="tokens-heading" class="space-y-3">
+          <h2 id="tokens-heading" class="text-lg font-semibold">
+            Token swatches
+          </h2>
+          <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {swatches.map((swatch) => (
+              <li class:list={cn("rounded-lg border border-border px-3 py-4 text-sm font-medium", swatch.classes)}>
+                {swatch.role}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  </Layout>
+)}
