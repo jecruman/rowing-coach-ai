@@ -1,0 +1,123 @@
+---
+import { ServerError } from "@/components/auth/ServerError";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import type { RowingSession } from "@/types";
+
+export interface DashboardGoal {
+  /** e.g. "Erg" */
+  label: string;
+  /** e.g. "2000 m in 7:30.0" */
+  target: string;
+}
+
+interface Props {
+  email: string;
+  profileLoadFailed: boolean;
+  needsSetup: boolean;
+  /** Profile facts shown under the profile card title (boat, age). */
+  profileFacts: string[];
+  goals: DashboardGoal[];
+  latestSession: Pick<RowingSession, "id" | "rowedOn" | "type" | "distanceM"> | null;
+  latestLoadFailed: boolean;
+}
+
+const { email, profileLoadFailed, needsSetup, profileFacts, goals, latestSession, latestLoadFailed } = Astro.props;
+
+// Exactly one visually primary action per state: the setup CTA while the profile is incomplete,
+// otherwise "Log a session".
+const setupIsPrimary = !profileLoadFailed && needsSetup;
+---
+
+<div class="space-y-4">
+  <div>
+    <h1 class="text-2xl font-semibold text-foreground">Welcome back</h1>
+    <p class="text-sm break-all text-muted-foreground">{email}</p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    {profileLoadFailed ? (
+      <div>
+        <ServerError message="Couldn't load your profile and goals — please try again." />
+      </div>
+    ) : needsSetup ? (
+      <Card className="gap-4">
+        <CardHeader>
+          <CardTitle role="heading" aria-level={2}>
+            Profile and goals
+          </CardTitle>
+          <CardDescription>Add your boat, age and goals so the coach can tailor its suggestions.</CardDescription>
+        </CardHeader>
+        <CardFooter>
+          <a href="/profile" class:list={cn(buttonVariants(), "w-full")}>
+            Set up your profile and goals
+          </a>
+        </CardFooter>
+      </Card>
+    ) : (
+      <Card className="gap-4">
+        <CardHeader>
+          <CardTitle role="heading" aria-level={2}>
+            Profile and goals
+          </CardTitle>
+          {profileFacts.length > 0 && <CardDescription>{profileFacts.join(" · ")}</CardDescription>}
+        </CardHeader>
+        <CardContent>
+          <ul class="space-y-1 text-sm">
+            {goals.map((goal) => (
+              <li class="flex justify-between gap-2">
+                <span class="text-muted-foreground">{goal.label}</span>
+                <span class="font-medium tabular-nums">{goal.target}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+        <CardFooter>
+          <a href="/profile" class:list={cn(buttonVariants({ variant: "link", size: "sm" }), "px-0")}>
+            Edit profile
+          </a>
+        </CardFooter>
+      </Card>
+    )}
+
+    <Card className="gap-4">
+      <CardHeader>
+        <CardTitle role="heading" aria-level={2}>
+          Latest session
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-sm">
+        {latestLoadFailed ? (
+          <ServerError message="Couldn't load your latest session." />
+        ) : latestSession ? (
+          <a
+            href={`/sessions/${latestSession.id}`}
+            class:list={cn(buttonVariants({ variant: "link" }), "h-auto p-0 whitespace-normal tabular-nums")}
+          >
+            {latestSession.rowedOn} · {latestSession.type === "erg" ? "Erg" : "Water"} · {latestSession.distanceM} m
+          </a>
+        ) : (
+          <p class="text-muted-foreground">No sessions yet — log your first row to get a coaching suggestion.</p>
+        )}
+      </CardContent>
+      <CardFooter>
+        <a
+          href="/sessions/new"
+          class:list={cn(buttonVariants({ variant: setupIsPrimary ? "outline" : "default" }), "w-full")}
+        >
+          Log a session
+        </a>
+      </CardFooter>
+    </Card>
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    <a href="/sessions" class:list={buttonVariants({ variant: "ghost", size: "sm" })}>
+      All sessions
+    </a>
+    <a href="/sessions/trend" class:list={buttonVariants({ variant: "ghost", size: "sm" })}>
+      Trends
+    </a>
+  </div>
+</div>

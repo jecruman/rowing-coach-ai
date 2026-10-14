@@ -1,5 +1,6 @@
 // Smoke test: proves the built app, the Cloudflare adapter and the Supabase auth flow still work together.
-// Zero dependencies on purpose. Run against a live server: BASE_URL=http://localhost:4321 node scripts/smoke.mjs
+// Zero dependencies on purpose. Run against a production preview (`npm run preview`), not `npm run dev` — the dev-only
+// kitchen sink answers 200 there. BASE_URL=http://localhost:4321 node scripts/smoke.mjs
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
 const email = `smoke-${Date.now()}@example.com`;
@@ -72,6 +73,7 @@ function isUnstoredDefault(body) {
 
 const steps = [
   ["home renders", () => request("/"), { status: 200 }],
+  ["kitchen sink is not shipped", () => request("/dev/kitchen-sink"), { status: 404 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],
   ["new session redirects anonymous user", () => request("/sessions/new"), { status: 302, location: "/auth/signin" }],
@@ -90,7 +92,7 @@ const steps = [
   [
     "signin accepts correct password",
     () => request("/api/auth/signin", { method: "POST", form: { email, password } }),
-    { status: 302, location: "/" },
+    { status: 302, location: "/dashboard" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
   ["profile renders for signed-in user", () => request("/profile"), { status: 200 }],

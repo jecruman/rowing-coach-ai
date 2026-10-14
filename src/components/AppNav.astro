@@ -1,0 +1,65 @@
+---
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+export type AppNavItem = "dashboard" | "sessions" | "trend" | "profile";
+
+interface Props {
+  current: AppNavItem | null;
+}
+
+const { current } = Astro.props;
+
+const LINKS: { id: AppNavItem; href: string; label: string }[] = [
+  { id: "dashboard", href: "/dashboard", label: "Dashboard" },
+  { id: "sessions", href: "/sessions", label: "Sessions" },
+  { id: "trend", href: "/sessions/trend", label: "Trends" },
+  { id: "profile", href: "/profile", label: "Profile" },
+];
+---
+
+<header class="rounded-xl border border-border bg-card px-3 py-2 text-card-foreground">
+  <div class="flex items-center justify-between gap-2">
+    <a
+      href="/dashboard"
+      class:list={cn(
+        buttonVariants({ variant: "link", size: "sm" }),
+        "min-w-0 px-1 text-base font-semibold text-foreground",
+      )}
+    >
+      Rowing Coach AI
+    </a>
+    <div class="flex min-w-0 items-center gap-2">
+      <form method="POST" action="/api/auth/signout">
+        <button
+          type="submit"
+          class:list={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-muted-foreground")}
+        >
+          Sign out
+        </button>
+      </form>
+    </div>
+  </div>
+  <nav aria-label="Main" class="mt-1">
+    <ul class="flex flex-wrap gap-1">
+      {LINKS.map(({ id, href, label }) => {
+        const isCurrent = current === id;
+        return (
+          <li>
+            <a
+              href={href}
+              aria-current={isCurrent ? "page" : undefined}
+              class:list={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "px-2.5 text-muted-foreground",
+                isCurrent && "bg-accent font-semibold text-accent-foreground",
+              )}
+            >
+              {label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+</header>

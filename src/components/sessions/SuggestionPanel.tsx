@@ -180,7 +180,7 @@ export default function SuggestionPanel({ sessionId, initial, editedAfter = fals
 
         {state.status === "error" && (
           <div className="space-y-3">
-            <ServerError message={state.message} />
+            <ServerError message={state.message} announce />
             <Button
               type="button"
               onClick={retry}
