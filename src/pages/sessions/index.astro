@@ -76,7 +76,7 @@ const rows = sessions.map((session) => ({
       )}
 
       {(page > 1 || hasOlder) && (
-        <nav class="flex justify-between text-sm">
+        <nav aria-label="Pagination" class="flex justify-between text-sm">
           {page > 1 ? (
             <a
               href={page === 2 ? "/sessions" : `/sessions?page=${String(page - 1)}`}

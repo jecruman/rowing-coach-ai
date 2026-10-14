@@ -1,5 +1,6 @@
 // Smoke test: proves the built app, the Cloudflare adapter and the Supabase auth flow still work together.
-// Zero dependencies on purpose. Run against a live server: BASE_URL=http://localhost:4321 node scripts/smoke.mjs
+// Zero dependencies on purpose. Run against a production preview (`npm run preview`), not `npm run dev` — the dev-only
+// kitchen sink answers 200 there. BASE_URL=http://localhost:4321 node scripts/smoke.mjs
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
 const email = `smoke-${Date.now()}@example.com`;

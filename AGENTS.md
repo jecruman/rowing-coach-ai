@@ -35,6 +35,7 @@ Rowing Coach AI: rowers log erg and water sessions and get one suggested next se
 - `bg-cosmic` is a migration shim for not-yet-migrated pages — never use it in new views.
 - Check `src/components/ui/` before creating a component; add missing ones with `npx shadcn@latest add <name>`.
 - `<a>` styled as a button in Astro uses `buttonVariants` from `@/components/ui/button`.
+- shadcn React components from `src/components/ui/` may be rendered statically in Astro (no client directive) — the "React only for interactivity" rule applies to components you write.
 - Signed-in pages render `AppNav`.
 - Kitchen sink at `/dev/kitchen-sink` (dev only) shows every token and component — check it after changing either.
 - `npm run lint` also runs `scripts/ui-literals.mjs`, a literal scan over an allowlist of migrated files; add a view to that allowlist in the same change that migrates it.

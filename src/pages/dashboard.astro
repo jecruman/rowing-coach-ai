@@ -38,15 +38,17 @@ const goalRows: DashboardGoal[] = goalList.map((goal) => ({
   <div class="min-h-screen bg-background p-4 text-foreground">
     <div class="mx-auto w-full max-w-2xl space-y-4">
       <AppNav current="dashboard" />
-      <DashboardView
-        email={user?.email ?? ""}
-        profileLoadFailed={loadFailed}
-        needsSetup={needsSetup}
-        profileFacts={profileFacts}
-        goals={goalRows}
-        latestSession={latestSession}
-        latestLoadFailed={latest.loadFailed}
-      />
+      <main>
+        <DashboardView
+          email={user?.email ?? ""}
+          profileLoadFailed={loadFailed}
+          needsSetup={needsSetup}
+          profileFacts={profileFacts}
+          goals={goalRows}
+          latestSession={latestSession}
+          latestLoadFailed={latest.loadFailed}
+        />
+      </main>
     </div>
   </div>
 </Layout>

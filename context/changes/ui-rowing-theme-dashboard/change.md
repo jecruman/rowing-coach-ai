@@ -1,7 +1,7 @@
 ---
 change_id: ui-rowing-theme-dashboard
 title: Rowing theme tokens and a token-built dashboard
-status: implementing
+status: impl_reviewed
 created: 2026-10-13
 updated: 2026-10-14
 archived_at: null

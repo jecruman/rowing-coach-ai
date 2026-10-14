@@ -9,7 +9,6 @@ interface Props {
 }
 
 const { current } = Astro.props;
-const { user } = Astro.locals;
 
 const LINKS: { id: AppNavItem; href: string; label: string }[] = [
   { id: "dashboard", href: "/dashboard", label: "Dashboard" },
@@ -31,7 +30,6 @@ const LINKS: { id: AppNavItem; href: string; label: string }[] = [
       Rowing Coach AI
     </a>
     <div class="flex min-w-0 items-center gap-2">
-      {user?.email && <span class="hidden min-w-0 truncate text-xs text-muted-foreground sm:inline">{user.email}</span>}
       <form method="POST" action="/api/auth/signout">
         <button
           type="submit"
@@ -54,7 +52,7 @@ const LINKS: { id: AppNavItem; href: string; label: string }[] = [
               class:list={cn(
                 buttonVariants({ variant: "ghost", size: "sm" }),
                 "px-2.5 text-muted-foreground",
-                isCurrent && "bg-accent text-accent-foreground",
+                isCurrent && "bg-accent font-semibold text-accent-foreground",
               )}
             >
               {label}

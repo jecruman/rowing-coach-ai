@@ -321,6 +321,7 @@ only; icon kept so the error is not colour alone. Props unchanged (used by auth,
 
 - Hardcoded-value scan returns 0 hits on `src/pages/dashboard.astro`, `src/components/dashboard/DashboardView.astro` and `src/components/auth/ServerError.tsx`
 - `ServerError.tsx` renders `role="alert"`
+  - Note (impl review F1, 2026-10-14): `role="alert"` is now opt-in via `announce`; static page-load errors render without a live role, the SuggestionPanel error announces.
 - `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
 - `npm run smoke` passes ("dashboard renders for signed-in user")
 
@@ -494,12 +495,12 @@ when its usage count reaches 0.
 #### Automated
 
 - [x] 1.1 `src/components/ui/card.tsx` exists and is the only new file under `src/components/ui` — f958709
-- [ ] 1.2 `npm run lint` passes
+- [x] 1.2 `npm run lint` passes — 8e2553a
 - [x] 1.3 `npx astro check` passes — f958709
 - [x] 1.4 `npm test` passes — f958709
 - [x] 1.5 `npm run build` succeeds — f958709
 - [x] 1.6 No hex inside the `bg-cosmic` block of `src/styles/global.css` — f958709
-- [ ] 1.7 `npm run smoke` passes against the preview build, including sign-in → `/dashboard`
+- [x] 1.7 `npm run smoke` passes against the preview build, including sign-in → `/dashboard` — 8e2553a
 
 #### Manual
 
@@ -512,7 +513,7 @@ when its usage count reaches 0.
 
 - [x] 2.1 `@theme inline` contains no raw colour values (only `var()` / `calc()`) — bdb23ef
 - [x] 2.2 `--color-coach`, `--color-coach-foreground` and `--color-destructive-foreground` are published in `@theme inline` — bdb23ef
-- [ ] 2.3 `npm run lint`, `npx astro check` and `npm run build` pass
+- [x] 2.3 `npm run lint`, `npx astro check` and `npm run build` pass — 8e2553a
 - [x] 2.4 `context/changes/ui-rowing-theme-dashboard/tokens.md` exists with both theme columns — bdb23ef
 
 #### Manual
@@ -526,8 +527,8 @@ when its usage count reaches 0.
 
 - [x] 3.1 `grep -rn "Topbar" src/pages` returns no hits — 2c8acf8
 - [x] 3.2 `src/components/AppNav.astro` returns 0 hits from the hardcoded-value scan — 2c8acf8
-- [ ] 3.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
-- [ ] 3.4 `npm run smoke` passes
+- [x] 3.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass — 8e2553a
+- [x] 3.4 `npm run smoke` passes — 8e2553a
 
 #### Manual
 
@@ -541,8 +542,8 @@ when its usage count reaches 0.
 
 - [x] 4.1 Hardcoded-value scan returns 0 hits on `dashboard.astro`, `DashboardView.astro` and `ServerError.tsx` — b46d0d7
 - [x] 4.2 `ServerError.tsx` renders `role="alert"` — b46d0d7
-- [ ] 4.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass
-- [ ] 4.4 `npm run smoke` passes ("dashboard renders for signed-in user")
+- [x] 4.3 `npm run lint`, `npx astro check`, `npm test` and `npm run build` pass — 8e2553a
+- [x] 4.4 `npm run smoke` passes ("dashboard renders for signed-in user") — 8e2553a
 
 #### Manual
 
@@ -554,7 +555,7 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [ ] 5.1 `npm run build` succeeds and `npm run smoke` passes including `/dev/kitchen-sink` → 404
+- [x] 5.1 `npm run build` succeeds and `npm run smoke` passes including `/dev/kitchen-sink` → 404 — 8e2553a
 - [x] 5.2 Hardcoded-value scan returns 0 hits on `src/pages/dev/kitchen-sink.astro` — 5b4bdcf
 - [ ] 5.3 `screenshots/` contains desktop and mobile captures of the kitchen sink and the dashboard
 
@@ -568,10 +569,10 @@ when its usage count reaches 0.
 
 #### Automated
 
-- [ ] 6.1 `npm run lint` passes on the cleaned tree
-- [x] 6.2 Adding `bg-purple-600` to `DashboardView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file:line (then reverted)
-- [x] 6.3 `AGENTS.md` contains a `## UI` section naming `src/styles/global.css`, `src/components/ui` and `/dev/kitchen-sink`
+- [x] 6.1 `npm run lint` passes on the cleaned tree — 8e2553a
+- [x] 6.2 Adding `bg-purple-600` to `DashboardView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file:line (then reverted) — 8e2553a
+- [x] 6.3 `AGENTS.md` contains a `## UI` section naming `src/styles/global.css`, `src/components/ui` and `/dev/kitchen-sink` — 8e2553a
 
 #### Manual
 
-- [x] 6.4 The `AGENTS.md` UI block reads clearly in under a minute and contains no rule inviting one-off values
+- [x] 6.4 The `AGENTS.md` UI block reads clearly in under a minute and contains no rule inviting one-off values — 8e2553a
