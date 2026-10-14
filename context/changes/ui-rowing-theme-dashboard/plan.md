@@ -555,23 +555,23 @@ when its usage count reaches 0.
 #### Automated
 
 - [ ] 5.1 `npm run build` succeeds and `npm run smoke` passes including `/dev/kitchen-sink` → 404
-- [x] 5.2 Hardcoded-value scan returns 0 hits on `src/pages/dev/kitchen-sink.astro`
+- [x] 5.2 Hardcoded-value scan returns 0 hits on `src/pages/dev/kitchen-sink.astro` — 5b4bdcf
 - [ ] 5.3 `screenshots/` contains desktop and mobile captures of the kitchen sink and the dashboard
 
 #### Manual
 
-- [x] 5.4 Every matrix cell is shown or marked N/A with its reason
-- [x] 5.5 Contrast log in `tokens.md` shows all listed pairs passing
-- [x] 5.6 Focus ring is visible on every dashboard control in the dark theme
+- [x] 5.4 Every matrix cell is shown or marked N/A with its reason — 5b4bdcf
+- [x] 5.5 Contrast log in `tokens.md` shows all listed pairs passing — 5b4bdcf
+- [x] 5.6 Focus ring is visible on every dashboard control in the dark theme — 5b4bdcf
 
 ### Phase 6: Make it stick
 
 #### Automated
 
 - [ ] 6.1 `npm run lint` passes on the cleaned tree
-- [ ] 6.2 Adding `bg-purple-600` to `DashboardView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file:line (then reverted)
-- [ ] 6.3 `AGENTS.md` contains a `## UI` section naming `src/styles/global.css`, `src/components/ui` and `/dev/kitchen-sink`
+- [x] 6.2 Adding `bg-purple-600` to `DashboardView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file:line (then reverted)
+- [x] 6.3 `AGENTS.md` contains a `## UI` section naming `src/styles/global.css`, `src/components/ui` and `/dev/kitchen-sink`
 
 #### Manual
 
-- [ ] 6.4 The `AGENTS.md` UI block reads clearly in under a minute and contains no rule inviting one-off values
+- [x] 6.4 The `AGENTS.md` UI block reads clearly in under a minute and contains no rule inviting one-off values
