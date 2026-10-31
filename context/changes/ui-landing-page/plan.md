@@ -366,10 +366,10 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block
-- [x] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies
-- [x] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file
-- [x] 2.4 `context/changes/ui-landing-page/tokens.md` exists
+- [x] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block — 6c9c47a
+- [x] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies — 6c9c47a
+- [x] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file — 6c9c47a
+- [x] 2.4 `context/changes/ui-landing-page/tokens.md` exists — 6c9c47a
 
 #### Manual
 
@@ -379,17 +379,17 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [ ] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro`
-- [ ] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits
-- [ ] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0
-- [ ] 3.4 `npx astro check`, `npm test` and `npm run build` pass
+- [x] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro`
+- [x] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits
+- [x] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0
+- [x] 3.4 `npx astro check`, `npm test` and `npm run build` pass
 
 #### Manual
 
-- [ ] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium
-- [ ] 3.6 The example is clearly labelled as an example, and the page says the coach is private
-- [ ] 3.7 Sign in is the only action on the page
-- [ ] 3.8 Each product claim on the page matches what the app does today
+- [x] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium
+- [x] 3.6 The example is clearly labelled as an example, and the page says the coach is private
+- [x] 3.7 Sign in is the only action on the page
+- [x] 3.8 Each product claim on the page matches what the app does today
 
 ### Phase 4: States and visual check
 

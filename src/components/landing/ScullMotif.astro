@@ -1,0 +1,63 @@
+---
+import { cn } from "@/lib/utils";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// Side view of a single scull at the finish of the stroke, moving right: the sculler faces the stern (left),
+// the blade is still in the water astern of the rigger, and earlier strokes leave puddles behind it.
+// The drawing keeps a minimum width and is clipped from both sides, so the boat stays large on a phone.
+---
+
+<div class:list={cn("flex justify-center overflow-hidden", className)} aria-hidden="true">
+  <svg
+    viewBox="0 30 1200 180"
+    preserveAspectRatio="xMidYMid meet"
+    class="h-auto w-full min-w-3xl"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    focusable="false"
+  >
+    <g class="text-muted-foreground" stroke="currentColor">
+      <g stroke-width="2">
+        <path class="opacity-50" d="M24 151H1176" />
+        <path class="opacity-40" d="M150 164H390M478 164H860M930 164H1110" />
+        <path class="opacity-25" d="M60 178H300M372 178H700M790 178H1160" />
+        <path class="opacity-20" d="M210 192H560M660 192H980" />
+      </g>
+      <!-- Puddles left by earlier strokes, fading astern -->
+      <g stroke-width="1.5">
+        <ellipse class="opacity-30" cx="306" cy="157" rx="26" ry="3.5" />
+        <ellipse class="opacity-20" cx="306" cy="157" rx="44" ry="6.5" />
+        <ellipse class="opacity-20" cx="166" cy="157" rx="20" ry="3" />
+        <ellipse class="opacity-10" cx="166" cy="157" rx="34" ry="5.5" />
+      </g>
+      <!-- Ripples around the blade -->
+      <g stroke-width="2">
+        <ellipse class="opacity-70" cx="452" cy="155" rx="30" ry="4.5" />
+        <ellipse class="opacity-40" cx="452" cy="155" rx="52" ry="8" />
+      </g>
+    </g>
+
+    <!-- Hull: long, slim and low, pointed at both ends, with a slight sheer -->
+    <path class="text-primary" fill="currentColor" d="M312 146C430 139 760 137 892 144C780 155 430 157 312 146Z" />
+
+    <g class="text-foreground" stroke="currentColor">
+      <!-- Rigger -->
+      <path stroke-width="2.5" d="M560 141L590 111L622 141" />
+      <!-- Oar: handle at the hands, through the pin, down to the blade -->
+      <path stroke-width="3.5" d="M622 100L482 146" />
+      <path stroke-width="8" d="M478 147L448 157" />
+      <!-- Sculler: legs, foot, torso, arm, head -->
+      <path stroke-width="10" d="M646 130L588 124L536 136" />
+      <path stroke-width="4.5" d="M532 137L526 124" />
+      <path stroke-width="19" d="M648 126L662 80" />
+      <path stroke-width="7" d="M658 80L640 97L622 100" />
+      <circle cx="660" cy="56" r="11.5" fill="currentColor" stroke="none" />
+    </g>
+  </svg>
+</div>
