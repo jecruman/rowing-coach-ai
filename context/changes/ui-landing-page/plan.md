@@ -379,31 +379,31 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro`
-- [x] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits
-- [x] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0
-- [x] 3.4 `npx astro check`, `npm test` and `npm run build` pass
+- [x] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro` — 0707969
+- [x] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits — 0707969
+- [x] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0 — 0707969
+- [x] 3.4 `npx astro check`, `npm test` and `npm run build` pass — 0707969
 
 #### Manual
 
-- [x] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium
-- [x] 3.6 The example is clearly labelled as an example, and the page says the coach is private
-- [x] 3.7 Sign in is the only action on the page
-- [x] 3.8 Each product claim on the page matches what the app does today
+- [x] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium — 0707969
+- [x] 3.6 The example is clearly labelled as an example, and the page says the coach is private — 0707969
+- [x] 3.7 Sign in is the only action on the page — 0707969
+- [x] 3.8 Each product claim on the page matches what the app does today — 0707969
 
 ### Phase 4: States and visual check
 
 #### Automated
 
-- [ ] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason
-- [ ] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/`
+- [x] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason
+- [x] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/`
 
 #### Manual
 
-- [ ] 4.3 The contrast log in `tokens.md` shows all listed pairs passing
-- [ ] 4.4 Tabbing through the page shows a visible focus ring on every control
-- [ ] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat
-- [ ] 4.6 Layout does not jump noticeably when the font loads
+- [x] 4.3 The contrast log in `tokens.md` shows all listed pairs passing
+- [x] 4.4 Tabbing through the page shows a visible focus ring on every control
+- [x] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat
+- [x] 4.6 Layout does not jump noticeably when the font loads
 
 ### Phase 5: Guard and close
 

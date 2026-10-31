@@ -42,17 +42,18 @@ The page uses these existing tokens and adds no colours. Values and the rules be
 - `ring`
 - `coach`, `coach-foreground`: only on the example's coach suggestion
 
-## Contrast log (filled in Phase 4)
+## Contrast log (measured 2026-10-31)
 
-Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Dark theme only, since that is the
-shipped theme.
+Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Dark theme only, since that is the shipped theme. Measured from the `.dark` values in `src/styles/global.css` (oklch → sRGB → WCAG relative luminance). No values needed changing.
 
-| Pair                             | Theme | Target | Measured | Adjustment |
-| -------------------------------- | ----- | ------ | -------- | ---------- |
-| foreground / background          | dark  | 4.5:1  | TBD      | TBD        |
-| muted-foreground / background    | dark  | 4.5:1  | TBD      | TBD        |
-| muted-foreground / card          | dark  | 4.5:1  | TBD      | TBD        |
-| primary-foreground / primary     | dark  | 4.5:1  | TBD      | TBD        |
-| primary (link text) / background | dark  | 4.5:1  | TBD      | TBD        |
-| coach-foreground / coach         | dark  | 4.5:1  | TBD      | TBD        |
-| ring / background                | dark  | 3:1    | TBD      | TBD        |
+| Pair                                         | Theme | Target | Measured | Adjustment |
+| -------------------------------------------- | ----- | ------ | -------- | ---------- |
+| foreground / background                      | dark  | 4.5:1  | 17.04:1  | none       |
+| foreground / card                            | dark  | 4.5:1  | 15.41:1  | none       |
+| muted-foreground / background                | dark  | 4.5:1  | 7.75:1   | none       |
+| muted-foreground / card                      | dark  | 4.5:1  | 7.01:1   | none       |
+| primary-foreground / primary                 | dark  | 4.5:1  | 7.97:1   | none       |
+| primary (step numerals) / background         | dark  | 4.5:1  | 8.10:1   | none       |
+| coach-foreground / coach                     | dark  | 4.5:1  | 8.72:1   | none       |
+| foreground / outline button (header Sign in) | dark  | 4.5:1  | 15.39:1  | none       |
+| ring / background                            | dark  | 3:1    | 10.05:1  | none       |
