@@ -350,26 +350,26 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 1.1 `npx astro check` passes
-- [x] 1.2 `npm test` passes
-- [x] 1.3 `npm run build` succeeds
-- [x] 1.4 `grep -c "auth/signup" src/pages/auth/signin.astro` returns 0
-- [x] 1.5 `scripts/smoke.mjs` contains the signed-in `/` → `/dashboard` and signed-out `/` → `200` cases
+- [x] 1.1 `npx astro check` passes — 6d1fcca
+- [x] 1.2 `npm test` passes — 6d1fcca
+- [x] 1.3 `npm run build` succeeds — 6d1fcca
+- [x] 1.4 `grep -c "auth/signup" src/pages/auth/signin.astro` returns 0 — 6d1fcca
+- [x] 1.5 `scripts/smoke.mjs` contains the signed-in `/` → `/dashboard` and signed-out `/` → `200` cases — 6d1fcca
 
 #### Manual
 
-- [x] 1.6 Signed in, opening `/` lands on `/dashboard`
-- [x] 1.7 Signed out, opening `/` shows a page and does not loop
-- [x] 1.8 `/auth/signup` still opens by direct link, and `/auth/signin` no longer links to it
+- [x] 1.6 Signed in, opening `/` lands on `/dashboard` — 6d1fcca
+- [x] 1.7 Signed out, opening `/` shows a page and does not loop — 6d1fcca
+- [x] 1.8 `/auth/signup` still opens by direct link, and `/auth/signin` no longer links to it — 6d1fcca
 
 ### Phase 2: Display font and tokens
 
 #### Automated
 
-- [ ] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block
-- [ ] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies
-- [ ] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file
-- [ ] 2.4 `context/changes/ui-landing-page/tokens.md` exists
+- [x] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block
+- [x] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies
+- [x] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file
+- [x] 2.4 `context/changes/ui-landing-page/tokens.md` exists
 
 #### Manual
 
