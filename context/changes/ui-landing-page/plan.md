@@ -395,23 +395,23 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason
-- [x] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/`
+- [x] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason — e2ae69b
+- [x] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/` — e2ae69b
 
 #### Manual
 
-- [x] 4.3 The contrast log in `tokens.md` shows all listed pairs passing
-- [x] 4.4 Tabbing through the page shows a visible focus ring on every control
-- [x] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat
-- [x] 4.6 Layout does not jump noticeably when the font loads
+- [x] 4.3 The contrast log in `tokens.md` shows all listed pairs passing — e2ae69b
+- [x] 4.4 Tabbing through the page shows a visible focus ring on every control — e2ae69b
+- [x] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat — e2ae69b
+- [x] 4.6 Layout does not jump noticeably when the font loads — e2ae69b
 
 ### Phase 5: Guard and close
 
 #### Automated
 
-- [ ] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean
-- [ ] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted)
-- [ ] 5.3 `AGENTS.md` `## UI` mentions `font-display`
+- [x] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean
+- [x] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted)
+- [x] 5.3 `AGENTS.md` `## UI` mentions `font-display`
 - [ ] 5.4 `npm run lint` and `npm run smoke` pass in CI on the pull request
 
 #### Manual
