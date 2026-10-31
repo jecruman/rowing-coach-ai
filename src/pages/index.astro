@@ -1,9 +1,11 @@
 ---
 import "@fontsource-variable/archivo/wght.css";
-import Welcome from "@/components/Welcome.astro";
+import LandingView from "@/components/landing/LandingView.astro";
 import Layout from "@/layouts/Layout.astro";
 ---
 
 <Layout>
-  <Welcome />
+  <div class="min-h-screen bg-background">
+    <LandingView />
+  </div>
 </Layout>
