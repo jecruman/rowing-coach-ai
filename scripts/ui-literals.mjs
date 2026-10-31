@@ -13,6 +13,9 @@ const ALLOWLIST = [
   "src/components/AppNav.astro",
   "src/components/auth/ServerError.tsx",
   "src/pages/dev/kitchen-sink.astro",
+  "src/pages/index.astro",
+  "src/components/landing/LandingView.astro",
+  "src/components/landing/ScullMotif.astro",
 ];
 
 // The /10x-ui hardcoded-value scan: hex, rgb/hsl/oklch functions, arbitrary px/rem values, Tailwind palette classes.
