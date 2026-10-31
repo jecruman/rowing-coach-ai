@@ -5,10 +5,13 @@ import { missingConfigs } from "@/lib/config-status";
 
 interface Props {
   title?: string;
+  description?: string;
 }
 
 const APP_NAME = "Rowing Coach AI";
-const { title } = Astro.props;
+const DEFAULT_DESCRIPTION =
+  "A private rowing coach: log erg and water sessions, see computed numbers, and get one safe next session.";
+const { title, description = DEFAULT_DESCRIPTION } = Astro.props;
 const pageTitle = title ? `${title} · ${APP_NAME}` : APP_NAME;
 ---
 
@@ -19,6 +22,7 @@ const pageTitle = title ? `${title} · ${APP_NAME}` : APP_NAME;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>{pageTitle}</title>
+    <meta name="description" content={description} />
   </head>
   <body>
     {missingConfigs.map((cfg) => (

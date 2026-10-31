@@ -95,6 +95,7 @@ const steps = [
     { status: 302, location: "/dashboard" },
   ],
   ["dashboard renders for signed-in user", () => request("/dashboard"), { status: 200 }],
+  ["home redirects signed-in user to dashboard", () => request("/"), { status: 302, location: "/dashboard" }],
   ["profile renders for signed-in user", () => request("/profile"), { status: 200 }],
   [
     "profile saves valid form",
@@ -198,6 +199,7 @@ const steps = [
   ],
   ["deleted session page is not found", () => request(sessionPath || "/sessions/missing"), { status: 404 }],
   ["signout clears session", () => request("/api/auth/signout", { method: "POST" }), { status: 302, location: "/" }],
+  ["home renders after signout", () => request("/"), { status: 200 }],
   ["dashboard redirects after signout", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   [
     "edit page redirects signed-out user",
