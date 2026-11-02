@@ -10,7 +10,7 @@ interface Props {
 
 const APP_NAME = "Rowing Coach AI";
 const DEFAULT_DESCRIPTION =
-  "A private rowing coach: log erg and water sessions, see computed numbers, and get one safe next session.";
+  "A private rowing coach: log erg and water sessions, see computed numbers, and get one next session, checked against fixed safety limits.";
 const { title, description = DEFAULT_DESCRIPTION } = Astro.props;
 const pageTitle = title ? `${title} · ${APP_NAME}` : APP_NAME;
 ---

@@ -12,6 +12,12 @@ const error = Astro.url.searchParams.get("error");
         Sign in
       </h1>
       <SignInForm serverError={error} client:load />
+      <p class="mt-4 text-center text-sm text-muted-foreground">
+        No account?{" "}
+        <a href="/" class="text-primary underline underline-offset-4">
+          This coach is used by invitation.
+        </a>
+      </p>
     </div>
   </div>
 </Layout>

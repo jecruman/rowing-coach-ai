@@ -39,7 +39,7 @@ Rowing Coach AI: rowers log erg and water sessions and get one suggested next se
 - Signed-in pages render `AppNav`.
 - `font-display` (Archivo) is for the landing page only; app pages stay on the system font.
 - `/` is the signed-out landing page; the middleware redirects signed-in visitors to `/dashboard`. Don't link sign-up from public pages: AI coaching is invite-only (`COACH_EMAILS`), so `/auth/signup` is shared by direct link.
-- Kitchen sink at `/dev/kitchen-sink` (dev only) shows every token and component — check it after changing either.
+- Kitchen sink at `/dev/kitchen-sink` (dev only) shows the app's tokens and components — check it after changing either. The landing page and `font-display` aren't in it; check `/` for those.
 - `npm run lint` also runs `scripts/ui-literals.mjs`, a literal scan over an allowlist of migrated files; add a view to that allowlist in the same change that migrates it.
 
 ## Testing

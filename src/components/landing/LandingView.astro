@@ -17,7 +17,7 @@ const SAMPLE_METRICS = [
 const SAMPLE_LABELS = ["Distance per stroke: clear drop", "Technique may be limiting efficiency"];
 
 const SAMPLE_SUGGESTION = [
-  { label: "Total time", value: "24 min" },
+  { label: "Total time", value: "22 min" },
   { label: "Max stroke rate", value: "32 spm" },
 ];
 
@@ -41,14 +41,7 @@ const STEPS = [
 ];
 ---
 
-<header class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-5 lg:px-8">
-  <span class="font-display text-lg font-bold tracking-tight text-foreground">Rowing Coach AI</span>
-  <a href="/auth/signin" class:list={buttonVariants({ variant: "outline", size: "sm" })}>
-    Sign in
-  </a>
-</header>
-
-<main>
+<div>
   <section class="mx-auto grid max-w-7xl grid-cols-1 gap-y-10 px-6 pt-10 lg:grid-cols-12 lg:gap-x-12 lg:gap-y-14 lg:px-8 lg:pt-20">
     <div class="lg:order-1 lg:col-span-7 lg:self-center">
       <h1 class="font-display text-4xl leading-none font-extrabold tracking-tight text-balance text-foreground sm:text-5xl xl:text-6xl">
@@ -69,9 +62,14 @@ const STEPS = [
     <ScullMotif class="-mx-6 lg:order-3 lg:col-span-12 lg:mx-0" />
 
     <div class="lg:order-2 lg:col-span-5 lg:self-center">
-      <Card className="gap-5">
+      <Card className="gap-5" role="group" aria-labelledby="landing-example-title">
         <CardHeader>
-          <CardTitle role="heading" aria-level={2} className="text-xs font-medium tracking-widest uppercase">
+          <CardTitle
+            id="landing-example-title"
+            role="heading"
+            aria-level={2}
+            className="text-xs font-medium tracking-widest uppercase"
+          >
             Example session, sample numbers
           </CardTitle>
           <CardDescription className="tabular-nums">Water · 5000 m in {formatTime(1260)}</CardDescription>
@@ -94,7 +92,7 @@ const STEPS = [
           </ul>
 
           <div class="rounded-lg bg-coach p-4 text-coach-foreground">
-            <h3 class="text-xs font-semibold tracking-widest uppercase">Next session</h3>
+            <h3 class="text-xs font-semibold tracking-widest uppercase">Example next session</h3>
             <p class="mt-2 text-xl font-bold tracking-tight tabular-nums">6 × 2 min / 2 min rest</p>
             <dl class="mt-3 grid grid-cols-2 gap-x-6 text-sm">
               {SAMPLE_SUGGESTION.map(({ label, value }) => (
@@ -134,4 +132,4 @@ const STEPS = [
       ))}
     </ol>
   </section>
-</main>
+</div>

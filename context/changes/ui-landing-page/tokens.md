@@ -26,8 +26,7 @@ It is not theme-dependent, so `.dark` doesn't override it.
 
 ### Usage rule
 
-Use `font-display` for landing headlines only. Don't apply it to body text or to app views, and don't
-hardcode the font name anywhere else.
+Use `font-display` for landing page display text only: headlines, the product name and the step numerals. Don't apply it to body text or to app views, and don't hardcode the font name anywhere else.
 
 ## Colour tokens used
 
@@ -36,6 +35,7 @@ The page uses these existing tokens and adds no colours. Values and the rules be
 
 - `background`, `foreground`
 - `card`, `card-foreground`
+- `accent-foreground`, `input`: the header Sign in link, through `button.tsx`
 - `muted-foreground`
 - `primary`, `primary-foreground`
 - `border`
@@ -44,7 +44,7 @@ The page uses these existing tokens and adds no colours. Values and the rules be
 
 ## Contrast log (measured 2026-10-31)
 
-Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Dark theme only, since that is the shipped theme. Measured from the `.dark` values in `src/styles/global.css` (oklch → sRGB → WCAG relative luminance). No values needed changing.
+Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Dark theme only, since that is the shipped theme. Measured from the `.dark` values in `src/styles/global.css` (oklch → sRGB → WCAG relative luminance). No values needed changing. The focus ring is measured as `button.tsx` paints it (`ring-ring/50`); solid `--ring` would be 10.05:1. The 3.30:1 clears the target with little margin, and the dashboard change's archived log records the solid value.
 
 | Pair                                         | Theme | Target | Measured | Adjustment |
 | -------------------------------------------- | ----- | ------ | -------- | ---------- |
@@ -56,4 +56,4 @@ Target: text pairs ≥ 4.5:1 (WCAG AA); ring vs background ≥ 3:1. Dark theme o
 | primary (step numerals) / background         | dark  | 4.5:1  | 8.10:1   | none       |
 | coach-foreground / coach                     | dark  | 4.5:1  | 8.72:1   | none       |
 | foreground / outline button (header Sign in) | dark  | 4.5:1  | 15.39:1  | none       |
-| ring / background                            | dark  | 3:1    | 10.05:1  | none       |
+| ring at 50% / background (as painted)        | dark  | 3:1    | 3.30:1   | none       |
