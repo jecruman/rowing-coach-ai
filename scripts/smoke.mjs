@@ -71,8 +71,14 @@ function isUnstoredDefault(body) {
   );
 }
 
+// Coaching is invite-only, so public pages must not advertise /auth/signup (AGENTS.md, ## UI).
+function noSignUpLink(text) {
+  return !text.includes("/auth/signup");
+}
+
 const steps = [
-  ["home renders", () => request("/"), { status: 200 }],
+  ["home renders without a sign-up link", () => request("/"), { status: 200, html: noSignUpLink }],
+  ["sign-in renders without a sign-up link", () => request("/auth/signin"), { status: 200, html: noSignUpLink }],
   ["kitchen sink is not shipped", () => request("/dev/kitchen-sink"), { status: 404 }],
   ["dashboard redirects anonymous user", () => request("/dashboard"), { status: 302, location: "/auth/signin" }],
   ["profile redirects anonymous user", () => request("/profile"), { status: 302, location: "/auth/signin" }],

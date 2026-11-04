@@ -1,7 +1,7 @@
 ---
 change_id: ui-landing-page
 title: Ui landing page
-status: implementing
+status: impl_reviewed
 created: 2026-10-14
 updated: 2026-10-31
 archived_at: null

@@ -409,10 +409,10 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean
-- [x] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted)
-- [x] 5.3 `AGENTS.md` `## UI` mentions `font-display`
-- [ ] 5.4 `npm run lint` and `npm run smoke` pass in CI on the pull request
+- [x] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean — f3d220d
+- [x] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted) — f3d220d
+- [x] 5.3 `AGENTS.md` `## UI` mentions `font-display` — f3d220d
+- [x] 5.4 `npm run lint` and `npm run smoke` pass in CI on the pull request — f3d220d
 
 #### Manual
 
