@@ -350,26 +350,26 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 1.1 `npx astro check` passes — 6d1fcca
-- [x] 1.2 `npm test` passes — 6d1fcca
-- [x] 1.3 `npm run build` succeeds — 6d1fcca
-- [x] 1.4 `grep -c "auth/signup" src/pages/auth/signin.astro` returns 0 — 6d1fcca
-- [x] 1.5 `scripts/smoke.mjs` contains the signed-in `/` → `/dashboard` and signed-out `/` → `200` cases — 6d1fcca
+- [x] 1.1 `npx astro check` passes — 5053afc
+- [x] 1.2 `npm test` passes — 5053afc
+- [x] 1.3 `npm run build` succeeds — 5053afc
+- [x] 1.4 `grep -c "auth/signup" src/pages/auth/signin.astro` returns 0 — 5053afc
+- [x] 1.5 `scripts/smoke.mjs` contains the signed-in `/` → `/dashboard` and signed-out `/` → `200` cases — 5053afc
 
 #### Manual
 
-- [x] 1.6 Signed in, opening `/` lands on `/dashboard` — 6d1fcca
-- [x] 1.7 Signed out, opening `/` shows a page and does not loop — 6d1fcca
-- [x] 1.8 `/auth/signup` still opens by direct link, and `/auth/signin` no longer links to it — 6d1fcca
+- [x] 1.6 Signed in, opening `/` lands on `/dashboard` — 5053afc
+- [x] 1.7 Signed out, opening `/` shows a page and does not loop — 5053afc
+- [x] 1.8 `/auth/signup` still opens by direct link, and `/auth/signin` no longer links to it — 5053afc
 
 ### Phase 2: Display font and tokens
 
 #### Automated
 
-- [x] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block — 6c9c47a
-- [x] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies — 6c9c47a
-- [x] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file — 6c9c47a
-- [x] 2.4 `context/changes/ui-landing-page/tokens.md` exists — 6c9c47a
+- [x] 2.1 `--font-display` is published in `@theme inline` and no raw font name appears inside that block — 5053afc
+- [x] 2.2 `@fontsource-variable/archivo` is the only new entry in `package.json` dependencies — 5053afc
+- [x] 2.3 `npm run build` succeeds and `dist` contains an Archivo `.woff2` file — 5053afc
+- [x] 2.4 `context/changes/ui-landing-page/tokens.md` exists — 5053afc
 
 #### Manual
 
@@ -379,40 +379,40 @@ Rollback is a revert: no data or settings change. `bg-cosmic` loses one usage he
 
 #### Automated
 
-- [x] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro` — 0707969
-- [x] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits — 0707969
-- [x] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0 — 0707969
-- [x] 3.4 `npx astro check`, `npm test` and `npm run build` pass — 0707969
+- [x] 3.1 Hardcoded-value scan returns 0 hits on `src/pages/index.astro`, `src/components/landing/LandingView.astro` and `src/components/landing/ScullMotif.astro` — 718bd5e
+- [x] 3.2 `src/components/Welcome.astro` and `src/components/Topbar.astro` no longer exist, and `grep -rn "Topbar\|components/Welcome" src` returns no hits — 718bd5e
+- [x] 3.3 `grep -ci "astro starter" src/components/landing/LandingView.astro` returns 0 — 718bd5e
+- [x] 3.4 `npx astro check`, `npm test` and `npm run build` pass — 718bd5e
 
 #### Manual
 
-- [x] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium — 0707969
-- [x] 3.6 The example is clearly labelled as an example, and the page says the coach is private — 0707969
-- [x] 3.7 Sign in is the only action on the page — 0707969
-- [x] 3.8 Each product claim on the page matches what the app does today — 0707969
+- [x] 3.5 At a glance, at 1280 px and 390 px, the page is recognisably about rowing and looks premium — 718bd5e
+- [x] 3.6 The example is clearly labelled as an example, and the page says the coach is private — 718bd5e
+- [x] 3.7 Sign in is the only action on the page — 718bd5e
+- [x] 3.8 Each product claim on the page matches what the app does today — 718bd5e
 
 ### Phase 4: States and visual check
 
 #### Automated
 
-- [x] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason — e2ae69b
-- [x] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/` — e2ae69b
+- [x] 4.1 `context/changes/ui-landing-page/states.md` lists all seven states, each shown or N/A with a reason — 3c805d6
+- [x] 4.2 `context/changes/ui-landing-page/screenshots/` contains desktop and mobile captures of `/` — 3c805d6
 
 #### Manual
 
-- [x] 4.3 The contrast log in `tokens.md` shows all listed pairs passing — e2ae69b
-- [x] 4.4 Tabbing through the page shows a visible focus ring on every control — e2ae69b
-- [x] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat — e2ae69b
-- [x] 4.6 Layout does not jump noticeably when the font loads — e2ae69b
+- [x] 4.3 The contrast log in `tokens.md` shows all listed pairs passing — 3c805d6
+- [x] 4.4 Tabbing through the page shows a visible focus ring on every control — 3c805d6
+- [x] 4.5 At 390 px there is no horizontal scrolling and the scull motif still reads as a boat — 3c805d6
+- [x] 4.6 Layout does not jump noticeably when the font loads — 3c805d6
 
 ### Phase 5: Guard and close
 
 #### Automated
 
-- [x] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean — f3d220d
-- [x] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted) — f3d220d
-- [x] 5.3 `AGENTS.md` `## UI` mentions `font-display` — f3d220d
-- [x] 5.4 `npm run lint` and `npm run smoke` pass in CI on the pull request — f3d220d
+- [x] 5.1 `node scripts/ui-literals.mjs` exits 0 and reports 8 files clean — fd70b54
+- [x] 5.2 Adding `bg-purple-600` to `LandingView.astro` makes `node scripts/ui-literals.mjs` exit 1 with the file and line (then reverted) — fd70b54
+- [x] 5.3 `AGENTS.md` `## UI` mentions `font-display` — fd70b54
+- [x] 5.4 `npm run lint` and `npm run smoke` pass in CI on the pull request — fd70b54
 
 #### Manual
 
