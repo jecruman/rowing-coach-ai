@@ -1,10 +1,10 @@
 ---
 change_id: ui-landing-page
 title: Ui landing page
-status: impl_reviewed
+status: archived
 created: 2026-10-14
-updated: 2026-10-31
-archived_at: null
+updated: 2026-11-04
+archived_at: 2026-11-04T18:03:19Z
 ---
 
 ## Notes
