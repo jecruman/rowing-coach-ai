@@ -144,7 +144,17 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 ### 6.2 Proving a saved value reaches the page
 
-- TBD — see §3 Phase 1 for the save read-back and hand-worked page-value pattern.
+- **Location**: named checks in `scripts/session-integrity.mjs` (zero dependencies, PASS/FAIL per check, exit 1 on any failure); shared helpers in `scripts/lib/` — `http.mjs` (`createHttpClient`, one cookie jar per user) and `html.mjs` (`definitionPairs`, `formControls`, `sections`, `leafTexts`, `links`, `forms`, `classTexts`, `rawText`).
+- **Data**: a fresh user per check group (oracle history, read-back), signed up by the script; fixed past dates, so no check depends on the clock.
+- **Oracle**: expected values worked out by hand from the PRD's rules and written as literals, with the arithmetic in a comment; never computed with app code.
+- **Binding**: assert each value against its label (`definitionPairs` for `dt`/`dd` values and analysis, `formControls` for the edit form, `leafTexts` within a `sections` block for comparison text, labels and notes); list and trend rows as ordered lists by link. No unbound `includes()`.
+- **Comparison**: collapse whitespace, except where whitespace is the point (the comment's line break, read with `rawText`). Write U+2212 minus, U+2013 en dash and ` · ` literally.
+- **Read-back**: a redirect is not proof of a save; follow every write with a read of the page or edit form.
+- **Failures**: post an otherwise valid session with `rowedOn=0000-01-01` — app validation accepts it, the real database rejects it — and assert the exact error message, the shown error, and no new or changed data. If a change makes that trigger unreachable, fall back to a route test with a fake client on the failure branch only.
+- **Adding checks**: prove each new check with one throwaway CI run that changes an expected value, confirm the FAIL names the label, then revert.
+- **Reference checks**: `E5 analysis: pace −10 s against the last 3 erg sessions, label and hard note`; `after the edit, E5 pace delta follows: −12.5 s`; `R page shows the normalised values and both comment lines`; `failed edit (year 0000) is reported and R keeps its edited values`.
+- **Run locally**: needs local Supabase (Docker) with its URL and anon key in `.env` and `.dev.vars`; `npm run build`, `npm run preview`, then `BASE_URL=http://localhost:4321 npm run integrity`.
+- **CI**: the `smoke` job runs it after smoke, against the same preview and local Supabase.
 
 ### 6.3 Checking the deployed Worker
 
@@ -162,6 +172,12 @@ the relevant rollout phase ships; before that, the sub-section reads
 
 (After each phase lands, `/10x-implement` appends a 2-3 line note here
 capturing anything surprising the phase taught.)
+
+- **Phase 1 (testing-session-data-integrity)**: verified in CI only (no local
+  Docker); each check phase was proven by one deliberate-break run. The probe
+  found the database rejects year 0000 while app validation accepts it, so
+  failures use the real database. The E4 post-edit oracle was corrected to include its own
+  baseline delta (`2:07.5 (−7.5 s)`).
 
 ## 7. What We Deliberately Don't Test
 

@@ -255,7 +255,7 @@ Prove that what the rower enters is what is stored and shown, that the edit form
 
 - Lint passes: `npm run lint`
 - CI `smoke` job is green, with every Phase 3 check printing PASS in the integrity step
-- Route B only: `npm test` passes, including the new route tests
+- Route B only: `npm test` passes, including the new route tests (Implementation note: not applicable, route A was used; marked done on that basis.)
 
 #### Manual Verification:
 
@@ -372,13 +372,13 @@ Not applicable: no schema or data changes.
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `npm run lint`
-- [ ] 3.2 CI `smoke` job is green, with every Phase 3 check printing PASS in the integrity step
-- [ ] 3.3 Route B only: `npm test` passes, including the new route tests
+- [x] 3.1 Lint passes: `npm run lint` — de2638d
+- [x] 3.2 CI `smoke` job is green, with every Phase 3 check printing PASS in the integrity step — de2638d
+- [x] 3.3 Route B only: `npm test` passes, including the new route tests — de2638d
 
 #### Manual
 
-- [ ] 3.4 A throwaway CI run with one read-back expectation deliberately changed fails and names that label, then is reverted
+- [x] 3.4 A throwaway CI run with one read-back expectation deliberately changed fails and names that label, then is reverted — de2638d
 
 ### Phase 4: Cookbook and guidance
 
