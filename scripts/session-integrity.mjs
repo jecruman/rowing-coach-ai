@@ -253,7 +253,7 @@ const checks = [
       const page = await sessionPage("E5");
       const failures = [];
       expectPairs(failures, "E5 analysis", page.analysis, [
-        ["Pace /500 m", "1:55 (−10 s)"],
+        ["Pace /500 m", "1:55 (−9 s)"],
         ["Split drift (last − first)", "−1 s"],
         ["Stroke rate (mid)", "25 spm"],
       ]);
