@@ -361,12 +361,12 @@ Not applicable: no schema or data changes.
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `npm run lint`
-- [ ] 2.2 CI `smoke` job is green, with every Phase 2 check printing PASS in the integrity step
+- [x] 2.1 Lint passes: `npm run lint` — 2cfa7cf
+- [x] 2.2 CI `smoke` job is green, with every Phase 2 check printing PASS in the integrity step — 2cfa7cf
 
 #### Manual
 
-- [ ] 2.3 A throwaway CI run with one expected value deliberately changed fails and names that label, then is reverted
+- [x] 2.3 A throwaway CI run with one expected value deliberately changed fails and names that label, then is reverted — 2cfa7cf
 
 ### Phase 3: Saves read back and failures are reported (Risk #2)
 

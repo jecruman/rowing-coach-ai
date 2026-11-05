@@ -4,12 +4,13 @@
 // BASE_URL=http://localhost:4321 node scripts/session-integrity.mjs
 
 import { createHttpClient } from "./lib/http.mjs";
-import { definitionPairs, leafTexts, links, sections } from "./lib/html.mjs";
+import { classTexts, definitionPairs, formControls, forms, leafTexts, links, rawText, sections } from "./lib/html.mjs";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
 const password = "Integrity-Test-Passw0rd!";
 const SESSION_PATH = /^\/sessions\/[0-9a-f-]{36}$/;
 const LOG_FAILED = "Could not save your session. Please try again.";
+const EDIT_FAILED = "Could not save your changes. Please try again.";
 let userCount = 0;
 
 // A fresh user per check group, so seeded sessions never mix. Without a signed-in user every check would only
@@ -93,10 +94,6 @@ function expectHardNote(failures, scope, notes, present) {
   }
 }
 
-const probeRequest = await signUpUser();
-// Valid in every field except the date: Postgres has no year 0, but the app's date rule only bounds it above.
-const probeSession = { sessionType: "erg", rowedOn: "0000-01-01", distanceM: "2000", time: "8:00" };
-
 // --- Oracle history (Risk #1). Every expected value below is worked out by hand from the PRD's rules: pace per
 // 500 m = time × 500 / distance; baseline = average of the last 3 earlier sessions of the same type; "Pace: good
 // improvement" at 5 s or more faster; hard = pace at or faster than goal pace + 5 s (goal 2000 m in 7:30 → 1:57.5).
@@ -136,24 +133,41 @@ function oracleKey(href) {
   return Object.keys(oraclePaths).find((key) => oraclePaths[key] === href) ?? href;
 }
 
-async function oraclePage(path) {
-  const page = await oracleRequest(path);
+async function pageHtml(request, path) {
+  const page = await request(path);
   if (page.status !== 200) throw new Error(`${path} -> ${page.status} (expected 200)`);
   return page.text;
+}
+
+async function oraclePage(path) {
+  return pageHtml(oracleRequest, path);
+}
+
+// A session page's values block: its label/value pairs, its headings, and the comment below the values exactly as
+// written (null when there is none). The comment keeps its whitespace, so a lost line break shows.
+function valuesBlock(all, scope) {
+  const valueBlocks = all.filter((section) => !section.attrs["aria-labelledby"]);
+  if (valueBlocks.length !== 1) throw new Error(`${scope} page: expected 1 values block, got ${valueBlocks.length}`);
+  const { html } = valueBlocks[0];
+  const comment = /<h2\b[^>]*>\s*Comment\s*<\/h2>\s*<p\b[^>]*>([\s\S]*?)<\/p>/i.exec(html);
+  return {
+    values: definitionPairs(html),
+    headings: leafTexts(html, "h2"),
+    comment: comment ? rawText(comment[1]) : null,
+  };
 }
 
 // A session page split into the blocks the checks bind to: the logged values, the analysis rows, the comparison
 // text above them, and the labels and notes below them.
 async function sessionPage(key) {
   const all = sections(await oraclePage(oraclePath(key)));
-  const valueBlocks = all.filter((section) => !section.attrs["aria-labelledby"]);
+  const { values } = valuesBlock(all, key);
   const analysis = all.find((section) => section.attrs["aria-labelledby"] === "analysis-heading");
-  if (valueBlocks.length !== 1) throw new Error(`${key} page: expected 1 values block, got ${valueBlocks.length}`);
   if (!analysis) throw new Error(`${key} page: no Analysis section`);
   const head = analysis.html.slice(0, analysis.html.indexOf("<dl"));
   const tail = analysis.html.slice(analysis.html.indexOf("</dl>"));
   return {
-    values: definitionPairs(valueBlocks[0].html),
+    values,
     analysis: definitionPairs(analysis.html),
     comparison: leafTexts(head, "p"),
     labels: leafTexts(tail, "li"),
@@ -189,30 +203,115 @@ function rowCells(failures, rows, key, tag) {
   return leafTexts(row.html, tag);
 }
 
+// --- Read-back and failures (Risk #2). A second fresh user, so these checks never touch the oracle data.
+const readbackRequest = await signUpUser();
+const R_COMMENT = "Windy\nsecond line";
+// Water session R as a rower might type it: a decimal comma, a spaced range, a comma inside a range, two comment
+// lines.
+const R_LOGGED = {
+  sessionType: "water",
+  rowedOn: "2026-03-12",
+  distanceM: "6000",
+  time: "25:30,5",
+  splits: "2:08 2:07.5 2:06",
+  spm: "20 - 22",
+  dps: "9,1-9.5",
+  boat: "2x",
+  comment: R_COMMENT,
+};
+const R_VALUES = [
+  ["Date", "2026-03-12"],
+  ["Distance", "6000 m"],
+  ["Time", "25:30.5"],
+  ["Splits /500 m", "2:08 · 2:07.5 · 2:06"],
+  ["Stroke rate", "20–22 spm"],
+  ["Distance per stroke", "9.1–9.5 m"],
+  ["Boat", "2x"],
+];
+// What the edit form holds for R: the stored values in the form's own notation.
+const R_FORM_CONTROLS = {
+  sessionType: "water",
+  rowedOn: "2026-03-12",
+  distanceM: "6000",
+  time: "25:30.5",
+  splits: "2:08 2:07.5 2:06",
+  spm: "20-22",
+  dps: "9.1-9.5",
+  boat: "2x",
+  comment: R_COMMENT,
+};
+// Every editable field changed: a single-value range, and the optional comment cleared.
+const R_EDITED = {
+  sessionType: "water",
+  rowedOn: "2026-03-13",
+  distanceM: "6500",
+  time: "26:00",
+  splits: "2:00 2:01",
+  spm: "18-20",
+  dps: "9.6",
+  boat: "1x",
+  comment: "",
+};
+const R_EDITED_VALUES = [
+  ["Date", "2026-03-13"],
+  ["Distance", "6500 m"],
+  ["Time", "26:00"],
+  ["Splits /500 m", "2:00 · 2:01"],
+  ["Stroke rate", "18–20 spm"],
+  ["Distance per stroke", "9.6 m"],
+  ["Boat", "1x"],
+];
+const NO_COMMENT = null;
+// Postgres has no year 0, but the app's date rule only bounds the date above, so this date passes validation and
+// the write itself fails.
+const NO_SUCH_DATE = "0000-01-01";
+// R's page path, filled by the log check; the edit form's action and controls, filled by the edit form check.
+const readback = { path: null, form: null };
+
+function rPath() {
+  if (!readback.path) throw new Error("session R was not logged (see the log check)");
+  return readback.path;
+}
+
+async function rPage() {
+  return valuesBlock(sections(await pageHtml(readbackRequest, rPath())), "R");
+}
+
+// Exactly these controls with exactly these values; a missing or unexpected control is a failure.
+function expectControls(failures, scope, expected, actual) {
+  const show = (value) => (value === undefined ? "(no control)" : JSON.stringify(value));
+  for (const name of [...new Set([...Object.keys(expected), ...Object.keys(actual)])].sort()) {
+    if (actual[name] !== expected[name]) {
+      failures.push(`${scope} "${name}": expected ${show(expected[name])}, got ${show(actual[name])}`);
+    }
+  }
+}
+
+// R's values in order, then its comment compared as written (line breaks included); NO_COMMENT means no Comment
+// heading and no comment.
+function expectRPage(failures, scope, page, values, comment) {
+  expectPairs(failures, scope, page.values, values);
+  expectList(failures, `${scope} headings`, comment === NO_COMMENT ? [] : ["Comment"], page.headings);
+  if (page.comment !== comment) {
+    failures.push(`${scope} comment: expected ${JSON.stringify(comment)}, got ${JSON.stringify(page.comment)}`);
+  }
+}
+
+// A failed write: a 302 to `prefix` carrying exactly `message`, and the page it leads to shows that message in its
+// server-error element.
+async function expectFailureRedirect(failures, actual, prefix, message) {
+  if (actual.status !== 302 || !actual.location.startsWith(prefix)) {
+    failures.push(`expected 302 ${prefix}..., got ${actual.status} ${actual.location}`);
+    return;
+  }
+  // A validation message here means the app rejected the date before the database saw it: no write failed.
+  expectValue(failures, "error message", message, errorMessage(actual.location));
+  const shown = classTexts(await pageHtml(readbackRequest, actual.location), "p", "text-destructive");
+  expectList(failures, "server error shown", [message], shown);
+}
+
 // Each check returns the line shown after its name and the list of failures (empty when it passes).
 const checks = [
-  [
-    "log with year 0000 is rejected by the database",
-    async () => {
-      const actual = await probeRequest("/api/sessions", { method: "POST", form: probeSession });
-      const message = errorMessage(actual.location);
-      const failures = [];
-      if (actual.status !== 302 || !actual.location.startsWith("/sessions/new?error=")) {
-        failures.push(`expected 302 /sessions/new?error=..., got ${actual.status} ${actual.location}`);
-      }
-      // A validation message here means the app rejected the date before the database saw it (Phase 3 route B).
-      if (message !== LOG_FAILED) failures.push(`expected message "${LOG_FAILED}", got "${message}"`);
-      return { summary: `${actual.status} ${actual.location}`, failures };
-    },
-  ],
-  [
-    // Proves the probe's other fields are valid, so the year is the only reason the probe was rejected.
-    "same session with a real date saves",
-    async () => {
-      const path = await logSession(probeRequest, { ...probeSession, rowedOn: "2026-03-01" });
-      return { summary: `302 ${path}`, failures: [] };
-    },
-  ],
   [
     "oracle history seeds: erg goal 2000 m in 7:30 and six sessions",
     async () => {
@@ -419,6 +518,96 @@ const checks = [
       expectValue(failures, "E4 trend row", "2026-03-08 · 2:07.5 /500 m", trendRow ? trendRow.text : "(missing)");
       expectValue(failures, "trend first → latest", "−35 s /500 m", change);
       return { summary: `change ${change}`, failures };
+    },
+  ],
+  [
+    "R logs: water session with a decimal comma, spaced range and two-line comment",
+    async () => {
+      readback.path = await logSession(readbackRequest, R_LOGGED);
+      return { summary: `302 ${readback.path}`, failures: [] };
+    },
+  ],
+  [
+    "R page shows the normalised values and both comment lines",
+    async () => {
+      const failures = [];
+      expectRPage(failures, "R values", await rPage(), R_VALUES, R_COMMENT);
+      return { summary: rPath(), failures };
+    },
+  ],
+  [
+    "R edit form holds the stored values",
+    async () => {
+      const path = `${rPath()}/edit`;
+      // The session form is the only form inside a section; the sign-out form sits in the nav.
+      const found = sections(await pageHtml(readbackRequest, path)).flatMap((section) => forms(section.html));
+      if (found.length !== 1) throw new Error(`R edit page: expected 1 session form, got ${found.length}`);
+      readback.form = { action: found[0].attrs.action ?? "", controls: formControls(found[0].html) };
+      const failures = [];
+      expectControls(failures, "R edit form", R_FORM_CONTROLS, readback.form.controls);
+      return { summary: `${path}, action ${readback.form.action}`, failures };
+    },
+  ],
+  [
+    "untouched edit form re-posts to its action and changes nothing",
+    async () => {
+      const path = rPath();
+      if (!readback.form) throw new Error("R edit form was not read (see the edit form check)");
+      const actual = await readbackRequest(readback.form.action, { method: "POST", form: readback.form.controls });
+      const failures = [];
+      if (actual.status !== 302 || actual.location !== path) {
+        failures.push(`expected 302 ${path}, got ${actual.status} ${actual.location}`);
+      }
+      expectRPage(failures, "R values after re-post", await rPage(), R_VALUES, R_COMMENT);
+      return { summary: `${actual.status} ${actual.location}`, failures };
+    },
+  ],
+  [
+    "edit every field: R page shows the new values and no comment",
+    async () => {
+      const path = rPath();
+      const actual = await readbackRequest(`/api${path}`, { method: "POST", form: R_EDITED });
+      const failures = [];
+      if (actual.status !== 302 || actual.location !== path) {
+        failures.push(`expected 302 ${path}, got ${actual.status} ${actual.location}`);
+      }
+      expectRPage(failures, "R values after edit", await rPage(), R_EDITED_VALUES, NO_COMMENT);
+      return { summary: `${actual.status} ${actual.location}`, failures };
+    },
+  ],
+  [
+    // R's own fields already saved once, so the date is the only reason this log can fail.
+    "failed log (year 0000) is reported and adds no session",
+    async () => {
+      const path = rPath();
+      const actual = await readbackRequest("/api/sessions", {
+        method: "POST",
+        form: { ...R_LOGGED, rowedOn: NO_SUCH_DATE },
+      });
+      const failures = [];
+      await expectFailureRedirect(failures, actual, "/sessions/new?error=", LOG_FAILED);
+      const rows = sessionRows(await pageHtml(readbackRequest, "/sessions"));
+      expectList(
+        failures,
+        "session rows",
+        [path],
+        rows.map((row) => row.href),
+      );
+      return { summary: `${actual.status} ${actual.location}`, failures };
+    },
+  ],
+  [
+    "failed edit (year 0000) is reported and R keeps its edited values",
+    async () => {
+      const path = rPath();
+      const actual = await readbackRequest(`/api${path}`, {
+        method: "POST",
+        form: { ...R_EDITED, rowedOn: NO_SUCH_DATE },
+      });
+      const failures = [];
+      await expectFailureRedirect(failures, actual, `${path}/edit?error=`, EDIT_FAILED);
+      expectRPage(failures, "R values after failed edit", await rPage(), R_EDITED_VALUES, NO_COMMENT);
+      return { summary: `${actual.status} ${actual.location}`, failures };
     },
   ],
 ];

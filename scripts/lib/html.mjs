@@ -28,6 +28,11 @@ export function textContent(html) {
   return decodeEntities(text).replace(/\s+/g, " ").trim();
 }
 
+// Decoded text with whitespace kept as written, for text whose line breaks matter (a multi-line comment).
+export function rawText(html) {
+  return decodeEntities(html.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, ""));
+}
+
 // Attribute names are lower-cased; a bare attribute (`checked`, `selected`) maps to "".
 function parseAttributes(source) {
   const attrs = {};
@@ -64,6 +69,21 @@ export function leafTexts(html, tag) {
   return [...html.matchAll(new RegExp(String.raw`<${tag}\b${ATTRS}>((?:[^<]|<!--[\s\S]*?-->)*)<\/${tag}>`, "gi"))].map(
     ([, , inner]) => textContent(inner),
   );
+}
+
+// Text of each `tag` element whose class list contains `className`, in page order. Elements of `tag` must not nest.
+export function classTexts(html, tag, className) {
+  return [...html.matchAll(new RegExp(String.raw`<${tag}\b${ATTRS}>([\s\S]*?)<\/${tag}>`, "gi"))]
+    .filter(([, raw]) => (parseAttributes(raw).class ?? "").split(/\s+/).includes(className))
+    .map(([, , inner]) => textContent(inner));
+}
+
+// Each `<form>` as its attributes and inner HTML, in page order.
+export function forms(html) {
+  return [...html.matchAll(new RegExp(String.raw`<form\b${ATTRS}>([\s\S]*?)<\/form>`, "gi"))].map(([, raw, inner]) => ({
+    attrs: parseAttributes(raw),
+    html: inner,
+  }));
 }
 
 // Each link as its href, inner HTML and text, in page order.
