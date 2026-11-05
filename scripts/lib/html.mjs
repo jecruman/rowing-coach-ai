@@ -51,6 +51,30 @@ export function definitionPairs(html) {
   return pairs;
 }
 
+// Each `<section>` as its attributes and inner HTML, in page order. Sections must not nest (none do in this app).
+export function sections(html) {
+  return [...html.matchAll(new RegExp(String.raw`<section\b${ATTRS}>([\s\S]*?)<\/section>`, "gi"))].map(
+    ([, raw, inner]) => ({ attrs: parseAttributes(raw), html: inner }),
+  );
+}
+
+// Text of each `tag` element that holds only text (comments allowed), in page order: a row's own cells, not the
+// wrappers around them.
+export function leafTexts(html, tag) {
+  return [...html.matchAll(new RegExp(String.raw`<${tag}\b${ATTRS}>((?:[^<]|<!--[\s\S]*?-->)*)<\/${tag}>`, "gi"))].map(
+    ([, , inner]) => textContent(inner),
+  );
+}
+
+// Each link as its href, inner HTML and text, in page order.
+export function links(html) {
+  return [...html.matchAll(new RegExp(String.raw`<a\b${ATTRS}>([\s\S]*?)<\/a>`, "gi"))].map(([, raw, inner]) => ({
+    href: parseAttributes(raw).href ?? "",
+    html: inner,
+    text: textContent(inner),
+  }));
+}
+
 // What a browser would submit: named, enabled controls; radios and checkboxes only when checked; the selected
 // option of a select (the first when none is marked); textarea content with the one leading newline HTML drops.
 // Submit buttons are left out, since a browser sends one only when it is clicked.

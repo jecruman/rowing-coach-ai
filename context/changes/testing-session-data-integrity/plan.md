@@ -160,7 +160,7 @@ Seed a known history for one fresh user and assert, label by label, what the ses
   - First → latest change: `−35 s /500 m`.
 - **Dashboard** `/dashboard`. The latest session reads `2026-03-10 · Erg · 2000 m`.
 - **Edit E4** time to `8:30`, keeping the other fields, through `/api/sessions/<id>`.
-  - E4 page Pace `2:07.5`.
+  - E4 page Pace `2:07.5`. (Implementation note: asserted as `2:07.5 (−7.5 s)`; E4's own baseline is E3 2:05, E2 2:10, E1 2:30 = 2:15, which the original literal left out.)
   - E5 page Pace `1:55 (−12.5 s)`: the baseline is the average of 2:07.5, 2:05 and 2:10, which is 2:07.5.
   - E4 list row `2:07.5 /500 m`; trend row `2:07.5 /500 m`; trend change still `−35 s /500 m`.
 - **Rules for the checks.**
@@ -192,7 +192,7 @@ Seed a known history for one fresh user and assert, label by label, what the ses
 
 ## Phase 3: Saves read back and failures are reported (Risk #2)
 
-> Route from Phase 1 probe: _to be recorded here before starting (A = real database, B = Vitest route tests)._
+> Route from Phase 1 probe: **A (real database)**. CI run 41889715808 (commit c905a10): `log with year 0000 is rejected by the database` PASS -> `302 /sessions/new?error=Could not save your session. Please try again.` Route B (section 3) is not used.
 
 ### Overview
 
@@ -349,13 +349,13 @@ Not applicable: no schema or data changes.
 
 #### Automated
 
-- [ ] 1.1 Lint passes: `npm run lint`
-- [ ] 1.2 CI `smoke` job on the PR branch prints `All smoke steps passed` with the same step names as before
-- [ ] 1.3 CI runs the `npm run integrity` step and reports the probe's PASS/FAIL line
+- [x] 1.1 Lint passes: `npm run lint` — c905a10
+- [x] 1.2 CI `smoke` job on the PR branch prints `All smoke steps passed` with the same step names as before — c905a10
+- [x] 1.3 CI runs the `npm run integrity` step and reports the probe's PASS/FAIL line — c905a10
 
 #### Manual
 
-- [ ] 1.4 The probe outcome and the chosen Phase 3 route (A or B) are recorded at the top of Phase 3
+- [x] 1.4 The probe outcome and the chosen Phase 3 route (A or B) are recorded at the top of Phase 3 — c905a10
 
 ### Phase 2: Page values match a hand-worked oracle (Risk #1)
 
