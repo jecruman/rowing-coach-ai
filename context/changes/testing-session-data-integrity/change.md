@@ -1,9 +1,9 @@
 ---
 change_id: testing-session-data-integrity
 title: Test rollout Phase 1 - session data integrity
-status: implementing
+status: implemented
 created: 2026-11-02
-updated: 2026-11-04
+updated: 2026-11-05
 archived_at: null
 ---
 

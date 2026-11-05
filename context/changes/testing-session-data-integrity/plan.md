@@ -384,8 +384,8 @@ Not applicable: no schema or data changes.
 
 #### Automated
 
-- [ ] 4.1 Lint passes: `npm run lint`
+- [x] 4.1 Lint passes: `npm run lint` — 63f6449
 
 #### Manual
 
-- [ ] 4.2 Test-plan §6.2 and the AGENTS.md bullet describe the shipped script and commands accurately
+- [x] 4.2 Test-plan §6.2 and the AGENTS.md bullet describe the shipped script and commands accurately — 63f6449
