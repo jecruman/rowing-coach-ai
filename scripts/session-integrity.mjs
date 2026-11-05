@@ -222,7 +222,7 @@ const R_LOGGED = {
 const R_VALUES = [
   ["Date", "2026-03-12"],
   ["Distance", "6000 m"],
-  ["Time", "25:30.5"],
+  ["Time", "25:30"],
   ["Splits /500 m", "2:08 · 2:07.5 · 2:06"],
   ["Stroke rate", "20–22 spm"],
   ["Distance per stroke", "9.1–9.5 m"],
