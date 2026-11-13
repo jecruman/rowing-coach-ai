@@ -2,47 +2,15 @@
 // Zero dependencies on purpose. Run against a production preview (`npm run preview`), not `npm run dev` — the dev-only
 // kitchen sink answers 200 there. BASE_URL=http://localhost:4321 node scripts/smoke.mjs
 
+import { createHttpClient } from "./lib/http.mjs";
+
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:4321";
 const email = `smoke-${Date.now()}@example.com`;
 const password = "Smoke-Test-Passw0rd!";
-const jar = new Map();
+const { request } = createHttpClient(BASE_URL);
 // Set by the "session log saves" step; the session page and suggestion steps use it.
 let sessionPath = "";
 const SESSION_PATH = /^\/sessions\/[0-9a-f-]{36}$/;
-
-function cookieHeader() {
-  return [...jar.entries()].map(([k, v]) => `${k}=${v}`).join("; ");
-}
-
-function storeCookies(response) {
-  for (const raw of response.headers.getSetCookie()) {
-    const [pair, ...attrs] = raw.split(";");
-    const [name, ...rest] = pair.split("=");
-    const expired = attrs.some((a) => /max-age=0/i.test(a.trim()));
-    if (expired) jar.delete(name.trim());
-    else jar.set(name.trim(), rest.join("="));
-  }
-}
-
-// `form` sends a urlencoded body, `json` a JSON body; a JSON response is returned parsed as `body`, any other as `text`.
-async function request(path, { method = "GET", form, json } = {}) {
-  const contentType = form ? "application/x-www-form-urlencoded" : json !== undefined ? "application/json" : undefined;
-  const response = await fetch(BASE_URL + path, {
-    method,
-    redirect: "manual",
-    headers: {
-      Cookie: cookieHeader(),
-      Origin: BASE_URL,
-      ...(contentType ? { "Content-Type": contentType } : {}),
-    },
-    body: form ? new URLSearchParams(form).toString() : json !== undefined ? JSON.stringify(json) : undefined,
-  });
-  storeCookies(response);
-  const isJson = (response.headers.get("content-type") ?? "").includes("application/json");
-  const body = isJson ? await response.json().catch(() => null) : null;
-  const text = isJson ? "" : await response.text().catch(() => "");
-  return { status: response.status, location: response.headers.get("location") ?? "", body, text };
-}
 
 // The values the smoke session is logged with; the edit steps resend them with one field changed.
 const smokeSession = {

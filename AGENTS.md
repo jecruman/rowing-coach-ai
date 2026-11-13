@@ -46,6 +46,7 @@ Rowing Coach AI: rowers log erg and water sessions and get one suggested next se
 
 - `npm test` runs Vitest (via Astro's `getViteConfig`); put `*.test.ts` next to the code they test. Fake external clients — no real model or network calls in unit tests.
 - `npm run smoke` (auth, profile and goal flows over HTTP) and `npm run rls-check` (cross-user access rules on a real database) need a running app / local Supabase; CI runs both in the `smoke` job.
+- `npm run integrity` (`scripts/session-integrity.mjs`) checks displayed session values against hand-worked values and save read-back over HTTP; needs a running app / local Supabase; CI runs it in the `smoke` job. Extend it when a session page, list, trend or form changes (pattern: @context/foundation/test-plan.md §6.2).
 - New tables need an `rls-check` step proving another user can't read or change their rows.
 
 ## CI and environment
